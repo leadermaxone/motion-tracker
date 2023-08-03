@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44402242, g: 0.49316543, b: 0.5722324, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657874, g: 0.49641275, b: 0.5748172, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -188,6 +188,12 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!1 &308510901 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8901548198667754491, guid: d29f8f933085d41b7820861bc9b4d045,
+    type: 3}
+  m_PrefabInstance: {fileID: 328659121}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1001 &328659121
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -266,6 +272,12 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d29f8f933085d41b7820861bc9b4d045, type: 3}
+--- !u!1 &410051393 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8901548198667754491, guid: d29f8f933085d41b7820861bc9b4d045,
+    type: 3}
+  m_PrefabInstance: {fileID: 6045920116443579907}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &422218013
 GameObject:
   m_ObjectHideFlags: 0
@@ -360,6 +372,12 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+--- !u!1 &574127497 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8901548198667754491, guid: d29f8f933085d41b7820861bc9b4d045,
+    type: 3}
+  m_PrefabInstance: {fileID: 1286964969}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &953039555
 GameObject:
   m_ObjectHideFlags: 0
@@ -938,10 +956,10 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   text: {fileID: 1079212372}
   text2: {fileID: 1086462214}
-  PhoneModel1: {fileID: 0}
-  PhoneModel2: {fileID: 0}
-  PhoneModel3: {fileID: 0}
-  PhoneModel4: {fileID: 0}
+  PhoneModel1: {fileID: 410051393}
+  PhoneModel2: {fileID: 2047696458}
+  PhoneModel3: {fileID: 574127497}
+  PhoneModel4: {fileID: 308510901}
 --- !u!1001 &1767483899
 PrefabInstance:
   m_ObjectHideFlags: 0
@@ -1020,6 +1038,12 @@ PrefabInstance:
     m_AddedGameObjects: []
     m_AddedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: d29f8f933085d41b7820861bc9b4d045, type: 3}
+--- !u!1 &2047696458 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 8901548198667754491, guid: d29f8f933085d41b7820861bc9b4d045,
+    type: 3}
+  m_PrefabInstance: {fileID: 1767483899}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &2091883194
 GameObject:
   m_ObjectHideFlags: 0
