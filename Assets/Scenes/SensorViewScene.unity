@@ -231,7 +231,7 @@ PrefabInstance:
     - target: {fileID: 2032272966027325722, guid: d29f8f933085d41b7820861bc9b4d045,
         type: 3}
       propertyPath: m_RootOrder
-      value: 7
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 2032272966027325722, guid: d29f8f933085d41b7820861bc9b4d045,
         type: 3}
@@ -393,6 +393,12 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 50, y: -30, z: 0}
+--- !u!1 &442843990 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 321898275280066369, guid: dddfd18b4383d764e87e13894faa2681,
+    type: 3}
+  m_PrefabInstance: {fileID: 842292728}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &574127497 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8901548198667754491, guid: d29f8f933085d41b7820861bc9b4d045,
@@ -415,17 +421,17 @@ PrefabInstance:
     - target: {fileID: 8078196548053978678, guid: dddfd18b4383d764e87e13894faa2681,
         type: 3}
       propertyPath: m_RootOrder
-      value: 8
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 8078196548053978678, guid: dddfd18b4383d764e87e13894faa2681,
         type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.212
+      value: 1.2950001
       objectReference: {fileID: 0}
     - target: {fileID: 8078196548053978678, guid: dddfd18b4383d764e87e13894faa2681,
         type: 3}
       propertyPath: m_LocalPosition.y
-      value: 2.881
+      value: 1.321
       objectReference: {fileID: 0}
     - target: {fileID: 8078196548053978678, guid: dddfd18b4383d764e87e13894faa2681,
         type: 3}
@@ -868,7 +874,7 @@ PrefabInstance:
     - target: {fileID: 2032272966027325722, guid: d29f8f933085d41b7820861bc9b4d045,
         type: 3}
       propertyPath: m_RootOrder
-      value: 6
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 2032272966027325722, guid: d29f8f933085d41b7820861bc9b4d045,
         type: 3}
@@ -1054,7 +1060,7 @@ MonoBehaviour:
   PhoneModel2: {fileID: 2047696458}
   PhoneModel3: {fileID: 574127497}
   PhoneModel4: {fileID: 308510901}
-  AccelerationArrow: {fileID: 0}
+  AccelerationArrow: {fileID: 442843990}
   rotationSpeedFactor: 10
 --- !u!1001 &1767483899
 PrefabInstance:
