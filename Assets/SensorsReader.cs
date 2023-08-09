@@ -36,13 +36,18 @@ using TMPro;using UnityEngine;using UnityEngine.InputSystem;using UnityEngine
         }        if (GravitySensor.current != null)
         {
             InputSystem.EnableDevice(GravitySensor.current);
+        }    
+        if (LinearAccelerationSensor.current != null)
+        {
+            InputSystem.EnableDevice(LinearAccelerationSensor.current);
         }
 
         if(
             Gyroscope.current != null && Gyroscope.current.enabled &&
             Accelerometer.current != null &&  Accelerometer.current.enabled &&
             AttitudeSensor.current != null &&  AttitudeSensor.current.enabled &&
-            GravitySensor.current != null &&  GravitySensor.current.enabled
+            GravitySensor.current != null &&  GravitySensor.current.enabled &&
+            LinearAccelerationSensor.current != null && LinearAccelerationSensor.current.enabled
            )
         {
             sensorsEnabled = true;
