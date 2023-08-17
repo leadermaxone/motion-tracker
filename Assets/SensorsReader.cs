@@ -26,7 +26,9 @@ public class SensorsReader : MonoBehaviour{
             connectSensors();
 
             accelerometerCurrentRawValue = LinearAccelerationSensor.current.acceleration.ReadValue();
-            accelerometerCurrentFilteredValue = LinearAccelerationSensor.current.acceleration.ReadValue();
+            accelerometerRawValues.Push(accelerometerCurrentRawValue);
+            accelerometerFilteredValues.Push(accelerometerCurrentRawValue);
+
         }    }
 
     Vector3 GetLowPassValue(Vector3 currentValue, Vector3 prevValue)
