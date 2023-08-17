@@ -33,6 +33,7 @@ public class SensorsReader : MonoBehaviour{
 
     Vector3 GetLowPassValue(Vector3 currentValue, Vector3 prevValue)
     {
+        Debug.Log($"Low pass: Prev {prevValue} to current {currentValue}");
         return Vector3.Lerp(prevValue, currentValue, lowPassFilterFactor);
     }    void CalculateAccelerometerValue()
     {
@@ -59,8 +60,13 @@ public class SensorsReader : MonoBehaviour{
         acceleration.y = -(float)Math.Round(accelerometerCurrentFilteredValue.z, 1);        acceleration.z = (float)Math.Round(accelerometerCurrentFilteredValue.y, 1);        acceleration.x = (float)Math.Round(accelerometerCurrentFilteredValue.x, 1);        accelerationArrowLookRotation = Quaternion.LookRotation(acceleration);        AccelerationArrow.transform.rotation = accelerationArrowLookRotation;        AccelerationArrow.transform.localScale = accelerationScaleVector * (acceleration.magnitude == 0f ? 1f : (1f+acceleration.magnitude) );        attitudeValue = AttitudeSensor.current.attitude.ReadValue(); // ReadValue() returns a Quaternion
         attitudeValueEuler = attitudeValue.eulerAngles;        attitudeEuler.y = -(float)Math.Round(attitudeValueEuler.z, 1);        attitudeEuler.z = -(float)Math.Round(attitudeValueEuler.y, 1);        attitudeEuler.x = -(float)Math.Round(attitudeValueEuler.x, 1);                 gravity = GravitySensor.current.gravity.ReadValue();        PhoneModel1.transform.Rotate(rotationSpeedFactor * Time.deltaTime * angularVelocity);        //PhoneModel2.transform.Rotate(rotationSpeedFactor * Time.deltaTime *  acceleration);
         PhoneModel3.transform.rotation = Quaternion.Euler(attitudeEuler);
-        //PhoneModel3.transform.localRotation = attitudeValue * rot;        //PhoneModel3.transform.localRotation = attitudeValue;        PhoneModel4.transform.Rotate(rotationSpeedFactor * Time.deltaTime *  gravity);        text.text = $"Angular Velocity\nX={angularVelocity.x:#0.00} Y={angularVelocity.y:#0.00} Z={angularVelocity.z:#0.00}\n\n" +                        $"Acceleration\nX={acceleration.x:#0.00} Y={acceleration.y:#0.00} Z={acceleration.z:#0.00}\n\n" +                            $"Attitude\nX={attitudeValue.x:#0.00} Y={attitudeValue.y:#0.00} Z={attitudeValue.z:#0.00}\n\n" +                             $"Gravity\nX={gravity.x:#0.00} Y={gravity.y:#0.00} Z={gravity.z:#0.00}";        text2.text = $"attitudeValueEuler \nX={attitudeValueEuler.x:#0.00} Y={attitudeValueEuler.y:#0.00} Z={attitudeValueEuler.z:#0.00}\n\n" +                        $"attitudeEuler\nX={attitudeEuler.x:#0.00} Y={attitudeEuler.y:#0.00} Z={attitudeEuler.z:#0.00}\n\n"                         +                         $"Accelerator Magnitude={acceleration.magnitude:#0.00}\n\n"                          +                             $"accelerationValue\nX={accelerationValue.x:#0.00} Y={accelerationValue.y:#0.00} Z={accelerationValue.z:#0.00}"
-                            ;    }
+        //PhoneModel3.transform.localRotation = attitudeValue * rot;        //PhoneModel3.transform.localRotation = attitudeValue;        PhoneModel4.transform.Rotate(rotationSpeedFactor * Time.deltaTime *  gravity);        text.text =                     $"Attitude\nX={attitudeValue.x:#0.00} Y={attitudeValue.y:#0.00} Z={attitudeValue.z:#0.00}\n\n" +                    $"attitudeValueEuler \nX={attitudeValueEuler.x:#0.00} Y={attitudeValueEuler.y:#0.00} Z={attitudeValueEuler.z:#0.00}\n\n" +                    $"attitudeEuler\nX={attitudeEuler.x:#0.00} Y={attitudeEuler.y:#0.00} Z={attitudeEuler.z:#0.00}\n\n" +
+                    $"Angular Velocity\nX={angularVelocity.x:#0.00} Y={angularVelocity.y:#0.00} Z={angularVelocity.z:#0.00}\n\n"
+                    ;
+
+        text2.text =                            $"Acceleration Raw \nX={accelerometerCurrentRawValue.x:#0.00} Y={accelerometerCurrentRawValue.y:#0.00} Z={accelerometerCurrentRawValue.z:#0.00}\n\n" +                         $"acceleration filtered\nX={accelerometerCurrentFilteredValue.x:#0.00} Y={accelerometerCurrentFilteredValue.y:#0.00} Z={accelerometerCurrentFilteredValue.z:#0.00}"+
+                         $"Accelerator Magnitude={acceleration.magnitude:#0.00}\n\n" +                         $"Gravity\nX={gravity.x:#0.00} Y={gravity.y:#0.00} Z={gravity.z:#0.00}"
+                         ;    }
     void connectSensors()
     {
         if (Gyroscope.current != null)
