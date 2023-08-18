@@ -5,9 +5,12 @@ public class SensorsReader : MonoBehaviour{
 
     public float rotationSpeedFactor = 10f; // Adjust this value to control rotation speed
 
+    public GameObject accelerometerUpdateIntervalController;
+    public GameObject lowPassKernelWidthInSecondsController;
 
-    private float accelerometerUpdateInterval = 1.0f / 60.0f;
-    private float lowPassKernelWidthInSeconds = 1.0f;
+    public float accelerometerUpdateInterval;
+    public float lowPassKernelWidthInSeconds;
+
     private float lowPassFilterFactor;
     Vector3 prevValue;
 
@@ -19,7 +22,8 @@ public class SensorsReader : MonoBehaviour{
         //text = GetComponent<TextMeshProUGUI>();
         //text2 = GetComponent<TextMeshProUGUI>();
   
-        acceleration = Vector3.zero;        accelerationValue = Vector3.zero;        attitudeEuler = Vector3.zero;        attitudeValueEuler = Vector3.zero;
+        acceleration = Vector3.zero;        accelerationValue = Vector3.zero;        attitudeEuler = Vector3.zero;        attitudeValueEuler = Vector3.zero;
+
         lowPassFilterFactor = accelerometerUpdateInterval / lowPassKernelWidthInSeconds;
         if (!sensorsEnabled)
         {
@@ -28,9 +32,18 @@ public class SensorsReader : MonoBehaviour{
             accelerometerCurrentRawValue = LinearAccelerationSensor.current.acceleration.ReadValue();
             accelerometerRawValues.Push(accelerometerCurrentRawValue);
             accelerometerFilteredValues.Push(accelerometerCurrentRawValue);
+        }    }
 
-        }    }
-
+    public void onAccelerometerUpdateIntervalChanged(float newValue)
+    {
+        accelerometerUpdateInterval = newValue;
+        lowPassFilterFactor = accelerometerUpdateInterval / lowPassKernelWidthInSeconds;
+    }
+    public void lowPassKernelWidthInSecondsChanged(float newValue)
+    {
+        lowPassKernelWidthInSeconds = newValue;
+        lowPassFilterFactor = accelerometerUpdateInterval / lowPassKernelWidthInSeconds;
+    }
     Vector3 GetLowPassValue(Vector3 currentValue, Vector3 prevValue)
     {
         Debug.Log($"Low pass: Prev {prevValue} to current {currentValue}");
@@ -67,7 +80,8 @@ public class SensorsReader : MonoBehaviour{
                     ;
 
         text2.text =                            $"Acceleration Raw \nX={accelerometerCurrentRawValue.x:#0.00} Y={accelerometerCurrentRawValue.y:#0.00} Z={accelerometerCurrentRawValue.z:#0.00}\n\n" +                         $"acceleration filtered\nX={accelerometerCurrentFilteredValue.x:#0.00} Y={accelerometerCurrentFilteredValue.y:#0.00} Z={accelerometerCurrentFilteredValue.z:#0.00}\n\n"+
-                         $"Accelerator Magnitude={acceleration.magnitude:#0.00}\n\n" +                         $"Gravity\nX={gravity.x:#0.00} Y={gravity.y:#0.00} Z={gravity.z:#0.00}"
+                         $"Accelerator Magnitude={acceleration.magnitude:#0.00}\n\n" +                         $"LowPassKernelWidthS\nX={lowPassKernelWidthInSeconds:#0.00} accelerometerUpdateInterval={accelerometerUpdateInterval:#0.00}"
+                         //$"Gravity\nX={gravity.x:#0.00} Y={gravity.y:#0.00} Z={gravity.z:#0.00}"
                          ;    }
     void connectSensors()
     {
