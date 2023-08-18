@@ -80,7 +80,7 @@ public class SensorsReader : MonoBehaviour{
                     ;
 
         text2.text =                            $"Acceleration Raw \nX={accelerometerCurrentRawValue.x:#0.00} Y={accelerometerCurrentRawValue.y:#0.00} Z={accelerometerCurrentRawValue.z:#0.00}\n\n" +                         $"acceleration filtered\nX={accelerometerCurrentFilteredValue.x:#0.00} Y={accelerometerCurrentFilteredValue.y:#0.00} Z={accelerometerCurrentFilteredValue.z:#0.00}\n\n"+
-                         $"Accelerator Magnitude={acceleration.magnitude:#0.00}\n\n" +                         $"LowPassKernelWidthS\nX={lowPassKernelWidthInSeconds:#0.00} accelerometerUpdateInterval={accelerometerUpdateInterval:#0.00}"
+                         $"Accelerator Magnitude={acceleration.magnitude:#0.00}\n\n" +                         $"LowPassKernelWidthS {lowPassKernelWidthInSeconds:#0.00} \naccelerometerUpdateInterval={accelerometerUpdateInterval:#0.00}"
                          //$"Gravity\nX={gravity.x:#0.00} Y={gravity.y:#0.00} Z={gravity.z:#0.00}"
                          ;    }
     void connectSensors()

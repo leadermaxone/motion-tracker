@@ -1,4 +1,4 @@
-using System;
+    using System;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
@@ -18,7 +18,9 @@ public class customValueSetter : MonoBehaviour
     void Start()
     {
         valueName.text = valueNameString;
-        value.text = startValue.ToString();
+        value.text = startValue.ToString("F2");
+        Debug.Log($"Value Setter Start. valueNameString is {valueNameString} and startValue is {startValue.ToString()}");
+        Debug.Log($"Value Setter Start. valueName.text is {valueName.text} and value.text is {value.text}");
     }
 
     public void onPlusClicked()
@@ -26,7 +28,7 @@ public class customValueSetter : MonoBehaviour
         if (value.text != null) 
         {
             float newValue = float.Parse(value.text) + precision;
-            value.text = newValue.ToString();
+            value.text = newValue.ToString("F2");
             onValueChanged.Invoke(newValue);
         }
     }
@@ -35,7 +37,7 @@ public class customValueSetter : MonoBehaviour
         if (value.text != null) 
         {
             float newValue = float.Parse(value.text) - precision;
-            value.text = newValue.ToString();
+            value.text = newValue.ToString("F2");
             onValueChanged.Invoke(newValue);
         }
     }

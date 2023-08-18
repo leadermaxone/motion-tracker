@@ -457,10 +457,13 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   value: {fileID: 712027295169704065}
-  valueName: {fileID: 0}
+  valueName: {fileID: 895126603922801059}
   valueNameString: 
   precision: 0.1
-  controlledValue: 0
+  startValue: 0
+  onValueChanged:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &7575825566929990824
 GameObject:
   m_ObjectHideFlags: 0
