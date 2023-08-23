@@ -95,7 +95,9 @@ public class SensorsReader : MonoBehaviour{
 
             CalculateAccelerometerValue();
 
-            acceleration.y = -(float)Math.Round(accelerometerCurrentFilteredValue.z, 1);            acceleration.z = (float)Math.Round(accelerometerCurrentFilteredValue.y, 1);            acceleration.x = (float)Math.Round(accelerometerCurrentFilteredValue.x, 1);            Debug.Log($"Looking towards acceleration {acceleration} of magnitude {acceleration.magnitude}");            accelerationArrowLookRotation = Quaternion.LookRotation(acceleration);            AccelerationArrow.transform.rotation = accelerationArrowLookRotation;            AccelerationArrow.transform.localScale = accelerationScaleVector * (acceleration.magnitude == 0f ? 1f : (1f+acceleration.magnitude) );            attitudeValue = AttitudeSensor.current.attitude.ReadValue(); // ReadValue() returns a Quaternion
+            acceleration.y = -(float)Math.Round(accelerometerCurrentFilteredValue.z, 1);            acceleration.z = (float)Math.Round(accelerometerCurrentFilteredValue.y, 1);            acceleration.x = (float)Math.Round(accelerometerCurrentFilteredValue.x, 1);            Debug.Log($"Looking towards acceleration {acceleration} of magnitude {acceleration.magnitude}");            accelerationArrowLookRotation = Quaternion.LookRotation(acceleration);            AccelerationArrow.transform.rotation = accelerationArrowLookRotation;            AccelerationArrow.transform.localScale = accelerationScaleVector * (acceleration.magnitude == 0f ? 1f : (1f+acceleration.magnitude) );
+
+            diagramAccelerationX.InputPoint(lineAccelerationX, new Vector2(0.01f, acceleration.x));            attitudeValue = AttitudeSensor.current.attitude.ReadValue(); // ReadValue() returns a Quaternion
             attitudeValueEuler = attitudeValue.eulerAngles;            attitudeEuler.y = -(float)Math.Round(attitudeValueEuler.z, 1);            attitudeEuler.z = -(float)Math.Round(attitudeValueEuler.y, 1);            attitudeEuler.x = -(float)Math.Round(attitudeValueEuler.x, 1);                     gravity = GravitySensor.current.gravity.ReadValue();            PhoneModel1.transform.Rotate(rotationSpeedFactor * Time.deltaTime * angularVelocity);            //PhoneModel2.transform.Rotate(rotationSpeedFactor * Time.deltaTime *  acceleration);
             PhoneModel3.transform.rotation = Quaternion.Euler(attitudeEuler);
             //PhoneModel3.transform.localRotation = attitudeValue * rot;            //PhoneModel3.transform.localRotation = attitudeValue;            PhoneModel4.transform.Rotate(rotationSpeedFactor * Time.deltaTime *  gravity);            text.text =                         $"Attitude\nX={attitudeValue.x:#0.00} Y={attitudeValue.y:#0.00} Z={attitudeValue.z:#0.00}\n\n" +                        $"attitudeValueEuler \nX={attitudeValueEuler.x:#0.00} Y={attitudeValueEuler.y:#0.00} Z={attitudeValueEuler.z:#0.00}\n\n" +                        $"attitudeEuler\nX={attitudeEuler.x:#0.00} Y={attitudeEuler.y:#0.00} Z={attitudeEuler.z:#0.00}\n\n" +
@@ -116,8 +118,8 @@ public class SensorsReader : MonoBehaviour{
         currentTime += Time.deltaTime;
 
         // Calculate the sine value between -1 and 1
-        float sineValue = Mathf.Sin(currentTime / period * Mathf.PI);
-        diagramAccelerationX.InputPoint(lineAccelerationX, new Vector2(0.01f, sineValue));    }
+        //float sineValue = Mathf.Sin(currentTime / period * Mathf.PI);
+        //diagramAccelerationX.InputPoint(lineAccelerationX, new Vector2(0.01f, sineValue));    }
     void connectSensors()
     {
         if (Gyroscope.current != null)
