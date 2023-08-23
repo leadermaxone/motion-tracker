@@ -1,5 +1,11 @@
-using TMPro;using UnityEngine;using UnityEngine.InputSystem;using UnityEngine.UI;using System;using System.Collections.Generic;using Gyroscope = UnityEngine.InputSystem.Gyroscope;
+using TMPro;using UnityEngine;using UnityEngine.InputSystem;using UnityEngine.UI;using System;using System.Collections.Generic;using Gyroscope = UnityEngine.InputSystem.Gyroscope;using System.Collections;
+
 public class SensorsReader : MonoBehaviour{
+    public DD_DataDiagram diagramAccelerationX;
+    GameObject lineAccelerationX;
+    Color colorX = Color.red;
+    private float currentTime = 0.0f;
+    private float period = 2.0f; // Controls the speed of the oscillation
 
     private bool sensorsEnabled = false;    public TextMeshProUGUI text, text2;    public GameObject PhoneModel1, PhoneModel2, PhoneModel3, PhoneModel4;    public GameObject AccelerationArrow;    Vector3 angularVelocity;    Vector3 acceleration;    Vector3 accelerationValue;    Quaternion accelerationArrowLookRotation;    Vector3 accelerationScaleVector = new Vector3(1, 1, 2);    Vector3 attitudeEuler;    Quaternion attitudeValue;    Vector3 attitudeValueEuler;    Vector3 gravity;
 
@@ -32,7 +38,15 @@ public class SensorsReader : MonoBehaviour{
             accelerometerCurrentRawValue = LinearAccelerationSensor.current.acceleration.ReadValue();
             accelerometerRawValues.Push(accelerometerCurrentRawValue);
             accelerometerFilteredValues.Push(accelerometerCurrentRawValue);
-        }    }
+        }
+        lineAccelerationX = diagramAccelerationX.AddLine(colorX.ToString(), colorX);        StartCoroutine(ZoomAndDrag(diagramAccelerationX));    }
+
+    public IEnumerator ZoomAndDrag(DD_DataDiagram diagram)
+    {
+        yield return new WaitForSeconds(0.1f);
+        diagram.RaiseMoveEvent(0, 60f);
+        diagram.RaiseZoomEvent(-1f, -1f);
+    }
 
     public void onAccelerometerUpdateIntervalChanged(float newValue)
     {
@@ -82,7 +96,13 @@ public class SensorsReader : MonoBehaviour{
         text2.text =                            $"Acceleration Raw \nX={accelerometerCurrentRawValue.x:#0.00} Y={accelerometerCurrentRawValue.y:#0.00} Z={accelerometerCurrentRawValue.z:#0.00}\n\n" +                         $"acceleration filtered\nX={accelerometerCurrentFilteredValue.x:#0.00} Y={accelerometerCurrentFilteredValue.y:#0.00} Z={accelerometerCurrentFilteredValue.z:#0.00}\n\n"+
                          $"Accelerator Magnitude={acceleration.magnitude:#0.00}\n\n" +                         $"LowPassKernelWidthS {lowPassKernelWidthInSeconds:#0.00} \naccelerometerUpdateInterval={accelerometerUpdateInterval:#0.00}"
                          //$"Gravity\nX={gravity.x:#0.00} Y={gravity.y:#0.00} Z={gravity.z:#0.00}"
-                         ;    }
+                         ;
+
+        currentTime += Time.deltaTime;
+
+        // Calculate the sine value between -1 and 1
+        float sineValue = Mathf.Sin(currentTime / period * Mathf.PI);
+        diagramAccelerationX.InputPoint(lineAccelerationX, new Vector2(0.01f, sineValue));    }
     void connectSensors()
     {
         if (Gyroscope.current != null)
