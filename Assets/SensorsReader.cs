@@ -34,12 +34,20 @@ public class SensorsReader : MonoBehaviour{
         if (!sensorsEnabled)
         {
             connectSensors();
-
-            accelerometerCurrentRawValue = LinearAccelerationSensor.current.acceleration.ReadValue();
-            accelerometerRawValues.Push(accelerometerCurrentRawValue);
-            accelerometerFilteredValues.Push(accelerometerCurrentRawValue);
+            try
+            {
+                accelerometerCurrentRawValue = LinearAccelerationSensor.current.acceleration.ReadValue();
+                accelerometerRawValues.Push(accelerometerCurrentRawValue);
+                accelerometerFilteredValues.Push(accelerometerCurrentRawValue);
+            }
+            catch (Exception e)
+            {
+                Debug.Log("Error accessing Sensors " + e);
+            }
         }
-        lineAccelerationX = diagramAccelerationX.AddLine(colorX.ToString(), colorX);        StartCoroutine(ZoomAndDrag(diagramAccelerationX));    }
+
+        lineAccelerationX = diagramAccelerationX.AddLine(colorX.ToString(), colorX);        Debug.Log("Adding line " + lineAccelerationX);
+        StartCoroutine(ZoomAndDrag(diagramAccelerationX));    }
 
     public IEnumerator ZoomAndDrag(DD_DataDiagram diagram)
     {
@@ -78,31 +86,38 @@ public class SensorsReader : MonoBehaviour{
             connectSensors();
             return;
         }
+        try
+        {
+            angularVelocity = Gyroscope.current.angularVelocity.ReadValue();
 
-        angularVelocity = Gyroscope.current.angularVelocity.ReadValue();
-
-        //accelerationValue = LinearAccelerationSensor.current.acceleration.ReadValue();
+            //accelerationValue = LinearAccelerationSensor.current.acceleration.ReadValue();
 
 
-        CalculateAccelerometerValue();
+            CalculateAccelerometerValue();
 
-        acceleration.y = -(float)Math.Round(accelerometerCurrentFilteredValue.z, 1);        acceleration.z = (float)Math.Round(accelerometerCurrentFilteredValue.y, 1);        acceleration.x = (float)Math.Round(accelerometerCurrentFilteredValue.x, 1);        Debug.Log($"Looking towards acceleration {acceleration} of magnitude {acceleration.magnitude}");        accelerationArrowLookRotation = Quaternion.LookRotation(acceleration);        AccelerationArrow.transform.rotation = accelerationArrowLookRotation;        AccelerationArrow.transform.localScale = accelerationScaleVector * (acceleration.magnitude == 0f ? 1f : (1f+acceleration.magnitude) );        attitudeValue = AttitudeSensor.current.attitude.ReadValue(); // ReadValue() returns a Quaternion
-        attitudeValueEuler = attitudeValue.eulerAngles;        attitudeEuler.y = -(float)Math.Round(attitudeValueEuler.z, 1);        attitudeEuler.z = -(float)Math.Round(attitudeValueEuler.y, 1);        attitudeEuler.x = -(float)Math.Round(attitudeValueEuler.x, 1);                 gravity = GravitySensor.current.gravity.ReadValue();        PhoneModel1.transform.Rotate(rotationSpeedFactor * Time.deltaTime * angularVelocity);        //PhoneModel2.transform.Rotate(rotationSpeedFactor * Time.deltaTime *  acceleration);
-        PhoneModel3.transform.rotation = Quaternion.Euler(attitudeEuler);
-        //PhoneModel3.transform.localRotation = attitudeValue * rot;        //PhoneModel3.transform.localRotation = attitudeValue;        PhoneModel4.transform.Rotate(rotationSpeedFactor * Time.deltaTime *  gravity);        text.text =                     $"Attitude\nX={attitudeValue.x:#0.00} Y={attitudeValue.y:#0.00} Z={attitudeValue.z:#0.00}\n\n" +                    $"attitudeValueEuler \nX={attitudeValueEuler.x:#0.00} Y={attitudeValueEuler.y:#0.00} Z={attitudeValueEuler.z:#0.00}\n\n" +                    $"attitudeEuler\nX={attitudeEuler.x:#0.00} Y={attitudeEuler.y:#0.00} Z={attitudeEuler.z:#0.00}\n\n" +
-                    $"Angular Velocity\nX={angularVelocity.x:#0.00} Y={angularVelocity.y:#0.00} Z={angularVelocity.z:#0.00}\n\n"
-                    ;
+            acceleration.y = -(float)Math.Round(accelerometerCurrentFilteredValue.z, 1);            acceleration.z = (float)Math.Round(accelerometerCurrentFilteredValue.y, 1);            acceleration.x = (float)Math.Round(accelerometerCurrentFilteredValue.x, 1);            Debug.Log($"Looking towards acceleration {acceleration} of magnitude {acceleration.magnitude}");            accelerationArrowLookRotation = Quaternion.LookRotation(acceleration);            AccelerationArrow.transform.rotation = accelerationArrowLookRotation;            AccelerationArrow.transform.localScale = accelerationScaleVector * (acceleration.magnitude == 0f ? 1f : (1f+acceleration.magnitude) );            attitudeValue = AttitudeSensor.current.attitude.ReadValue(); // ReadValue() returns a Quaternion
+            attitudeValueEuler = attitudeValue.eulerAngles;            attitudeEuler.y = -(float)Math.Round(attitudeValueEuler.z, 1);            attitudeEuler.z = -(float)Math.Round(attitudeValueEuler.y, 1);            attitudeEuler.x = -(float)Math.Round(attitudeValueEuler.x, 1);                     gravity = GravitySensor.current.gravity.ReadValue();            PhoneModel1.transform.Rotate(rotationSpeedFactor * Time.deltaTime * angularVelocity);            //PhoneModel2.transform.Rotate(rotationSpeedFactor * Time.deltaTime *  acceleration);
+            PhoneModel3.transform.rotation = Quaternion.Euler(attitudeEuler);
+            //PhoneModel3.transform.localRotation = attitudeValue * rot;            //PhoneModel3.transform.localRotation = attitudeValue;            PhoneModel4.transform.Rotate(rotationSpeedFactor * Time.deltaTime *  gravity);            text.text =                         $"Attitude\nX={attitudeValue.x:#0.00} Y={attitudeValue.y:#0.00} Z={attitudeValue.z:#0.00}\n\n" +                        $"attitudeValueEuler \nX={attitudeValueEuler.x:#0.00} Y={attitudeValueEuler.y:#0.00} Z={attitudeValueEuler.z:#0.00}\n\n" +                        $"attitudeEuler\nX={attitudeEuler.x:#0.00} Y={attitudeEuler.y:#0.00} Z={attitudeEuler.z:#0.00}\n\n" +
+                        $"Angular Velocity\nX={angularVelocity.x:#0.00} Y={angularVelocity.y:#0.00} Z={angularVelocity.z:#0.00}\n\n"
+                        ;
 
-        text2.text =                            $"Acceleration Raw \nX={accelerometerCurrentRawValue.x:#0.00} Y={accelerometerCurrentRawValue.y:#0.00} Z={accelerometerCurrentRawValue.z:#0.00}\n\n" +                         $"acceleration filtered\nX={accelerometerCurrentFilteredValue.x:#0.00} Y={accelerometerCurrentFilteredValue.y:#0.00} Z={accelerometerCurrentFilteredValue.z:#0.00}\n\n"+
-                         $"Accelerator Magnitude={acceleration.magnitude:#0.00}\n\n" +                         $"LowPassKernelWidthS {lowPassKernelWidthInSeconds:#0.00} \naccelerometerUpdateInterval={accelerometerUpdateInterval:#0.00}"
-                         //$"Gravity\nX={gravity.x:#0.00} Y={gravity.y:#0.00} Z={gravity.z:#0.00}"
-                         ;
+            text2.text =                                $"Acceleration Raw \nX={accelerometerCurrentRawValue.x:#0.00} Y={accelerometerCurrentRawValue.y:#0.00} Z={accelerometerCurrentRawValue.z:#0.00}\n\n" +                             $"acceleration filtered\nX={accelerometerCurrentFilteredValue.x:#0.00} Y={accelerometerCurrentFilteredValue.y:#0.00} Z={accelerometerCurrentFilteredValue.z:#0.00}\n\n"+
+                             $"Accelerator Magnitude={acceleration.magnitude:#0.00}\n\n" +                             $"LowPassKernelWidthS {lowPassKernelWidthInSeconds:#0.00} \naccelerometerUpdateInterval={accelerometerUpdateInterval:#0.00}"
+                             //$"Gravity\nX={gravity.x:#0.00} Y={gravity.y:#0.00} Z={gravity.z:#0.00}"
+                             ;
 
+
+        }
+        catch (Exception e) 
+        {
+            Debug.Log("error Update "+ e);
+        }
         currentTime += Time.deltaTime;
 
         // Calculate the sine value between -1 and 1
         float sineValue = Mathf.Sin(currentTime / period * Mathf.PI);
-        diagramAccelerationX.InputPoint(lineAccelerationX, new Vector2(0.01f, sineValue));    }
+        diagramAccelerationX.InputPoint(lineAccelerationX, new Vector2(0.01f, sineValue));        Debug.Log($"Sine value is {sineValue}");    }
     void connectSensors()
     {
         if (Gyroscope.current != null)
