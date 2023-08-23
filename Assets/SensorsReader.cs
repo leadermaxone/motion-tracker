@@ -52,8 +52,8 @@ public class SensorsReader : MonoBehaviour{
     public IEnumerator ZoomAndDrag(DD_DataDiagram diagram)
     {
         yield return new WaitForSeconds(0.1f);
-        diagram.RaiseMoveEvent(0, 60f);
-        diagram.RaiseZoomEvent(-1f, -1f);
+        diagram.RaiseMoveEvent(0, 200f);
+        diagram.RaiseZoomEvent(1f, 1f);
     }
 
     public void onAccelerometerUpdateIntervalChanged(float newValue)
@@ -117,7 +117,7 @@ public class SensorsReader : MonoBehaviour{
 
         // Calculate the sine value between -1 and 1
         float sineValue = Mathf.Sin(currentTime / period * Mathf.PI);
-        diagramAccelerationX.InputPoint(lineAccelerationX, new Vector2(0.01f, sineValue));        Debug.Log($"Sine value is {sineValue}");    }
+        diagramAccelerationX.InputPoint(lineAccelerationX, new Vector2(0.01f, sineValue));    }
     void connectSensors()
     {
         if (Gyroscope.current != null)
