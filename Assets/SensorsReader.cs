@@ -20,16 +20,23 @@ public class SensorsReader : MonoBehaviour
     public DD_DataDiagram diagramAccelerationZ;
 
     GameObject lineAccelerationX;
+    GameObject lineAccelerationX_NotFiltered;
 
     GameObject lineAccelerationY;
+    GameObject lineAccelerationY_NotFiltered;
 
     GameObject lineAccelerationZ;
+    GameObject lineAccelerationZ_NotFiltered;
 
     Color colorX = Color.red;
+    Color colorX_NotFiltered = Color.grey;
 
     Color colorY = Color.green;
+    Color colorY_NotFiltered = Color.grey;
 
     Color colorZ = Color.blue;
+    Color colorZ_NotFiltered = Color.grey;
+
 
     private float currentTime = 0.0f;
 
@@ -133,8 +140,11 @@ public class SensorsReader : MonoBehaviour
 
 
         lineAccelerationX = diagramAccelerationX.AddLine(colorX.ToString(), colorX);
+        lineAccelerationX_NotFiltered = diagramAccelerationX.AddLine(colorX_NotFiltered.ToString(), colorX_NotFiltered);
         lineAccelerationY = diagramAccelerationY.AddLine(colorY.ToString(), colorY);
+        lineAccelerationY_NotFiltered = diagramAccelerationY.AddLine(colorY_NotFiltered.ToString(), colorY_NotFiltered);
         lineAccelerationZ = diagramAccelerationZ.AddLine(colorZ.ToString(), colorZ);
+        lineAccelerationZ_NotFiltered = diagramAccelerationZ.AddLine(colorZ_NotFiltered.ToString(), colorZ_NotFiltered);
         Debug.Log("Adding line " + lineAccelerationX);
 
         StartCoroutine(ZoomAndDrag(diagramAccelerationX));
@@ -237,17 +247,22 @@ public class SensorsReader : MonoBehaviour
 
 
 
-            acceleration.y = -(float)Math.Round(accelerometerCurrentFilteredValue.z, 1);
-            acceleration.z = (float)Math.Round(accelerometerCurrentFilteredValue.y, 1);
-            acceleration.x = (float)Math.Round(accelerometerCurrentFilteredValue.x, 1);
+            acceleration.y = -(float)Math.Round(accelerometerCurrentFilteredValue.z, 2);
+            acceleration.z = (float)Math.Round(accelerometerCurrentFilteredValue.y, 2);
+            acceleration.x = (float)Math.Round(accelerometerCurrentFilteredValue.x, 2);
             Debug.Log($"Looking towards acceleration {acceleration} of magnitude {acceleration.magnitude}");
             accelerationArrowLookRotation = Quaternion.LookRotation(acceleration);
             AccelerationArrow.transform.rotation = accelerationArrowLookRotation;
             AccelerationArrow.transform.localScale = accelerationScaleVector * (acceleration.magnitude == 0f ? 1f : (1f+acceleration.magnitude) );
 
             diagramAccelerationX.InputPoint(lineAccelerationX, new Vector2(0.01f, acceleration.x));
+            diagramAccelerationX.InputPoint(lineAccelerationX_NotFiltered, new Vector2(0.01f, accelerometerCurrentRawValue.x));
+
             diagramAccelerationY.InputPoint(lineAccelerationY, new Vector2(0.01f, acceleration.y));
+            diagramAccelerationY.InputPoint(lineAccelerationY_NotFiltered, new Vector2(0.01f, accelerometerCurrentRawValue.y));
+
             diagramAccelerationZ.InputPoint(lineAccelerationZ, new Vector2(0.01f, acceleration.z));
+            diagramAccelerationZ.InputPoint(lineAccelerationZ_NotFiltered, new Vector2(0.01f, accelerometerCurrentRawValue.z));
 
             attitudeValue = AttitudeSensor.current.attitude.ReadValue(); // ReadValue() returns a Quaternion
 
