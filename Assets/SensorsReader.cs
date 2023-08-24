@@ -160,9 +160,9 @@ public class SensorsReader : MonoBehaviour
 
         yield return new WaitForSeconds(0.1f);
 
-        diagram.RaiseMoveEvent(0, 200f);
+        diagram.RaiseMoveEvent(0, 40f);
 
-        diagram.RaiseZoomEvent(1f, 1f);
+        diagram.RaiseZoomEvent(-1.5f, -1.5f);
 
     }
 
