@@ -63247,6 +63247,7 @@ MonoBehaviour:
   diagramAccelerationX: {fileID: 340493204}
   diagramAccelerationY: {fileID: 173215271}
   diagramAccelerationZ: {fileID: 1128103046}
+  diagramAccelerationMagnitude: {fileID: 1541936164}
   text: {fileID: 1079212372}
   text2: {fileID: 1086462214}
   PhoneModel1: {fileID: 410051393}
@@ -63255,8 +63256,6 @@ MonoBehaviour:
   PhoneModel4: {fileID: 308510901}
   AccelerationArrow: {fileID: 442843990}
   rotationSpeedFactor: 10
-  accelerometerUpdateIntervalController: {fileID: 0}
-  lowPassKernelWidthInSecondsController: {fileID: 0}
   accelerometerUpdateInterval: 0.016666668
   lowPassKernelWidthInSeconds: 1
 --- !u!1 &1628324970
