@@ -12,6 +12,8 @@ using System.Collections;
 
 public class SensorsReader : MonoBehaviour
 {
+    public TextMeshProUGUI recordButtonTMP;
+    public bool isRecording = false;
 
     public DD_DataDiagram diagramAccelerationX;
 
@@ -54,7 +56,7 @@ public class SensorsReader : MonoBehaviour
     Vector3 acceleration;
     Vector3 accelerationValue;
     Quaternion accelerationArrowLookRotation;
-    Vector3 accelerationScaleVector = new Vector3(1, 1, 2);
+    Vector3 accelerationScaleVector = new Vector3(1, 1, 0.5);
 
     Vector3 attitudeEuler;
     Quaternion attitudeValue;
@@ -120,10 +122,11 @@ public class SensorsReader : MonoBehaviour
             {
 
                 accelerometerCurrentRawValue = LinearAccelerationSensor.current.acceleration.ReadValue();
+                prevValue = accelerometerCurrentRawValue;
 
-                accelerometerRawValues.Push(accelerometerCurrentRawValue);
+                //accelerometerRawValues.Push(accelerometerCurrentRawValue);
 
-                accelerometerFilteredValues.Push(accelerometerCurrentRawValue);
+                //accelerometerFilteredValues.Push(accelerometerCurrentRawValue);
 
             }
 
@@ -166,6 +169,21 @@ public class SensorsReader : MonoBehaviour
 
     }
 
+    public void OnRecordPressed()
+    {
+        if(!isRecording) 
+        { 
+            isRecording = true;
+            recordButtonTMP.text = "STOP RECORDING";
+        }
+        else
+        {
+            isRecording = false;
+            recordButtonTMP.text = "START RECORDING";
+
+        }
+    }
+
 
 
     public void onAccelerometerUpdateIntervalChanged(float newValue)
@@ -206,18 +224,21 @@ public class SensorsReader : MonoBehaviour
 
         accelerometerCurrentRawValue = LinearAccelerationSensor.current.acceleration.ReadValue();
 
-        accelerometerRawValues.Push(accelerometerCurrentRawValue);
 
 
 
-        prevValue = accelerometerFilteredValues.Peek();
+        //prevValue = accelerometerFilteredValues.Peek();
 
         Debug.Log($"Reading new raw  accelerometerCurrentRawValue and peeking last filtered {prevValue}");
 
         accelerometerCurrentFilteredValue = GetLowPassValue(accelerometerCurrentRawValue, prevValue);
+        prevValue = accelerometerCurrentFilteredValue;
 
-        accelerometerFilteredValues.Push(accelerometerCurrentFilteredValue);
-
+        if(isRecording)
+        {
+            accelerometerRawValues.Push(accelerometerCurrentRawValue);
+            accelerometerFilteredValues.Push(accelerometerCurrentFilteredValue);
+        }
     }
 
     void Update() 
@@ -274,7 +295,7 @@ public class SensorsReader : MonoBehaviour
 
             //gravity = GravitySensor.current.gravity.ReadValue();
 
-            PhoneModel1.transform.Rotate(rotationSpeedFactor * Time.deltaTime * angularVelocity);
+            //PhoneModel1.transform.Rotate(rotationSpeedFactor * Time.deltaTime * angularVelocity);
             //PhoneModel2.transform.Rotate(rotationSpeedFactor * Time.deltaTime *  acceleration);
             PhoneModel3.transform.rotation = Quaternion.Euler(attitudeEuler);
             //PhoneModel3.transform.localRotation = attitudeValue * rot;
