@@ -12,8 +12,17 @@ using System.Collections;
 
 public class SensorsReader : MonoBehaviour
 {
-    public TextMeshProUGUI recordButtonTMP;
-    public bool isRecording = false;
+    public TextMeshProUGUI recordStepsButtonTMP;
+    public bool isRecordingSteps = false;
+    public TextMeshProUGUI recordStillButtonTMP;
+    public bool isRecordingStill = false;
+
+    public float stepHighThreshold;
+    public float stepLowThreshold;
+    public float stepAvg;
+    public float stillHighThreshold;
+    public float stillLowThreshold;
+    public float stillAvg;
 
     public DD_DataDiagram diagramAccelerationX;
     public DD_DataDiagram diagramAccelerationY;
@@ -79,11 +88,13 @@ public class SensorsReader : MonoBehaviour
 
 
     private float lowPassFilterFactor;
-    Vector3 prevValue;
+    Vector3 previousAccelerometerValue;
 
 
     Stack<Vector3> accelerometerFilteredValues = new Stack<Vector3>();
     Stack<Vector3> accelerometerRawValues = new Stack<Vector3>();
+    Stack<float> accelerometerMagnitudeRawValues = new Stack<float>();
+    Stack<float> accelerometerMagnitudeFilteredValues = new Stack<float>();
     private Vector3 accelerometerCurrentRawValue;
     private Vector3 accelerometerCurrentFilteredValue;
 
@@ -115,7 +126,7 @@ public class SensorsReader : MonoBehaviour
             {
 
                 accelerometerCurrentRawValue = LinearAccelerationSensor.current.acceleration.ReadValue();
-                prevValue = accelerometerCurrentRawValue;
+                previousAccelerometerValue = accelerometerCurrentRawValue;
 
                 //accelerometerRawValues.Push(accelerometerCurrentRawValue);
 
@@ -164,41 +175,62 @@ public class SensorsReader : MonoBehaviour
 
     }
 
-    public void OnRecordPressed()
+    public void OnRecordStepsPressed()
     {
-        if(!isRecording) 
+        if(!isRecordingSteps) 
         { 
-            isRecording = true;
-            recordButtonTMP.text = "STOP RECORDING";
+            isRecordingSteps = true;
+            recordStepsButtonTMP.text = "STOP RECORDING";
         }
         else
         {
-            isRecording = false;
-            recordButtonTMP.text = "START RECORDING";
+            isRecordingSteps = false;
+            recordStepsButtonTMP.text = "TRAIN STEPS";
+
+        }
+    }    
+    public void OnRecordStillPressed()
+    {
+        if(!isRecordingStill) 
+        {
+            isRecordingStill = true;
+            recordStillButtonTMP.text = "STOP RECORDING";
+        }
+        else
+        {
+            isRecordingStill = false;
+            recordStillButtonTMP.text = "TRAIN STAY STILL";
 
         }
     }
 
-
+    public void onStepHighThresholdChanged(float newValue)
+    {
+        stepHighThreshold = newValue;
+    }    
+    public void onStepLowThresholdChanged(float newValue)
+    {
+        stepLowThreshold = newValue;
+    }    
+    public void onStillHighThresholdChanged(float newValue)
+    {
+        stillHighThreshold = newValue;
+    }    
+    public void onStillLowThresholdChanged(float newValue)
+    {
+        stillLowThreshold = newValue;
+    }
 
     public void onAccelerometerUpdateIntervalChanged(float newValue)
-
     {
-
         accelerometerUpdateInterval = newValue;
-
         lowPassFilterFactor = accelerometerUpdateInterval / lowPassKernelWidthInSeconds;
-
     }
 
     public void lowPassKernelWidthInSecondsChanged(float newValue)
-
     {
-
         lowPassKernelWidthInSeconds = newValue;
-
         lowPassFilterFactor = accelerometerUpdateInterval / lowPassKernelWidthInSeconds;
-
     }
 
     Vector3 GetLowPassValue(Vector3 currentValue, Vector3 prevValue)
@@ -222,17 +254,22 @@ public class SensorsReader : MonoBehaviour
 
 
 
-        //prevValue = accelerometerFilteredValues.Peek();
+        //previousAccelerometerValue = accelerometerFilteredValues.Peek();
 
-        Debug.Log($"Reading new raw  accelerometerCurrentRawValue and peeking last filtered {prevValue}");
+        Debug.Log($"Reading new raw  accelerometerCurrentRawValue and peeking last filtered {previousAccelerometerValue}");
 
-        accelerometerCurrentFilteredValue = GetLowPassValue(accelerometerCurrentRawValue, prevValue);
-        prevValue = accelerometerCurrentFilteredValue;
+        accelerometerCurrentFilteredValue = GetLowPassValue(accelerometerCurrentRawValue, previousAccelerometerValue);
+        previousAccelerometerValue = accelerometerCurrentFilteredValue;
 
-        if(isRecording)
+        if(isRecordingSteps)
         {
             accelerometerRawValues.Push(accelerometerCurrentRawValue);
             accelerometerFilteredValues.Push(accelerometerCurrentFilteredValue);
+        }
+        if(isRecordingStill)
+        {
+            accelerometerMagnitudeRawValues.Push(accelerometerCurrentRawValue.magnitude);
+            accelerometerMagnitudeFilteredValues.Push(accelerometerCurrentFilteredValue.magnitude);
         }
     }
 
