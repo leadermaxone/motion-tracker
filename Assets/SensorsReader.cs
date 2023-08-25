@@ -56,7 +56,7 @@ public class SensorsReader : MonoBehaviour
     Vector3 acceleration;
     Vector3 accelerationValue;
     Quaternion accelerationArrowLookRotation;
-    Vector3 accelerationScaleVector = new Vector3(1, 1, 0.5);
+    Vector3 accelerationScaleVector = new Vector3(1, 1, 0.5f);
 
     Vector3 attitudeEuler;
     Quaternion attitudeValue;
