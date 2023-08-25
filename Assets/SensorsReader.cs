@@ -16,10 +16,9 @@ public class SensorsReader : MonoBehaviour
     public bool isRecording = false;
 
     public DD_DataDiagram diagramAccelerationX;
-
     public DD_DataDiagram diagramAccelerationY;
-
     public DD_DataDiagram diagramAccelerationZ;
+    public DD_DataDiagram diagramAccelerationMagnitude;
 
     GameObject lineAccelerationX;
     GameObject lineAccelerationX_NotFiltered;
@@ -30,6 +29,10 @@ public class SensorsReader : MonoBehaviour
     GameObject lineAccelerationZ;
     GameObject lineAccelerationZ_NotFiltered;
 
+    GameObject lineAccelerationMagnitude;
+    GameObject lineAccelerationMagnitudeFromFilteredAcceleration;
+    GameObject lineAccelerationMagnitude_NotFiltered;
+
     Color colorX = Color.red;
     Color colorX_NotFiltered = Color.grey;
 
@@ -37,7 +40,11 @@ public class SensorsReader : MonoBehaviour
     Color colorY_NotFiltered = Color.grey;
 
     Color colorZ = Color.blue;
-    Color colorZ_NotFiltered = Color.grey;
+    Color colorZ_NotFiltered = Color.grey;    
+    
+    Color colorMagnitude = Color.magenta;
+    Color colorMagnitudeFromFilteredAcceleration = Color.yellow;
+    Color colorMagnitude_NotFiltered = Color.grey;
 
 
     private float currentTime = 0.0f;
@@ -67,31 +74,17 @@ public class SensorsReader : MonoBehaviour
     public float rotationSpeedFactor = 10f; // Adjust this value to control rotation speed
 
 
-
-    public GameObject accelerometerUpdateIntervalController;
-
-    public GameObject lowPassKernelWidthInSecondsController;
-
-
-
     public float accelerometerUpdateInterval;
-
     public float lowPassKernelWidthInSeconds;
 
 
-
     private float lowPassFilterFactor;
-
     Vector3 prevValue;
 
 
-
     Stack<Vector3> accelerometerFilteredValues = new Stack<Vector3>();
-
     Stack<Vector3> accelerometerRawValues = new Stack<Vector3>();
-
     private Vector3 accelerometerCurrentRawValue;
-
     private Vector3 accelerometerCurrentFilteredValue;
 
     void Start()
@@ -148,7 +141,9 @@ public class SensorsReader : MonoBehaviour
         lineAccelerationY_NotFiltered = diagramAccelerationY.AddLine(colorY_NotFiltered.ToString(), colorY_NotFiltered);
         lineAccelerationZ = diagramAccelerationZ.AddLine(colorZ.ToString(), colorZ);
         lineAccelerationZ_NotFiltered = diagramAccelerationZ.AddLine(colorZ_NotFiltered.ToString(), colorZ_NotFiltered);
-        Debug.Log("Adding line " + lineAccelerationX);
+        lineAccelerationMagnitude = diagramAccelerationMagnitude.AddLine(colorMagnitude.ToString(), colorMagnitude);
+        lineAccelerationMagnitudeFromFilteredAcceleration = diagramAccelerationMagnitude.AddLine(colorMagnitudeFromFilteredAcceleration.ToString(), colorMagnitudeFromFilteredAcceleration);
+        lineAccelerationMagnitude_NotFiltered = diagramAccelerationMagnitude.AddLine(colorMagnitude_NotFiltered.ToString(), colorMagnitude_NotFiltered);
 
         StartCoroutine(ZoomAndDrag(diagramAccelerationX));
         StartCoroutine(ZoomAndDrag(diagramAccelerationY));
@@ -284,6 +279,10 @@ public class SensorsReader : MonoBehaviour
 
             diagramAccelerationZ.InputPoint(lineAccelerationZ, new Vector2(0.01f, acceleration.z));
             diagramAccelerationZ.InputPoint(lineAccelerationZ_NotFiltered, new Vector2(0.01f, accelerometerCurrentRawValue.z));
+            
+            diagramAccelerationMagnitude.InputPoint(lineAccelerationMagnitude, new Vector2(0.01f, acceleration.magnitude));
+            diagramAccelerationMagnitude.InputPoint(lineAccelerationMagnitudeFromFilteredAcceleration, new Vector2(0.01f, accelerometerCurrentFilteredValue.magnitude));
+            diagramAccelerationMagnitude.InputPoint(lineAccelerationMagnitude_NotFiltered, new Vector2(0.01f, accelerometerCurrentRawValue.magnitude));
 
             attitudeValue = AttitudeSensor.current.attitude.ReadValue(); // ReadValue() returns a Quaternion
 
