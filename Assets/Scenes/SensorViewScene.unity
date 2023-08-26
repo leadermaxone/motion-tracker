@@ -44006,7 +44006,7 @@ PrefabInstance:
     - target: {fileID: 6707307859849961118, guid: 08fe0dc0f4b88394cbb924d3e0d63c88,
         type: 3}
       propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: onStepHighThresholdChanged
+      value: OnStepHighThresholdChanged
       objectReference: {fileID: 0}
     - target: {fileID: 6707307859849961118, guid: 08fe0dc0f4b88394cbb924d3e0d63c88,
         type: 3}
@@ -61416,7 +61416,7 @@ PrefabInstance:
     - target: {fileID: 6707307859849961118, guid: 08fe0dc0f4b88394cbb924d3e0d63c88,
         type: 3}
       propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: lowPassKernelWidthInSecondsChanged
+      value: LowPassKernelWidthInSecondsChanged
       objectReference: {fileID: 0}
     - target: {fileID: 6707307859849961118, guid: 08fe0dc0f4b88394cbb924d3e0d63c88,
         type: 3}
@@ -63135,7 +63135,7 @@ PrefabInstance:
     - target: {fileID: 6707307859849961118, guid: 08fe0dc0f4b88394cbb924d3e0d63c88,
         type: 3}
       propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: onStillLowThresholdChanged
+      value: OnStillLowThresholdChanged
       objectReference: {fileID: 0}
     - target: {fileID: 6707307859849961118, guid: 08fe0dc0f4b88394cbb924d3e0d63c88,
         type: 3}
@@ -64094,15 +64094,35 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7efa9339e1cce5b4688e26e37b0f2055, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  recordStepsButtonTMP: {fileID: 2124281796}
+  recordStepsButton: {fileID: 974403158}
+  recordStillButton: {fileID: 2108466784}
+  analyseStepsButton: {fileID: 2095098978}
+  analyseStillButton: {fileID: 710442264}
   isRecordingSteps: 0
-  recordStillButtonTMP: {fileID: 1166410719}
   isRecordingStill: 0
   stepHighThreshold: 0
   stepLowThreshold: 0
   stepAvg: 0
   stillHighThreshold: 0
+  UpdateStillHighThresholdUI:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 1758340551}
+        m_TargetAssemblyTypeName: customValueSetter, Assembly-CSharp
+        m_MethodName: SetValue
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
   stillLowThreshold: 0
+  UpdateStillLowThresholdUI:
+    m_PersistentCalls:
+      m_Calls: []
   stillAvg: 0
   diagramAccelerationX: {fileID: 340493204}
   diagramAccelerationY: {fileID: 173215271}
@@ -69474,7 +69494,7 @@ PrefabInstance:
     - target: {fileID: 6707307859849961118, guid: 08fe0dc0f4b88394cbb924d3e0d63c88,
         type: 3}
       propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: onStillHighThresholdChanged
+      value: OnStillHighThresholdChanged
       objectReference: {fileID: 0}
     - target: {fileID: 6707307859849961118, guid: 08fe0dc0f4b88394cbb924d3e0d63c88,
         type: 3}
@@ -69502,6 +69522,18 @@ RectTransform:
     type: 3}
   m_PrefabInstance: {fileID: 1758340549}
   m_PrefabAsset: {fileID: 0}
+--- !u!114 &1758340551 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 6707307859849961118, guid: 08fe0dc0f4b88394cbb924d3e0d63c88,
+    type: 3}
+  m_PrefabInstance: {fileID: 1758340549}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7d75507dc60046b41baa64f257a63e34, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!1 &1765774087
 GameObject:
   m_ObjectHideFlags: 0
@@ -73888,7 +73920,7 @@ PrefabInstance:
     - target: {fileID: 6707307859849961118, guid: 08fe0dc0f4b88394cbb924d3e0d63c88,
         type: 3}
       propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: onStepLowThresholdChanged
+      value: OnStepLowThresholdChanged
       objectReference: {fileID: 0}
     - target: {fileID: 6707307859849961118, guid: 08fe0dc0f4b88394cbb924d3e0d63c88,
         type: 3}
@@ -85486,7 +85518,7 @@ PrefabInstance:
     - target: {fileID: 6707307859849961118, guid: 08fe0dc0f4b88394cbb924d3e0d63c88,
         type: 3}
       propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: onAccelerometerUpdateIntervalChanged
+      value: OnAccelerometerUpdateIntervalChanged
       objectReference: {fileID: 0}
     - target: {fileID: 6707307859849961118, guid: 08fe0dc0f4b88394cbb924d3e0d63c88,
         type: 3}
