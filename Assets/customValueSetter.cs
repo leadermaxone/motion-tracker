@@ -23,7 +23,7 @@ public class customValueSetter : MonoBehaviour
         Debug.Log($"Value Setter Start. valueName.text is {valueName.text} and value.text is {value.text}");
     }
 
-    public void onPlusClicked()
+    public void OnPlusClicked()
     {
         if (value.text != null) 
         {
@@ -32,7 +32,7 @@ public class customValueSetter : MonoBehaviour
             onValueChanged.Invoke(newValue);
         }
     }
-    public void onMinusClicked()
+    public void OnMinusClicked()
     {
         if (value.text != null) 
         {
@@ -40,5 +40,9 @@ public class customValueSetter : MonoBehaviour
             value.text = newValue.ToString("F2");
             onValueChanged.Invoke(newValue);
         }
+    }
+    public void SetValue(float newValue)
+    {
+        value.text = newValue.ToString("F2");
     }
 }

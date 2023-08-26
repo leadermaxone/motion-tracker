@@ -7,21 +7,30 @@ using System.Collections.Generic;
 
 using Gyroscope = UnityEngine.InputSystem.Gyroscope;
 using System.Collections;
+using UnityEngine.Events;
+
 
 
 
 public class SensorsReader : MonoBehaviour
 {
-    public TextMeshProUGUI recordStepsButtonTMP;
+    public GameObject recordStepsButton;
+    public GameObject recordStillButton;
+    public GameObject analyseStepsButton;
+    public GameObject analyseStillButton;
     public bool isRecordingSteps = false;
-    public TextMeshProUGUI recordStillButtonTMP;
     public bool isRecordingStill = false;
 
     public float stepHighThreshold;
     public float stepLowThreshold;
     public float stepAvg;
+
     public float stillHighThreshold;
+    public UnityEvent<float> UpdateStillHighThresholdUI = new UnityEvent<float>();
+
     public float stillLowThreshold;
+    public UnityEvent<float> UpdateStillLowThresholdUI = new UnityEvent<float>();
+
     public float stillAvg;
 
     public DD_DataDiagram diagramAccelerationX;
@@ -57,10 +66,6 @@ public class SensorsReader : MonoBehaviour
 
 
     private float currentTime = 0.0f;
-
-    private float period = 2.0f; // Controls the speed of the oscillation
-
-
 
     private bool sensorsEnabled = false;
     public TextMeshProUGUI text, text2;
@@ -164,15 +169,15 @@ public class SensorsReader : MonoBehaviour
 
 
     public IEnumerator ZoomAndDrag(DD_DataDiagram diagram)
-
     {
-
         yield return new WaitForSeconds(0.1f);
-
         diagram.RaiseMoveEvent(0, 40f);
-
         diagram.RaiseZoomEvent(-1.5f, -1.5f);
+    }
 
+    public void OnAnalyseStillPressed()
+    {
+        AnalyseStill();
     }
 
     public void OnRecordStepsPressed()
@@ -180,12 +185,15 @@ public class SensorsReader : MonoBehaviour
         if(!isRecordingSteps) 
         { 
             isRecordingSteps = true;
-            recordStepsButtonTMP.text = "STOP RECORDING";
+            ClearRegisteredData();
+            analyseStepsButton.SetActive(false);
+            recordStepsButton.GetComponent<TextMeshPro>().text = "STOP RECORDING";
         }
         else
         {
             isRecordingSteps = false;
-            recordStepsButtonTMP.text = "TRAIN STEPS";
+            analyseStepsButton.SetActive(true);
+            recordStepsButton.GetComponent<TextMeshPro>().text = "TRAIN STEPS";
 
         }
     }    
@@ -194,45 +202,78 @@ public class SensorsReader : MonoBehaviour
         if(!isRecordingStill) 
         {
             isRecordingStill = true;
-            recordStillButtonTMP.text = "STOP RECORDING";
+            ClearRegisteredData();
+            analyseStillButton.SetActive(false);
+            recordStillButton.GetComponent<TextMeshPro>().text = "STOP RECORDING";
         }
         else
         {
             isRecordingStill = false;
-            recordStillButtonTMP.text = "TRAIN STAY STILL";
-
+            analyseStillButton.SetActive(true);
+            recordStillButton.GetComponent<TextMeshPro>().text = "TRAIN STAY STILL";
         }
     }
 
-    public void onStepHighThresholdChanged(float newValue)
+    public void OnStepHighThresholdChanged(float newValue)
     {
         stepHighThreshold = newValue;
     }    
-    public void onStepLowThresholdChanged(float newValue)
+    public void OnStepLowThresholdChanged(float newValue)
     {
         stepLowThreshold = newValue;
     }    
-    public void onStillHighThresholdChanged(float newValue)
+    public void OnStillHighThresholdChanged(float newValue)
     {
         stillHighThreshold = newValue;
     }    
-    public void onStillLowThresholdChanged(float newValue)
+    public void OnStillLowThresholdChanged(float newValue)
     {
         stillLowThreshold = newValue;
     }
 
-    public void onAccelerometerUpdateIntervalChanged(float newValue)
+    public void OnAccelerometerUpdateIntervalChanged(float newValue)
     {
         accelerometerUpdateInterval = newValue;
         lowPassFilterFactor = accelerometerUpdateInterval / lowPassKernelWidthInSeconds;
     }
 
-    public void lowPassKernelWidthInSecondsChanged(float newValue)
+    public void LowPassKernelWidthInSecondsChanged(float newValue)
     {
         lowPassKernelWidthInSeconds = newValue;
         lowPassFilterFactor = accelerometerUpdateInterval / lowPassKernelWidthInSeconds;
     }
 
+    private void AnalyseStill()
+    {
+        if(accelerometerMagnitudeFilteredValues.Count > 0)
+        {
+            stillHighThreshold = 0f;
+            stillLowThreshold= 0f;
+            for (int i = 0; i<accelerometerMagnitudeFilteredValues.Count; i++)
+            {
+                var current = accelerometerMagnitudeFilteredValues.Pop();
+                if(current > stillHighThreshold)
+                { 
+                    stillHighThreshold = current;
+                }
+                else if (current < stillLowThreshold)
+                { 
+                    stillLowThreshold = current; 
+                }
+            }
+            UpdateStillHighThresholdUI.Invoke(stillHighThreshold);
+            UpdateStillLowThresholdUI.Invoke(stillLowThreshold);
+            Debug.Log($"Analysis Still Complete: low {stillLowThreshold} - high {stillHighThreshold}");
+        }
+    }
+
+    private void ClearRegisteredData()
+    {
+        accelerometerMagnitudeFilteredValues.Clear();
+        accelerometerMagnitudeRawValues.Clear();
+        accelerometerFilteredValues.Clear();
+        accelerometerRawValues.Clear();
+    }
     Vector3 GetLowPassValue(Vector3 currentValue, Vector3 prevValue)
 
     {
@@ -260,7 +301,6 @@ public class SensorsReader : MonoBehaviour
 
         accelerometerCurrentFilteredValue = GetLowPassValue(accelerometerCurrentRawValue, previousAccelerometerValue);
         previousAccelerometerValue = accelerometerCurrentFilteredValue;
-
         if(isRecordingSteps)
         {
             accelerometerRawValues.Push(accelerometerCurrentRawValue);
@@ -344,7 +384,8 @@ public class SensorsReader : MonoBehaviour
                         $"attitudeValueEuler \nX={attitudeValueEuler.x:#0.00} Y={attitudeValueEuler.y:#0.00} Z={attitudeValueEuler.z:#0.00}\n\n" +
                         $"attitudeEuler\nX={attitudeEuler.x:#0.00} Y={attitudeEuler.y:#0.00} Z={attitudeEuler.z:#0.00}\n\n" +
 
-                        $"Angular Velocity\nX={angularVelocity.x:#0.00} Y={angularVelocity.y:#0.00} Z={angularVelocity.z:#0.00}\n\n"
+                        $"Still threshold \nLow={stillLowThreshold:#0.00} High={stillHighThreshold:#0.00} \n" +
+                        $"Step threshold \nLow={stepLowThreshold:#0.00} High={stepHighThreshold:#0.00}"
 
                         ;
 
