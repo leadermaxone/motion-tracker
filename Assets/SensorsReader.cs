@@ -187,13 +187,13 @@ public class SensorsReader : MonoBehaviour
             isRecordingSteps = true;
             ClearRegisteredData();
             analyseStepsButton.SetActive(false);
-            recordStepsButton.GetComponent<TextMeshPro>().text = "STOP RECORDING";
+            recordStepsButton.GetComponentInChildren<TextMeshPro>().text = "STOP RECORDING";
         }
         else
         {
             isRecordingSteps = false;
             analyseStepsButton.SetActive(true);
-            recordStepsButton.GetComponent<TextMeshPro>().text = "TRAIN STEPS";
+            recordStepsButton.GetComponentInChildren<TextMeshPro>().text = "TRAIN STEPS";
 
         }
     }    
@@ -203,14 +203,14 @@ public class SensorsReader : MonoBehaviour
         {
             isRecordingStill = true;
             ClearRegisteredData();
-            analyseStillButton.SetActive(false);
-            recordStillButton.GetComponent<TextMeshPro>().text = "STOP RECORDING";
+            //analyseStillButton.SetActive(false);
+            recordStillButton.GetComponentInChildren<TextMeshPro>().text = "STOP RECORDING";
         }
         else
         {
             isRecordingStill = false;
-            analyseStillButton.SetActive(true);
-            recordStillButton.GetComponent<TextMeshPro>().text = "TRAIN STAY STILL";
+            //analyseStillButton.SetActive(true);
+            recordStillButton.GetComponentInChildren<TextMeshPro>().text = "TRAIN STAY STILL";
         }
     }
 
@@ -265,6 +265,10 @@ public class SensorsReader : MonoBehaviour
             UpdateStillLowThresholdUI.Invoke(stillLowThreshold);
             Debug.Log($"Analysis Still Complete: low {stillLowThreshold} - high {stillHighThreshold}");
         }
+        else
+        {
+            Debug.Log($"Analysis Still Error: nothing to analyse");
+        }
     }
 
     private void ClearRegisteredData()
@@ -301,16 +305,14 @@ public class SensorsReader : MonoBehaviour
 
         accelerometerCurrentFilteredValue = GetLowPassValue(accelerometerCurrentRawValue, previousAccelerometerValue);
         previousAccelerometerValue = accelerometerCurrentFilteredValue;
-        if(isRecordingSteps)
+        if(isRecordingSteps || isRecordingStill)
         {
             accelerometerRawValues.Push(accelerometerCurrentRawValue);
             accelerometerFilteredValues.Push(accelerometerCurrentFilteredValue);
-        }
-        if(isRecordingStill)
-        {
             accelerometerMagnitudeRawValues.Push(accelerometerCurrentRawValue.magnitude);
             accelerometerMagnitudeFilteredValues.Push(accelerometerCurrentFilteredValue.magnitude);
         }
+
     }
 
     void Update() 

@@ -43,6 +43,7 @@ public class customValueSetter : MonoBehaviour
     }
     public void SetValue(float newValue)
     {
+        Debug.Log($"Set Value {newValue} for {this.gameObject.name}");
         value.text = newValue.ToString("F2");
     }
 }
