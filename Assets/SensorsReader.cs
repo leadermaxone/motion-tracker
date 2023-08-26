@@ -288,7 +288,7 @@ public class SensorsReader : MonoBehaviour
 
     }
 
-    void CalculateAccelerometerValue()
+    void CalculateAccelerometerValueCalculateAccelerometerValue()
 
     {
 
@@ -301,7 +301,7 @@ public class SensorsReader : MonoBehaviour
 
         //previousAccelerometerValue = accelerometerFilteredValues.Peek();
 
-        Debug.Log($"Reading new raw  accelerometerCurrentRawValue and peeking last filtered {previousAccelerometerValue}");
+        //Debug.Log($"Reading new raw  accelerometerCurrentRawValue and peeking last filtered {previousAccelerometerValue}");
 
         accelerometerCurrentFilteredValue = GetLowPassValue(accelerometerCurrentRawValue, previousAccelerometerValue);
         previousAccelerometerValue = accelerometerCurrentFilteredValue;
@@ -345,7 +345,7 @@ public class SensorsReader : MonoBehaviour
             acceleration.y = -(float)Math.Round(accelerometerCurrentFilteredValue.z, 2);
             acceleration.z = (float)Math.Round(accelerometerCurrentFilteredValue.y, 2);
             acceleration.x = (float)Math.Round(accelerometerCurrentFilteredValue.x, 2);
-            Debug.Log($"Looking towards acceleration {acceleration} of magnitude {acceleration.magnitude}");
+            //Debug.Log($"Looking towards acceleration {acceleration} of magnitude {acceleration.magnitude}");
             accelerationArrowLookRotation = Quaternion.LookRotation(acceleration);
             AccelerationArrow.transform.rotation = accelerationArrowLookRotation;
             AccelerationArrow.transform.localScale = accelerationScaleVector * (acceleration.magnitude == 0f ? 1f : (1f+acceleration.magnitude) );
