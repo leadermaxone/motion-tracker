@@ -19,6 +19,8 @@ public class customValueSetter : MonoBehaviour
     {
         valueName.text = valueNameString;
         value.text = startValue.ToString("F2");
+        onValueChanged.Invoke(startValue);
+
         Debug.Log($"Value Setter Start. valueNameString is {valueNameString} and startValue is {startValue.ToString()}");
         Debug.Log($"Value Setter Start. valueName.text is {valueName.text} and value.text is {value.text}");
     }
