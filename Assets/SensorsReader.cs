@@ -18,6 +18,8 @@ public class SensorsReader : MonoBehaviour
     public GameObject recordStillButton;
     public GameObject analyseStepsButton;
     public GameObject analyseStillButton;
+    public GameObject checkStillButton;
+    public GameObject stillStatus;
     public bool isRecordingSteps = false;
     public bool isRecordingStill = false;
 
@@ -48,7 +50,6 @@ public class SensorsReader : MonoBehaviour
     GameObject lineAccelerationZ_NotFiltered;
 
     GameObject lineAccelerationMagnitude;
-    GameObject lineAccelerationMagnitudeFromFilteredAcceleration;
     GameObject lineAccelerationMagnitude_NotFiltered;
 
     Color colorX = Color.red;
@@ -61,11 +62,7 @@ public class SensorsReader : MonoBehaviour
     Color colorZ_NotFiltered = Color.grey;    
     
     Color colorMagnitude = Color.magenta;
-    Color colorMagnitudeFromFilteredAcceleration = Color.yellow;
     Color colorMagnitude_NotFiltered = Color.grey;
-
-
-    private float currentTime = 0.0f;
 
     private bool sensorsEnabled = false;
     public TextMeshProUGUI text, text2;
@@ -103,13 +100,18 @@ public class SensorsReader : MonoBehaviour
     private Vector3 accelerometerCurrentRawValue;
     private Vector3 accelerometerCurrentFilteredValue;
 
+    private Coroutine stillCoroutine;
+    private bool isCheckingStandingStill = false;
+    private bool hasStartedWaitingForStill = false;
+
     void Start()
     {
 
         //text = GetComponent<TextMeshProUGUI>();
 
         //text2 = GetComponent<TextMeshProUGUI>();
-
+        checkStillButton.SetActive(false);
+        stillStatus.SetActive(false);
   
         acceleration = Vector3.zero;
         accelerationValue = Vector3.zero;
@@ -158,12 +160,12 @@ public class SensorsReader : MonoBehaviour
         lineAccelerationZ = diagramAccelerationZ.AddLine(colorZ.ToString(), colorZ);
         lineAccelerationZ_NotFiltered = diagramAccelerationZ.AddLine(colorZ_NotFiltered.ToString(), colorZ_NotFiltered);
         lineAccelerationMagnitude = diagramAccelerationMagnitude.AddLine(colorMagnitude.ToString(), colorMagnitude);
-        lineAccelerationMagnitudeFromFilteredAcceleration = diagramAccelerationMagnitude.AddLine(colorMagnitudeFromFilteredAcceleration.ToString(), colorMagnitudeFromFilteredAcceleration);
         lineAccelerationMagnitude_NotFiltered = diagramAccelerationMagnitude.AddLine(colorMagnitude_NotFiltered.ToString(), colorMagnitude_NotFiltered);
 
         StartCoroutine(ZoomAndDrag(diagramAccelerationX));
         StartCoroutine(ZoomAndDrag(diagramAccelerationY));
         StartCoroutine(ZoomAndDrag(diagramAccelerationZ));
+        StartCoroutine(ZoomAndDrag(diagramAccelerationMagnitude));
     }
 
 
@@ -187,13 +189,13 @@ public class SensorsReader : MonoBehaviour
             isRecordingSteps = true;
             ClearRegisteredData();
             analyseStepsButton.SetActive(false);
-            recordStepsButton.GetComponentInChildren<TextMeshPro>().text = "STOP RECORDING";
+            recordStepsButton.GetComponentInChildren<TextMeshProUGUI>().text = "STOP RECORDING";
         }
         else
         {
             isRecordingSteps = false;
             analyseStepsButton.SetActive(true);
-            recordStepsButton.GetComponentInChildren<TextMeshPro>().text = "TRAIN STEPS";
+            recordStepsButton.GetComponentInChildren<TextMeshProUGUI>().text = "TRAIN STEPS";
 
         }
     }    
@@ -204,51 +206,46 @@ public class SensorsReader : MonoBehaviour
             isRecordingStill = true;
             ClearRegisteredData();
             //analyseStillButton.SetActive(false);
-            recordStillButton.GetComponentInChildren<TextMeshPro>().text = "STOP RECORDING";
+            recordStillButton.GetComponentInChildren<TextMeshProUGUI>().text = "STOP RECORDING";
+            isCheckingStandingStill = false;
+            checkStillButton.SetActive(false);
+
         }
         else
         {
             isRecordingStill = false;
             //analyseStillButton.SetActive(true);
-            recordStillButton.GetComponentInChildren<TextMeshPro>().text = "TRAIN STAY STILL";
+            recordStillButton.GetComponentInChildren<TextMeshProUGUI>().text = "TRAIN STAY STILL";
         }
     }
 
-    public void OnStepHighThresholdChanged(float newValue)
+    public void OnCheckStandingStillPressed()
     {
-        stepHighThreshold = newValue;
-    }    
-    public void OnStepLowThresholdChanged(float newValue)
-    {
-        stepLowThreshold = newValue;
-    }    
-    public void OnStillHighThresholdChanged(float newValue)
-    {
-        stillHighThreshold = newValue;
-    }    
-    public void OnStillLowThresholdChanged(float newValue)
-    {
-        stillLowThreshold = newValue;
+        if(!isCheckingStandingStill)
+        {
+            checkStillButton.GetComponentInChildren<TextMeshProUGUI>().text = "STOP CHECKING";
+            isCheckingStandingStill = true;
+            stillStatus.SetActive(true);
+            stillStatus.GetComponentInChildren<TextMeshProUGUI>().text = "moving";
+        }
+        else
+        {
+            OnStopCheckForStill();
+            checkStillButton.GetComponentInChildren<TextMeshProUGUI>().text = "START CHECK STILL";
+            stillStatus.GetComponentInChildren<Image>().color = Color.red;
+            isCheckingStandingStill = false;
+            stillStatus.SetActive(false);
+
+        }
     }
 
-    public void OnAccelerometerUpdateIntervalChanged(float newValue)
-    {
-        accelerometerUpdateInterval = newValue;
-        lowPassFilterFactor = accelerometerUpdateInterval / lowPassKernelWidthInSeconds;
-    }
-
-    public void LowPassKernelWidthInSecondsChanged(float newValue)
-    {
-        lowPassKernelWidthInSeconds = newValue;
-        lowPassFilterFactor = accelerometerUpdateInterval / lowPassKernelWidthInSeconds;
-    }
 
     private void AnalyseStill()
     {
         if(accelerometerMagnitudeFilteredValues.Count > 0)
         {
             stillHighThreshold = 0f;
-            stillLowThreshold= 0f;
+            stillLowThreshold= 100f;
             for (int i = 0; i<accelerometerMagnitudeFilteredValues.Count; i++)
             {
                 var current = accelerometerMagnitudeFilteredValues.Pop();
@@ -264,10 +261,58 @@ public class SensorsReader : MonoBehaviour
             UpdateStillHighThresholdUI.Invoke(stillHighThreshold);
             UpdateStillLowThresholdUI.Invoke(stillLowThreshold);
             Debug.Log($"Analysis Still Complete: low {stillLowThreshold} - high {stillHighThreshold}");
+            checkStillButton.SetActive(true);
         }
         else
         {
             Debug.Log($"Analysis Still Error: nothing to analyse");
+        }
+    }
+
+    private IEnumerator WaitForStill()
+    {
+        yield return new WaitForSeconds(3);
+        // invoke user logic
+        Debug.Log($"Player Still for long enough!");
+        stillStatus.GetComponentInChildren<TextMeshProUGUI>().text = "STILL!!!";
+        stillStatus.GetComponentInChildren<Image>().color = Color.green;
+    }
+
+    private void OnMoving()
+    {
+        stillStatus.GetComponentInChildren<TextMeshProUGUI>().text = "moving";
+        stillStatus.GetComponentInChildren<Image>().color = Color.red;
+    }
+    private void OnStopCheckForStill()
+    {
+        if(stillCoroutine != null)
+        {
+            StopCoroutine(stillCoroutine);
+        }
+    }
+
+    private void CheckStandingStillF(Vector3 acceleration)
+    {
+        //TODO convert to sqrMagnitude for better performances
+        if(acceleration.magnitude < stillHighThreshold)
+        {
+            if(!hasStartedWaitingForStill)
+            {
+                hasStartedWaitingForStill = true;
+                stillCoroutine = StartCoroutine(WaitForStill());
+            }
+        }
+        else
+        {
+            if(hasStartedWaitingForStill)
+            {
+                hasStartedWaitingForStill = false;
+                if (stillCoroutine != null)
+                {
+                    StopCoroutine(stillCoroutine);
+                }
+                OnMoving();
+            }
         }
     }
 
@@ -282,22 +327,17 @@ public class SensorsReader : MonoBehaviour
 
     {
 
-        Debug.Log($"Low pass: Prev {prevValue} to current {currentValue}");
+        //Debug.Log($"Low pass: Prev {prevValue} to current {currentValue}");
 
         return Vector3.Lerp(prevValue, currentValue, lowPassFilterFactor);
 
     }
 
-    void CalculateAccelerometerValueCalculateAccelerometerValue()
+    void CalculateAccelerometerValue()
 
     {
 
-
-
         accelerometerCurrentRawValue = LinearAccelerationSensor.current.acceleration.ReadValue();
-
-
-
 
         //previousAccelerometerValue = accelerometerFilteredValues.Peek();
 
@@ -346,22 +386,19 @@ public class SensorsReader : MonoBehaviour
             acceleration.z = (float)Math.Round(accelerometerCurrentFilteredValue.y, 2);
             acceleration.x = (float)Math.Round(accelerometerCurrentFilteredValue.x, 2);
             //Debug.Log($"Looking towards acceleration {acceleration} of magnitude {acceleration.magnitude}");
-            accelerationArrowLookRotation = Quaternion.LookRotation(acceleration);
-            AccelerationArrow.transform.rotation = accelerationArrowLookRotation;
-            AccelerationArrow.transform.localScale = accelerationScaleVector * (acceleration.magnitude == 0f ? 1f : (1f+acceleration.magnitude) );
+            if(acceleration != Vector3.zero)
+            {
+                accelerationArrowLookRotation = Quaternion.LookRotation(acceleration);
+                AccelerationArrow.transform.rotation = accelerationArrowLookRotation;
+                AccelerationArrow.transform.localScale = accelerationScaleVector * (acceleration.magnitude == 0f ? 1f : (1f+acceleration.magnitude) );
+            }
 
-            diagramAccelerationX.InputPoint(lineAccelerationX, new Vector2(0.01f, acceleration.x));
-            diagramAccelerationX.InputPoint(lineAccelerationX_NotFiltered, new Vector2(0.01f, accelerometerCurrentRawValue.x));
+            DrawDiagramLines(acceleration);
 
-            diagramAccelerationY.InputPoint(lineAccelerationY, new Vector2(0.01f, acceleration.y));
-            diagramAccelerationY.InputPoint(lineAccelerationY_NotFiltered, new Vector2(0.01f, accelerometerCurrentRawValue.y));
-
-            diagramAccelerationZ.InputPoint(lineAccelerationZ, new Vector2(0.01f, acceleration.z));
-            diagramAccelerationZ.InputPoint(lineAccelerationZ_NotFiltered, new Vector2(0.01f, accelerometerCurrentRawValue.z));
-            
-            diagramAccelerationMagnitude.InputPoint(lineAccelerationMagnitude, new Vector2(0.01f, acceleration.magnitude));
-            diagramAccelerationMagnitude.InputPoint(lineAccelerationMagnitudeFromFilteredAcceleration, new Vector2(0.01f, accelerometerCurrentFilteredValue.magnitude));
-            diagramAccelerationMagnitude.InputPoint(lineAccelerationMagnitude_NotFiltered, new Vector2(0.01f, accelerometerCurrentRawValue.magnitude));
+            if(isCheckingStandingStill)
+            {
+                CheckStandingStillF(acceleration);
+            }
 
             attitudeValue = AttitudeSensor.current.attitude.ReadValue(); // ReadValue() returns a Quaternion
 
@@ -370,18 +407,49 @@ public class SensorsReader : MonoBehaviour
             attitudeEuler.z = -(float)Math.Round(attitudeValueEuler.y, 1);
             attitudeEuler.x = -(float)Math.Round(attitudeValueEuler.x, 1);
          
-
-            //gravity = GravitySensor.current.gravity.ReadValue();
-
-            //PhoneModel1.transform.Rotate(rotationSpeedFactor * Time.deltaTime * angularVelocity);
-            //PhoneModel2.transform.Rotate(rotationSpeedFactor * Time.deltaTime *  acceleration);
             PhoneModel3.transform.rotation = Quaternion.Euler(attitudeEuler);
-            //PhoneModel3.transform.localRotation = attitudeValue * rot;
-            //PhoneModel3.transform.localRotation = attitudeValue;
 
-            //PhoneModel4.transform.Rotate(rotationSpeedFactor * Time.deltaTime *  gravity);
+            WriteVisualLogs();
+            
+        }
+        catch (Exception e) 
+        {
+            Debug.Log("error Update "+ e);
+        }
+    }
 
-            text.text = 
+    public void OnStepHighThresholdChanged(float newValue)
+    {
+        stepHighThreshold = newValue;
+    }
+    public void OnStepLowThresholdChanged(float newValue)
+    {
+        stepLowThreshold = newValue;
+    }
+    public void OnStillHighThresholdChanged(float newValue)
+    {
+        stillHighThreshold = newValue;
+    }
+    public void OnStillLowThresholdChanged(float newValue)
+    {
+        stillLowThreshold = newValue;
+    }
+
+    public void OnAccelerometerUpdateIntervalChanged(float newValue)
+    {
+        accelerometerUpdateInterval = newValue;
+        lowPassFilterFactor = accelerometerUpdateInterval / lowPassKernelWidthInSeconds;
+    }
+
+    public void LowPassKernelWidthInSecondsChanged(float newValue)
+    {
+        lowPassKernelWidthInSeconds = newValue;
+        lowPassFilterFactor = accelerometerUpdateInterval / lowPassKernelWidthInSeconds;
+    }
+
+    private void WriteVisualLogs()
+    {
+        text.text =
                         $"Attitude\nX={attitudeValue.x:#0.00} Y={attitudeValue.y:#0.00} Z={attitudeValue.z:#0.00}\n\n" +
                         $"attitudeValueEuler \nX={attitudeValueEuler.x:#0.00} Y={attitudeValueEuler.y:#0.00} Z={attitudeValueEuler.z:#0.00}\n\n" +
                         $"attitudeEuler\nX={attitudeEuler.x:#0.00} Y={attitudeEuler.y:#0.00} Z={attitudeEuler.z:#0.00}\n\n" +
@@ -394,35 +462,32 @@ public class SensorsReader : MonoBehaviour
 
 
 
-            text2.text =   
-                             $"Acceleration Raw \nX={accelerometerCurrentRawValue.x:#0.00} Y={accelerometerCurrentRawValue.y:#0.00} Z={accelerometerCurrentRawValue.z:#0.00}\n\n" +
-                             $"acceleration filtered\nX={accelerometerCurrentFilteredValue.x:#0.00} Y={accelerometerCurrentFilteredValue.y:#0.00} Z={accelerometerCurrentFilteredValue.z:#0.00}\n\n"+
+        text2.text =
+                         $"Acceleration Raw \nX={accelerometerCurrentRawValue.x:#0.00} Y={accelerometerCurrentRawValue.y:#0.00} Z={accelerometerCurrentRawValue.z:#0.00}\n\n" +
+                         $"acceleration filtered\nX={accelerometerCurrentFilteredValue.x:#0.00} Y={accelerometerCurrentFilteredValue.y:#0.00} Z={accelerometerCurrentFilteredValue.z:#0.00}\n\n" +
 
-                             $"Accelerator Magnitude={acceleration.magnitude:#0.00}\n\n" +
-                             $"LowPassKernelWidthS {lowPassKernelWidthInSeconds:#0.00} \naccelerometerUpdateInterval={accelerometerUpdateInterval:#0.00}"
+                         $"Accelerator Magnitude={acceleration.magnitude:#0.00}\n\n" +
+                         $"LowPassKernelWidthS {lowPassKernelWidthInSeconds:#0.00} \naccelerometerUpdateInterval={accelerometerUpdateInterval:#0.00}"
 
-                             //$"Gravity\nX={gravity.x:#0.00} Y={gravity.y:#0.00} Z={gravity.z:#0.00}"
+                         //$"Gravity\nX={gravity.x:#0.00} Y={gravity.y:#0.00} Z={gravity.z:#0.00}"
 
-                             ;
+                         ;
+    }
 
+    private void DrawDiagramLines(Vector3 acceleration)
+    {
+        diagramAccelerationX.InputPoint(lineAccelerationX, new Vector2(0.01f, acceleration.x));
+        diagramAccelerationX.InputPoint(lineAccelerationX_NotFiltered, new Vector2(0.01f, accelerometerCurrentRawValue.x));
 
+        diagramAccelerationY.InputPoint(lineAccelerationY, new Vector2(0.01f, acceleration.y));
+        diagramAccelerationY.InputPoint(lineAccelerationY_NotFiltered, new Vector2(0.01f, accelerometerCurrentRawValue.y));
 
+        diagramAccelerationZ.InputPoint(lineAccelerationZ, new Vector2(0.01f, acceleration.z));
+        diagramAccelerationZ.InputPoint(lineAccelerationZ_NotFiltered, new Vector2(0.01f, accelerometerCurrentRawValue.z));
 
+        diagramAccelerationMagnitude.InputPoint(lineAccelerationMagnitude, new Vector2(0.01f, acceleration.magnitude));
+        diagramAccelerationMagnitude.InputPoint(lineAccelerationMagnitude_NotFiltered, new Vector2(0.01f, accelerometerCurrentRawValue.magnitude));
 
-        }
-        catch (Exception e) 
-        {
-            Debug.Log("error Update "+ e);
-        }
-        currentTime += Time.deltaTime;
-
-
-
-        // Calculate the sine value between -1 and 1
-
-        //float sineValue = Mathf.Sin(currentTime / period * Mathf.PI);
-
-        //diagramAccelerationX.InputPoint(lineAccelerationX, new Vector2(0.01f, sineValue));
     }
 
     void connectSensors()
