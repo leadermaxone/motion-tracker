@@ -1,185 +1,202 @@
-using TMPro;
-using UnityEngine;
-using UnityEngine.InputSystem;
-using UnityEngine.UI;
 using System;
-using System.Collections.Generic;
-
-using Gyroscope = UnityEngine.InputSystem.Gyroscope;
 using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.Events;
+using UnityEngine.InputSystem;
 
 
 
 
 public class SensorsReader : MonoBehaviour
 {
-    public float _stillDelayS = 0.01f;
-    public event Action OnStill;
-    public event Action OnMoving;
+    private float _stillDelayS = 0.01f;
+    private event Action OnStill;
+    private event Action OnMoving;
+    internal event Action<float> OnStillHighThresholdChanged;
 
-    public bool isRecordingSteps = false;
-    public bool isRecordingStill = false;
+    private bool isRecordingSteps = false;
+    private bool isRecordingStill = false;
 
-    public float stepHighThreshold;
-    public float stepLowThreshold;
-    public float stepAvg;
+    // TODO property or explicit setter?
+    public float StepHighThreshold
+    {
+        get => _stepHighThreshold;
+        set => _stepHighThreshold = value;
+    }
+    private float _stepHighThreshold;
+    public float StepLowThreshold
+    {
+        get => _stepLowThreshold;
+        set => _stepLowThreshold = value;
+    }
+    private float _stepLowThreshold;
 
-    public float stillHighThreshold;
-    public UnityEvent<float> OnStillHighThresholdChanged = new UnityEvent<float>();
-
-    public float stillLowThreshold;
-    public UnityEvent<float> OnStillLowThresholdChanged = new UnityEvent<float>();
-
-    public float stillAvg;
-
-    
-   
-
+    public float StillHighThreshold
+    {
+        get => _stillHighThreshold; 
+        set => _stillHighThreshold = value;
+    }
+    private float _stillHighThreshold;
 
     private bool sensorsEnabled = false;
 
+    public Vector3 AccelerationRaw
+    {
+        get => _currentAccelerationRaw;
+    }
+    private Vector3 _currentAccelerationRaw;
+    public Vector3 AccelerationFiltered
+    {
+        get => _currentAccelerationFiltered;
+    }
+    private Vector3 _currentAccelerationFiltered;
+    public Vector3 AccelerationFilteredProjectedXZ 
+    { 
+        get => _currentAccelerationFilteredProjectedXZ; 
+    }
+    private Vector3 _currentAccelerationFilteredProjectedXZ;
 
-    Vector3 acceleration;
-    Vector3 accelerationProjectedXZ;
-    Quaternion accelerationArrowLookRotation;
-    Vector3 accelerationScaleVector = new Vector3(1, 1, 0.5f);
+    private Vector3 _previousAccelerationFiltered;
 
-    Vector3 attitudeEulerProjectedXZ;
-    Quaternion attitudeValue;
-    Vector3 attitudeValueEuler;
+    public Quaternion Attitude
+    {
+        get => _attitude;
+    }
+    Quaternion _attitude;
 
-
-
-
-    public float accelerometerUpdateInterval;
-    public float lowPassKernelWidthInSeconds;
-
-
-    private float lowPassFilterFactor;
-    Vector3 previousAccelerometerValue;
+    public Vector3 AttitudeEulerProjectedXZ
+    {
+        get => _attitudeEulerProjectedXZ;
+    }
+    Vector3 _attitudeEulerProjectedXZ;
+    private Vector3 _attitudeValueEuler;
 
 
-    Stack<Vector3> accelerometerFilteredValues = new Stack<Vector3>();
-    Stack<Vector3> accelerometerRawValues = new Stack<Vector3>();
-    Stack<float> accelerometerMagnitudeRawValues = new Stack<float>();
-    Stack<float> accelerometerMagnitudeFilteredValues = new Stack<float>();
-    private Vector3 accelerometerCurrentRawValue;
-    private Vector3 accelerometerCurrentFilteredValue;
 
-    private Coroutine stillCoroutine;
-    private bool isCheckingStandingStill = false;
-    private bool hasStartedWaitingForStill = false;
+    public float AccelerometerUpdateInterval
+    {
+        get => _accelerometerUpdateInterval;
+        set
+        {
+            _accelerometerUpdateInterval = value;
+            _lowPassFilterFactor = _accelerometerUpdateInterval / _lowPassKernelWidthInSeconds;
+        }
+    }
+    private float _accelerometerUpdateInterval;
+
+    public float LowPassKernelWidthInSeconds
+    {
+        get => _lowPassKernelWidthInSeconds;
+        set
+        {
+            _lowPassKernelWidthInSeconds = value;
+            _lowPassFilterFactor = _accelerometerUpdateInterval / _lowPassKernelWidthInSeconds;
+        }
+    }
+    private float _lowPassKernelWidthInSeconds;
+
+    private float _lowPassFilterFactor;
+
+
+    private Stack<Vector3> _accelerationFilteredValues = new Stack<Vector3>();
+    private Stack<Vector3> _accelerationRawValues = new Stack<Vector3>();
+    private Stack<float> _accelerationMagnitudeRawValues = new Stack<float>();
+    private Stack<float> _accelerationMagnitudeFilteredValues = new Stack<float>();
+
+
+    private Coroutine _stillCoroutine;
+    private bool _isCheckingStandingStill = false;
+    private bool _hasStartedWaitingForStill = false;
 
     void Start()
     {
 
      
   
-        acceleration = Vector3.zero;
-        accelerationProjectedXZ = Vector3.zero;
+        _currentAccelerationFiltered = Vector3.zero;
+        _currentAccelerationRaw = Vector3.zero;
+        _currentAccelerationFilteredProjectedXZ = Vector3.zero;
 
-        attitudeEulerProjectedXZ = Vector3.zero;
-        attitudeValueEuler = Vector3.zero;
-
-
-
-        lowPassFilterFactor = accelerometerUpdateInterval / lowPassKernelWidthInSeconds;
+        _attitudeEulerProjectedXZ = Vector3.zero;
+        _attitudeValueEuler = Vector3.zero;
 
 
-        if (!sensorsEnabled)
-        {
-            EnableSensors();
 
-            try
+        _lowPassFilterFactor = _accelerometerUpdateInterval / _lowPassKernelWidthInSeconds;
 
-            {
 
-                accelerometerCurrentRawValue = LinearAccelerationSensor.current.acceleration.ReadValue();
-                previousAccelerometerValue = accelerometerCurrentRawValue;
-
-            
-            }
-
-            catch (Exception e)
-
-            {
-
-                Debug.Log("Error accessing Sensors " + e);
-
-            }
-
-        }
+       
     }
 
     public void Setup(float stillDelayS, Action OnStillCallback, Action OnMovingCallback)
     {
+        //TODO use param class?
+
         _stillDelayS = stillDelayS;
         OnStill += OnStillCallback;
         OnMoving += OnMovingCallback;
+
+        if (!sensorsEnabled)
+        {
+            try
+            {
+                EnableSensors();
+                _currentAccelerationRaw = LinearAccelerationSensor.current.acceleration.ReadValue();
+                _previousAccelerationFiltered = _currentAccelerationRaw;
+            }
+            catch (Exception e)
+            {
+                sensorsEnabled = false;
+                Debug.Log("Error accessing Sensors " + e);
+            }
+        }
     }
 
-    public void StartRecordSteps()
+
+    public void SetStepRecorder(bool status)
     {
-        if(!isRecordingSteps) 
-        { 
-            isRecordingSteps = true;
+        if(status)
+        {
             ClearRegisteredData();
         }
-        else
-        {
-            isRecordingSteps = false;
-        }
+        isRecordingSteps = status;
     }    
-    public void StartRecordStill()
+    public void SetStillRecorder(bool status)
     {
-        if(!isRecordingStill) 
+        if (status)
         {
-            isRecordingStill = true;
             ClearRegisteredData();
-            isCheckingStandingStill = false;
         }
-        else
-        {
-            isRecordingStill = false;
-        }
+        isRecordingStill = status;
     }
 
-    public void StartCheckStandingStill()
+    public void SetStandingStillRecognition(bool status)
     {
-        if(!isCheckingStandingStill)
-        {
-            isCheckingStandingStill = true;
-        }
-        else
+
+        _isCheckingStandingStill = status;
+        if(status == false)
         {
             OnStopCheckForStill();
-            isCheckingStandingStill = false;
         }
     }
 
 
-    private void AnalyseStillData()
+    public void AnalyseStillData()
     {
-        if(accelerometerMagnitudeFilteredValues.Count > 0)
+        if(_accelerationMagnitudeFilteredValues.Count > 0)
         {
-            stillHighThreshold = 0f;
-            stillLowThreshold= 100f;
-            for (int i = 0; i<accelerometerMagnitudeFilteredValues.Count; i++)
+            _stillHighThreshold = 0f;
+            for (int i = 0; i<_accelerationMagnitudeFilteredValues.Count; i++)
             {
-                var current = accelerometerMagnitudeFilteredValues.Pop();
-                if(current > stillHighThreshold)
+                var current = _accelerationMagnitudeFilteredValues.Pop();
+                if(current > _stillHighThreshold)
                 { 
-                    stillHighThreshold = current;
-                }
-                else if (current < stillLowThreshold)
-                { 
-                    stillLowThreshold = current; 
+                    _stillHighThreshold = current;
                 }
             }
-            OnStillHighThresholdChanged.Invoke(stillHighThreshold);
-            OnStillLowThresholdChanged.Invoke(stillLowThreshold);
-            Debug.Log($"Analysis Still Complete: low {stillLowThreshold} - high {stillHighThreshold}");
+            OnStillHighThresholdChanged.Invoke(_stillHighThreshold);
+            Debug.Log($"Analysis Still Complete: high {_stillHighThreshold}");
         }
         else
         {
@@ -197,31 +214,31 @@ public class SensorsReader : MonoBehaviour
 
     private void OnStopCheckForStill()
     {
-        if(stillCoroutine != null)
+        if(_stillCoroutine != null)
         {
-            StopCoroutine(stillCoroutine);
+            StopCoroutine(_stillCoroutine);
         }
     }
 
     private void CheckStandingStill(Vector3 acceleration)
     {
         //TODO convert to sqrMagnitude for better performances
-        if(acceleration.magnitude < stillHighThreshold)
+        if(acceleration.magnitude < _stillHighThreshold)
         {
-            if(!hasStartedWaitingForStill)
+            if(!_hasStartedWaitingForStill)
             {
-                hasStartedWaitingForStill = true;
-                stillCoroutine = StartCoroutine(WaitForStill());
+                _hasStartedWaitingForStill = true;
+                _stillCoroutine = StartCoroutine(WaitForStill());
             }
         }
         else
         {
-            if(hasStartedWaitingForStill)
+            if(_hasStartedWaitingForStill)
             {
-                hasStartedWaitingForStill = false;
-                if (stillCoroutine != null)
+                _hasStartedWaitingForStill = false;
+                if (_stillCoroutine != null)
                 {
-                    StopCoroutine(stillCoroutine);
+                    StopCoroutine(_stillCoroutine);
                 }
                 OnMoving.Invoke();
             }
@@ -230,10 +247,10 @@ public class SensorsReader : MonoBehaviour
 
     private void ClearRegisteredData()
     {
-        accelerometerMagnitudeFilteredValues.Clear();
-        accelerometerMagnitudeRawValues.Clear();
-        accelerometerFilteredValues.Clear();
-        accelerometerRawValues.Clear();
+        _accelerationMagnitudeFilteredValues.Clear();
+        _accelerationMagnitudeRawValues.Clear();
+        _accelerationFilteredValues.Clear();
+        _accelerationRawValues.Clear();
     }
     Vector3 GetLowPassValue(Vector3 currentValue, Vector3 prevValue)
 
@@ -241,7 +258,7 @@ public class SensorsReader : MonoBehaviour
 
         //Debug.Log($"Low pass: Prev {prevValue} to current {currentValue}");
 
-        return Vector3.Lerp(prevValue, currentValue, lowPassFilterFactor);
+        return Vector3.Lerp(prevValue, currentValue, _lowPassFilterFactor);
 
     }
 
@@ -249,83 +266,65 @@ public class SensorsReader : MonoBehaviour
 
     {
 
-        accelerometerCurrentRawValue = LinearAccelerationSensor.current.acceleration.ReadValue();
+        _currentAccelerationRaw = LinearAccelerationSensor.current.acceleration.ReadValue();
 
-        accelerometerCurrentFilteredValue = GetLowPassValue(accelerometerCurrentRawValue, previousAccelerometerValue);
+        _currentAccelerationFiltered = GetLowPassValue(_currentAccelerationRaw, _previousAccelerationFiltered);
 
-        previousAccelerometerValue = accelerometerCurrentFilteredValue;
+        _previousAccelerationFiltered = _currentAccelerationFiltered;
 
-        if(isRecordingSteps || isRecordingStill)
+        _currentAccelerationFilteredProjectedXZ.y = -(float)Math.Round(_currentAccelerationFiltered.z, 2);
+        _currentAccelerationFilteredProjectedXZ.z = (float)Math.Round(_currentAccelerationFiltered.y, 2);
+        _currentAccelerationFilteredProjectedXZ.x = (float)Math.Round(_currentAccelerationFiltered.x, 2);
+
+        if (isRecordingSteps || isRecordingStill)
         {
-            accelerometerRawValues.Push(accelerometerCurrentRawValue);
-            accelerometerFilteredValues.Push(accelerometerCurrentFilteredValue);
-            accelerometerMagnitudeRawValues.Push(accelerometerCurrentRawValue.magnitude);
-            accelerometerMagnitudeFilteredValues.Push(accelerometerCurrentFilteredValue.magnitude);
+            _accelerationRawValues.Push(_currentAccelerationRaw);
+            _accelerationFilteredValues.Push(_currentAccelerationFiltered);
+            _accelerationMagnitudeRawValues.Push(_currentAccelerationRaw.magnitude);
+            _accelerationMagnitudeFilteredValues.Push(_currentAccelerationFiltered.magnitude);
         }
-
+                                                          
     }
 
     void Update() 
     {
         
-        try
-
-        {
-            CalculateAccelerometerValue();
-
-
-
-            accelerationProjectedXZ.y = -(float)Math.Round(accelerometerCurrentFilteredValue.z, 2);
-            accelerationProjectedXZ.z = (float)Math.Round(accelerometerCurrentFilteredValue.y, 2);
-            accelerationProjectedXZ.x = (float)Math.Round(accelerometerCurrentFilteredValue.x, 2);
-            
-
-            if(isCheckingStandingStill)
+            if(sensorsEnabled)
             {
-                CheckStandingStill(acceleration);
+                CalculateAccelerometerValue();
+
+                if(_isCheckingStandingStill)
+                {
+                    CheckStandingStill(_currentAccelerationFiltered);
+                }
+
+                CalculateAttitude();
             }
-
-            attitudeValue = AttitudeSensor.current.attitude.ReadValue();
-
-            attitudeValueEuler = attitudeValue.eulerAngles;
-            attitudeEulerProjectedXZ.y = -(float)Math.Round(attitudeValueEuler.z, 1);
-            attitudeEulerProjectedXZ.z = -(float)Math.Round(attitudeValueEuler.y, 1);
-            attitudeEulerProjectedXZ.x = -(float)Math.Round(attitudeValueEuler.x, 1);
-                     
-        }
-        catch (Exception e) 
-        {
-            Debug.Log("error Update "+ e);
-        }
     }
 
-    public void SetStepHighThreshold(float newValue)
+    public void CalculateAttitude()
     {
-        stepHighThreshold = newValue;
-    }
-    public void SetStepLowThreshold(float newValue)
-    {
-        stepLowThreshold = newValue;
-    }
-    public void SetStillHighThreshold(float newValue)
-    {
-        stillHighThreshold = newValue;
-    }
-    public void SetStillLowThreshold(float newValue)
-    {
-        stillLowThreshold = newValue;
+        _attitude = AttitudeSensor.current.attitude.ReadValue();
+
+        _attitudeValueEuler = _attitude.eulerAngles;
+        _attitudeEulerProjectedXZ.y = -(float)Math.Round(_attitudeValueEuler.z, 1);
+        _attitudeEulerProjectedXZ.z = -(float)Math.Round(_attitudeValueEuler.y, 1);
+        _attitudeEulerProjectedXZ.x = -(float)Math.Round(_attitudeValueEuler.x, 1);
+
     }
 
-    public void OnAccelerometerUpdateIntervalChanged(float newValue)
+
+
+    public void SetAccelerometerUpdateIntervalChanged(float newValue)
     {
-        accelerometerUpdateInterval = newValue;
-        lowPassFilterFactor = accelerometerUpdateInterval / lowPassKernelWidthInSeconds;
+        _accelerometerUpdateInterval = newValue;
+        _lowPassFilterFactor = _accelerometerUpdateInterval / _lowPassKernelWidthInSeconds;
     }
 
-    public void OnLowPassKernelWidthInSecondsChanged(float newValue)
+    public void SetLowPassKernelWidthInSecondsChanged(float newValue)
     {
-        lowPassKernelWidthInSeconds = newValue;
-        lowPassFilterFactor = accelerometerUpdateInterval / lowPassKernelWidthInSeconds;
+        _lowPassKernelWidthInSeconds = newValue;
+        _lowPassFilterFactor = _accelerometerUpdateInterval / _lowPassKernelWidthInSeconds;
     }
 
     void EnableSensors()
