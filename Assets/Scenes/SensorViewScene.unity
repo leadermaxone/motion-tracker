@@ -28079,8 +28079,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1625422880}
-        m_TargetAssemblyTypeName: SensorsReader, Assembly-CSharp
+      - m_Target: {fileID: 2145113124}
+        m_TargetAssemblyTypeName: SceneManager, Assembly-CSharp
         m_MethodName: OnAnalyseStillPressed
         m_Mode: 1
         m_Arguments:
@@ -77201,8 +77201,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1625422880}
-        m_TargetAssemblyTypeName: SensorsReader, Assembly-CSharp
+      - m_Target: {fileID: 2145113124}
+        m_TargetAssemblyTypeName: SceneManager, Assembly-CSharp
         m_MethodName: OnCheckStandingStillPressed
         m_Mode: 1
         m_Arguments:
@@ -83202,8 +83202,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 1625422880}
-        m_TargetAssemblyTypeName: SensorsReader, Assembly-CSharp
+      - m_Target: {fileID: 2145113124}
+        m_TargetAssemblyTypeName: SceneManager, Assembly-CSharp
         m_MethodName: OnRecordStillPressed
         m_Mode: 1
         m_Arguments:
