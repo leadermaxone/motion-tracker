@@ -170,10 +170,13 @@ public class SceneManager : MonoBehaviour
 
         //Debug.Log($"Looking towards _acceleration {_acceleration} of magnitude {_acceleration.magnitude}");
         if(sensorReader.AccelerationFilteredProjectedXZ != Vector3.zero)
+        {        
+            AccelerationArrow.transform.LookAt(AccelerationArrow.transform.position + sensorReader.AccelerationFilteredProjectedXZ); ;
+            AccelerationArrow.transform.localScale = accelerationScaleVector * (1f+ sensorReader.AccelerationFilteredProjectedXZ.magnitude );
+        }
+        else
         {
-                 
-            AccelerationArrow.transform.rotation = Quaternion.LookRotation(sensorReader.AccelerationFilteredProjectedXZ); ;
-            AccelerationArrow.transform.localScale = accelerationScaleVector * (sensorReader.AccelerationFilteredProjectedXZ.magnitude == 0f ? 1f : (1f+ sensorReader.AccelerationFilteredProjectedXZ.magnitude) );
+            AccelerationArrow.transform.localScale = Vector3.zero;
         }
 
         DrawDiagramLines(sensorReader.AccelerationFilteredProjectedXZ);
@@ -213,25 +216,26 @@ public class SceneManager : MonoBehaviour
         text.text =
                         $"Attitude\nX={sensorReader.Attitude.x:#0.00} Y={sensorReader.Attitude.y:#0.00} Z={sensorReader.Attitude.z:#0.00}\n\n" +
                         $"attitudeEulerProjectedXZ\nX={sensorReader.AttitudeEulerProjectedXZ.x:#0.00} Y={sensorReader.AttitudeEulerProjectedXZ.y:#0.00} Z={sensorReader.AttitudeEulerProjectedXZ.z:#0.00}\n\n" +
-                        $"Still threshold High={sensorReader.StillHighThreshold:#0.00} \n";
-
+                        $"Still threshold High={sensorReader.StillHighThreshold:#0.00} \n"+
+                        $"Accelerator Magnitude={sensorReader.AccelerationFiltered.magnitude:#0.00}\n\n" +
+                        $"LowPassKernelWidthS {sensorReader.LowPassKernelWidthInSeconds:#0.00} \naccelerometerUpdateInterval={sensorReader.AccelerometerUpdateInterval:#0.00}";
         text2.text =
                          $"Acceleration Raw \nX={sensorReader.AccelerationRaw.x:#0.00} Y={sensorReader.AccelerationRaw.y:#0.00} Z={sensorReader.AccelerationRaw.z:#0.00}\n\n" +
-                         $"Acceleration Filtered\nX={sensorReader.AccelerationFiltered.x:#0.00} Y={sensorReader.AccelerationFiltered.y:#0.00}  Z= {sensorReader.AccelerationFiltered.z:#0.00}\n\n" +
+                         $"Acceleration Filtered XZ\nX={sensorReader.AccelerationFiltered.x:#0.00} Y={sensorReader.AccelerationFiltered.y:#0.00}  Z= {sensorReader.AccelerationFiltered.z:#0.00}\n\n" +
+                         $"Acceleration Filtered XZ\nX={sensorReader.AccelerationFilteredProjectedXZ.x:#0.00} Y={sensorReader.AccelerationFilteredProjectedXZ.y:#0.00}  Z= {sensorReader.AccelerationFilteredProjectedXZ.z:#0.00}\n\n";
 
-                         $"Accelerator Magnitude={sensorReader.AccelerationFiltered.magnitude:#0.00}\n\n" +
-                         $"LowPassKernelWidthS {sensorReader.LowPassKernelWidthInSeconds:#0.00} \naccelerometerUpdateInterval={sensorReader.AccelerometerUpdateInterval:#0.00}";
+                        
     }
 
     private void DrawDiagramLines(Vector3 acceleration)
     {
-        diagramAccelerationX.InputPoint(lineAccelerationX, new Vector2(0.01f, sensorReader.AccelerationFiltered.x));
+        diagramAccelerationX.InputPoint(lineAccelerationX, new Vector2(0.01f, sensorReader.AccelerationFilteredProjectedXZ.x));
         diagramAccelerationX.InputPoint(lineAccelerationX_NotFiltered, new Vector2(0.01f, sensorReader.AccelerationRaw.x));
 
-        diagramAccelerationY.InputPoint(lineAccelerationY, new Vector2(0.01f, sensorReader.AccelerationFiltered.y));
+        diagramAccelerationY.InputPoint(lineAccelerationY, new Vector2(0.01f, sensorReader.AccelerationFilteredProjectedXZ.y));
         diagramAccelerationY.InputPoint(lineAccelerationY_NotFiltered, new Vector2(0.01f, sensorReader.AccelerationRaw.y));
 
-        diagramAccelerationZ.InputPoint(lineAccelerationZ, new Vector2(0.01f, sensorReader.AccelerationFiltered.z));
+        diagramAccelerationZ.InputPoint(lineAccelerationZ, new Vector2(0.01f, sensorReader.AccelerationFilteredProjectedXZ.z));
         diagramAccelerationZ.InputPoint(lineAccelerationZ_NotFiltered, new Vector2(0.01f, sensorReader.AccelerationRaw.z));
 
         diagramAccelerationMagnitude.InputPoint(lineAccelerationMagnitude, new Vector2(0.01f, sensorReader.AccelerationFiltered.magnitude));

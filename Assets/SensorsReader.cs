@@ -277,7 +277,7 @@ public class SensorsReader : MonoBehaviour
 
         _previousAccelerationFiltered = _currentAccelerationFiltered;
 
-        _currentAccelerationFilteredProjectedXZ.y = -(float)Math.Round(_currentAccelerationFiltered.z, 2);
+        _currentAccelerationFilteredProjectedXZ.y = (float)Math.Round(_currentAccelerationFiltered.z, 2);
         _currentAccelerationFilteredProjectedXZ.z = (float)Math.Round(_currentAccelerationFiltered.y, 2);
         _currentAccelerationFilteredProjectedXZ.x = (float)Math.Round(_currentAccelerationFiltered.x, 2);
 
