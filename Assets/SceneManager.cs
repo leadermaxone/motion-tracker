@@ -69,7 +69,7 @@ public class SceneManager : MonoBehaviour
         //text = GetComponent<TextMeshProUGUI>();
 
         //text2 = GetComponent<TextMeshProUGUI>();
-        checkStillButton.SetActive(false);
+        //checkStillButton.SetActive(false);
         stillStatus.SetActive(false);
  
 
@@ -124,7 +124,7 @@ public class SceneManager : MonoBehaviour
         {
             recordStillPressed = true;
             recordStillButton.GetComponentInChildren<TextMeshProUGUI>().text = "STOP RECORDING";
-            checkStillButton.SetActive(false);
+            //checkStillButton.SetActive(false);
             sensorReader.SetStillRecorder(true);
         }
         else
