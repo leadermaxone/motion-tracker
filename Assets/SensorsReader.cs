@@ -44,6 +44,34 @@ public class SensorsReader : MonoBehaviour
     }
     private float _stillHighThreshold;
 
+    public float StillAvg
+    {
+        get => _stillAvg; 
+        set => _stillAvg = value;
+    }
+    private float _stillAvg;
+    public float StillMovingAverageWindowSize
+    {
+        get => _stillMovAvgSize; 
+        set => _stillMovAvgSize = value;
+    }
+    private float _stillMovAvgSize;
+    private float _stillMovSum;
+    private Queue<float> _stillMovAvgData;
+    public float StillMovingAvg
+    {
+        get => _stillMovAvg;
+    }
+    private float _stillMovAvg;
+    public float StillMaxDistanceBetweenAverages
+    {
+        get => _stillMaxDistAvg;
+        set => _stillMaxDistAvg = value;
+    }
+    private float _stillMaxDistAvg;
+
+
+
     private bool sensorsEnabled = false;
 
     public Vector3 AccelerationRaw
@@ -192,6 +220,7 @@ public class SensorsReader : MonoBehaviour
         if(_accelerationMagnitudeFilteredValues.Count > 0)
         {
             _stillHighThreshold = 0f;
+            _stillAvg = 0f;
             for (int i = 0; i<_accelerationMagnitudeFilteredValues.Count; i++)
             {
                 var current = _accelerationMagnitudeFilteredValues.Pop();
@@ -199,9 +228,13 @@ public class SensorsReader : MonoBehaviour
                 { 
                     _stillHighThreshold = current;
                 }
+                _stillAvg += current;
             }
             OnStillHighThresholdChanged.Invoke(_stillHighThreshold);
-            Debug.Log($"Analysis Still Complete: high {_stillHighThreshold}");
+            _stillAvg = _stillAvg / _accelerationMagnitudeFilteredValues.Count;
+            PrepareRunningAverage(_stillAvg);
+            _stillMaxDistAvg = _stillAvg + (_stillHighThreshold - _stillAvg) * 0.75f;
+            Debug.Log($"Analysis Still Complete: high {_stillHighThreshold} - _stillAvg {_stillAvg}");
         }
         else
         {
@@ -224,11 +257,31 @@ public class SensorsReader : MonoBehaviour
             StopCoroutine(_stillCoroutine);
         }
     }
+    private void PrepareRunningAverage(float value)
+    {
+        for (int i=0; i< _stillMovAvgSize; i++)
+        {
+            _stillMovAvgData.Enqueue(value);
+            _stillMovSum += value;
+        }
+        _stillMovAvg = _stillMovSum / _stillMovAvgSize;
+    }
+    private void CalculateRunningAverage(float newValue)
+    {
+        _stillMovSum -= _stillMovAvgData.Dequeue();
+        _stillMovAvgData.Enqueue(newValue);
+        _stillMovSum += newValue;
+        _stillMovAvg = _stillMovSum / _stillMovAvgSize;
+    }
 
     private void CheckStandingStill(Vector3 acceleration)
     {
+        CalculateRunningAverage(acceleration.magnitude);
         //TODO convert to sqrMagnitude for better performances
-        if(acceleration.magnitude < _stillHighThreshold)
+        if(
+            acceleration.magnitude < _stillHighThreshold
+            || _stillMovAvg - _stillAvg < _stillMaxDistAvg
+        )
         {
             if(!_hasStartedWaitingForStill)
             {
