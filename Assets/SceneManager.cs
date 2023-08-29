@@ -200,7 +200,13 @@ public class SceneManager : MonoBehaviour
     public void OnLowPassKernelWidthInSecondsChangedByUI(float newValue)
     {
         sensorReader.LowPassKernelWidthInSeconds = newValue;
+    }    
+    public void OnStillDelayChangedByUI(float newValue)
+    {
+        sensorReader.StillDelayS = newValue;
     }
+
+
 
     private void WriteVisualLogs()
     {
@@ -232,6 +238,11 @@ public class SceneManager : MonoBehaviour
         diagramAccelerationMagnitude.InputPoint(lineAccelerationMagnitude_NotFiltered, new Vector2(0.01f, sensorReader.AccelerationRaw.magnitude));
         diagramAccelerationMagnitude.InputPoint(lineAccelerationMagnitudeThreshold, new Vector2(0.01f, sensorReader.StillHighThreshold));
 
+    }
+
+    private void OnDestroy()
+    {
+        sensorReader.DisableSensors();
     }
 
 }

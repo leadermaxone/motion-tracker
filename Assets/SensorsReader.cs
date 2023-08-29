@@ -10,6 +10,11 @@ using UnityEngine.InputSystem;
 
 public class SensorsReader : MonoBehaviour
 {
+    public float StillDelayS
+    {
+        get => _stillDelayS;
+        set => _stillDelayS = value;
+    }
     private float _stillDelayS = 0.01f;
     private event Action OnStill;
     private event Action OnMoving;
