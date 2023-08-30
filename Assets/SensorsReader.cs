@@ -47,7 +47,6 @@ public class SensorsReader : MonoBehaviour
     public float StillAvg
     {
         get => _stillAvg; 
-        set => _stillAvg = value;
     }
     private float _stillAvg;
     public float StillMovingAverageWindowSize
@@ -69,8 +68,6 @@ public class SensorsReader : MonoBehaviour
         set => _stillMaxDistAvg = value;
     }
     private float _stillMaxDistAvg;
-
-
 
     private bool sensorsEnabled = false;
 
@@ -272,6 +269,49 @@ public class SensorsReader : MonoBehaviour
         _stillMovAvgData.Enqueue(newValue);
         _stillMovSum += newValue;
         _stillMovAvg = _stillMovSum / _stillMovAvgSize;
+    }
+
+    private void IsWalkingSoftly(Vector3 acceleration)
+    {
+        var wasGoingUp = false;
+        //TODO: how to init wasGoingUP?
+        var isGoingUp = false;
+        var localMin = 100f;
+        var localMax = 0f;
+        var hasCrossedGoingUp = false;
+        var hasCrossedGoingDown = false;
+        var foundMin = false;
+        var foundMax = false;
+
+        //confirm if going up
+        isGoingUp = acceleration.magnitude > _previousAccelerationFiltered.magnitude;
+
+        // check if crossed going up
+        if (isGoingUp && wasGoingUp && acceleration.magnitude > _stillMovAvg)
+        {
+            hasCrossedGoingUp = true;
+        } 
+        else if(!isGoingUp && !wasGoingUp && acceleration.magnitude < _stillMovAvg)
+        {
+            hasCrossedGoingDown = true;
+        }
+        else if(isGoingUp && !wasGoingUp)
+        {
+            localMin = acceleration.magnitude;
+            foundMin = true;
+        }
+        else if(!isGoingUp && wasGoingUp)
+        {
+            localMax = acceleration.magnitude;
+            foundMax = true;
+        }
+        
+        if(foundMin && hasCrossedGoingUp && foundMax)
+        {
+
+        }
+        //condition for step
+        wasGoingUp = isGoingUp;
     }
 
     private void CheckStandingStill(Vector3 acceleration)
