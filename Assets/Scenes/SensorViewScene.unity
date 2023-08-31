@@ -106389,6 +106389,7 @@ MonoBehaviour:
   diagramAccelerationY: {fileID: 173215271}
   diagramAccelerationZ: {fileID: 1128103046}
   diagramAccelerationMagnitude: {fileID: 1541936164}
+  diagramAccelerationAvg: {fileID: 261896271}
   text: {fileID: 1079212372}
   text2: {fileID: 1086462214}
   PhoneModelAttitude: {fileID: 574127497}
