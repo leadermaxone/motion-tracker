@@ -86,12 +86,12 @@ public class SceneManager : MonoBehaviour
         stillStatus.SetActive(false);
  
 
-        lineAccelerationX = diagramAccelerationX.AddLine(colorX.ToString(), colorX);
-        lineAccelerationX_NotFiltered = diagramAccelerationX.AddLine(colorX_NotFiltered.ToString(), colorX_NotFiltered);
-        lineAccelerationY = diagramAccelerationY.AddLine(colorY.ToString(), colorY);
-        lineAccelerationY_NotFiltered = diagramAccelerationY.AddLine(colorY_NotFiltered.ToString(), colorY_NotFiltered);
-        lineAccelerationZ = diagramAccelerationZ.AddLine(colorZ.ToString(), colorZ);
-        lineAccelerationZ_NotFiltered = diagramAccelerationZ.AddLine(colorZ_NotFiltered.ToString(), colorZ_NotFiltered);
+        //lineAccelerationX = diagramAccelerationX.AddLine(colorX.ToString(), colorX);
+        //lineAccelerationX_NotFiltered = diagramAccelerationX.AddLine(colorX_NotFiltered.ToString(), colorX_NotFiltered);
+        //lineAccelerationY = diagramAccelerationY.AddLine(colorY.ToString(), colorY);
+        //lineAccelerationY_NotFiltered = diagramAccelerationY.AddLine(colorY_NotFiltered.ToString(), colorY_NotFiltered);
+        //lineAccelerationZ = diagramAccelerationZ.AddLine(colorZ.ToString(), colorZ);
+        //lineAccelerationZ_NotFiltered = diagramAccelerationZ.AddLine(colorZ_NotFiltered.ToString(), colorZ_NotFiltered);
         
         lineAccelerationMagnitude = diagramAccelerationMagnitude.AddLine(colorMagnitude.ToString(), colorMagnitude);
         lineAccelerationMagnitude_NotFiltered = diagramAccelerationMagnitude.AddLine(colorMagnitude_NotFiltered.ToString(), colorMagnitude_NotFiltered);
@@ -99,14 +99,26 @@ public class SceneManager : MonoBehaviour
 
         
         lineAccelerationMagnitudeForAvg = diagramAccelerationAvg.AddLine(colorMagnitude.ToString(), colorMagnitude);
+        Debug.Log($"Adding line moving avg");
         lineAccelerationMovingAverage = diagramAccelerationAvg.AddLine(colorMovingAverage.ToString(), colorMovingAverage);
+        Debug.Log($"Adding line moving avg max");
         lineAccelerationMovingAverageMax = diagramAccelerationAvg.AddLine(colorMovingAverageMax.ToString(), colorMovingAverageMax);
+        Debug.Log($"Adding line moving avg mmin");
         lineAccelerationMovingAverageMin = diagramAccelerationAvg.AddLine(colorMovingAverageMin.ToString(), colorMovingAverageMin);
+        Debug.Log($"Adding line moving avgdist");
         lineAccelerationMaxDistanceBetweenAverages = diagramAccelerationAvg.AddLine(colorMaxDistanceBetweenAverages.ToString(), colorMaxDistanceBetweenAverages);
+        Debug.Log($"Added all lines");
 
-        StartCoroutine(ZoomAndDrag(diagramAccelerationX));
-        StartCoroutine(ZoomAndDrag(diagramAccelerationY));
-        StartCoroutine(ZoomAndDrag(diagramAccelerationZ));
+        }
+        catch (Exception ex)
+        {
+            Debug.Log("ERROR while adding lines "+ex);
+            throw;
+        }
+
+        //StartCoroutine(ZoomAndDrag(diagramAccelerationX));
+        //StartCoroutine(ZoomAndDrag(diagramAccelerationY));
+        //StartCoroutine(ZoomAndDrag(diagramAccelerationZ));
         StartCoroutine(ZoomAndDrag(diagramAccelerationMagnitude));
         StartCoroutine(ZoomAndDrag(diagramAccelerationAvg));
 
