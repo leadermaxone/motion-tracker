@@ -29,6 +29,7 @@ public class SceneManager : MonoBehaviour
     public DD_DataDiagram diagramAccelerationY;
     public DD_DataDiagram diagramAccelerationZ;
     public DD_DataDiagram diagramAccelerationMagnitude;
+    public DD_DataDiagram diagramAccelerationAvg;
 
     private GameObject lineAccelerationX;
     private GameObject lineAccelerationX_NotFiltered;
@@ -43,6 +44,7 @@ public class SceneManager : MonoBehaviour
     private GameObject lineAccelerationMagnitude_NotFiltered;
     private GameObject lineAccelerationMagnitudeThreshold;
 
+    private GameObject lineAccelerationMagnitudeForAvg;
     private GameObject lineAccelerationMovingAverage;
     private GameObject lineAccelerationMovingAverageMax;
     private GameObject lineAccelerationMovingAverageMin;
@@ -90,15 +92,17 @@ public class SceneManager : MonoBehaviour
         lineAccelerationY_NotFiltered = diagramAccelerationY.AddLine(colorY_NotFiltered.ToString(), colorY_NotFiltered);
         lineAccelerationZ = diagramAccelerationZ.AddLine(colorZ.ToString(), colorZ);
         lineAccelerationZ_NotFiltered = diagramAccelerationZ.AddLine(colorZ_NotFiltered.ToString(), colorZ_NotFiltered);
+        
         lineAccelerationMagnitude = diagramAccelerationMagnitude.AddLine(colorMagnitude.ToString(), colorMagnitude);
         lineAccelerationMagnitude_NotFiltered = diagramAccelerationMagnitude.AddLine(colorMagnitude_NotFiltered.ToString(), colorMagnitude_NotFiltered);
         lineAccelerationMagnitudeThreshold = diagramAccelerationMagnitude.AddLine(colorMagnitudeThreshold.ToString(), colorMagnitudeThreshold);
 
 
-        lineAccelerationMovingAverage = diagramAccelerationMagnitude.AddLine(colorMovingAverage.ToString(), colorMovingAverage);
-        lineAccelerationMovingAverageMax = diagramAccelerationMagnitude.AddLine(colorMovingAverageMax.ToString(), colorMovingAverageMax);
-        lineAccelerationMovingAverageMin = diagramAccelerationMagnitude.AddLine(colorMovingAverageMin.ToString(), colorMovingAverageMin);
-        lineAccelerationMaxDistanceBetweenAverages = diagramAccelerationMagnitude.AddLine(colorMaxDistanceBetweenAverages.ToString(), colorMaxDistanceBetweenAverages);
+        lineAccelerationMagnitudeForAvg = diagramAccelerationAvg.AddLine(colorMagnitude.ToString(), colorMagnitude);
+        lineAccelerationMovingAverage = diagramAccelerationAvg.AddLine(colorMovingAverage.ToString(), colorMovingAverage);
+        lineAccelerationMovingAverageMax = diagramAccelerationAvg.AddLine(colorMovingAverageMax.ToString(), colorMovingAverageMax);
+        lineAccelerationMovingAverageMin = diagramAccelerationAvg.AddLine(colorMovingAverageMin.ToString(), colorMovingAverageMin);
+        lineAccelerationMaxDistanceBetweenAverages = diagramAccelerationAvg.AddLine(colorMaxDistanceBetweenAverages.ToString(), colorMaxDistanceBetweenAverages);
 
         StartCoroutine(ZoomAndDrag(diagramAccelerationX));
         StartCoroutine(ZoomAndDrag(diagramAccelerationY));
@@ -254,25 +258,25 @@ public class SceneManager : MonoBehaviour
 
     private void DrawDiagramLines(Vector3 acceleration)
     {
-        diagramAccelerationX.InputPoint(lineAccelerationX, new Vector2(0.01f, sensorReader.AccelerationFilteredProjectedXZ.x));
-        diagramAccelerationX.InputPoint(lineAccelerationX_NotFiltered, new Vector2(0.01f, sensorReader.AccelerationRaw.x));
+        //diagramAccelerationX.InputPoint(lineAccelerationX, new Vector2(0.01f, sensorReader.AccelerationFilteredProjectedXZ.x));
+        //diagramAccelerationX.InputPoint(lineAccelerationX_NotFiltered, new Vector2(0.01f, sensorReader.AccelerationRaw.x));
 
-        diagramAccelerationY.InputPoint(lineAccelerationY, new Vector2(0.01f, sensorReader.AccelerationFilteredProjectedXZ.y));
-        diagramAccelerationY.InputPoint(lineAccelerationY_NotFiltered, new Vector2(0.01f, sensorReader.AccelerationRaw.y));
+        //diagramAccelerationY.InputPoint(lineAccelerationY, new Vector2(0.01f, sensorReader.AccelerationFilteredProjectedXZ.y));
+        //diagramAccelerationY.InputPoint(lineAccelerationY_NotFiltered, new Vector2(0.01f, sensorReader.AccelerationRaw.y));
 
-        diagramAccelerationZ.InputPoint(lineAccelerationZ, new Vector2(0.01f, sensorReader.AccelerationFilteredProjectedXZ.z));
-        diagramAccelerationZ.InputPoint(lineAccelerationZ_NotFiltered, new Vector2(0.01f, sensorReader.AccelerationRaw.z));
+        //diagramAccelerationZ.InputPoint(lineAccelerationZ, new Vector2(0.01f, sensorReader.AccelerationFilteredProjectedXZ.z));
+        //diagramAccelerationZ.InputPoint(lineAccelerationZ_NotFiltered, new Vector2(0.01f, sensorReader.AccelerationRaw.z));
 
         diagramAccelerationMagnitude.InputPoint(lineAccelerationMagnitude, new Vector2(0.01f, sensorReader.AccelerationFiltered.magnitude));
         diagramAccelerationMagnitude.InputPoint(lineAccelerationMagnitude_NotFiltered, new Vector2(0.01f, sensorReader.AccelerationRaw.magnitude));
         diagramAccelerationMagnitude.InputPoint(lineAccelerationMagnitudeThreshold, new Vector2(0.01f, sensorReader.StillHighThreshold));
-       
-        diagramAccelerationMagnitude.InputPoint(lineAccelerationMovingAverage, new Vector2(0.01f, sensorReader.StillMovingAvg));
-        diagramAccelerationMagnitude.InputPoint(lineAccelerationMovingAverageMax, new Vector2(0.01f, sensorReader.StillMovingAvg+sensorReader.StillWaveStepDelta));
-        diagramAccelerationMagnitude.InputPoint(lineAccelerationMovingAverageMin, new Vector2(0.01f, sensorReader.StillMovingAvg - sensorReader.StillWaveStepDelta));
-        diagramAccelerationMagnitude.InputPoint(lineAccelerationMaxDistanceBetweenAverages, new Vector2(0.01f, sensorReader.StillHighThreshold));
 
-        
+
+        diagramAccelerationAvg.InputPoint(lineAccelerationMagnitudeForAvg, new Vector2(0.01f, sensorReader.AccelerationFiltered.magnitude));
+        diagramAccelerationAvg.InputPoint(lineAccelerationMovingAverage, new Vector2(0.01f, sensorReader.StillMovingAvg));
+        diagramAccelerationAvg.InputPoint(lineAccelerationMovingAverageMax, new Vector2(0.01f, sensorReader.StillMovingAvg+sensorReader.StillWaveStepDelta));
+        diagramAccelerationAvg.InputPoint(lineAccelerationMovingAverageMin, new Vector2(0.01f, sensorReader.StillMovingAvg - sensorReader.StillWaveStepDelta));
+        diagramAccelerationAvg.InputPoint(lineAccelerationMaxDistanceBetweenAverages, new Vector2(0.01f, sensorReader.StillHighThreshold));        
 
     }
 
