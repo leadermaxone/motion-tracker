@@ -166,7 +166,9 @@ public class SensorsReader : MonoBehaviour
         _attitudeEulerProjectedXZ = Vector3.zero;
         _attitudeValueEuler = Vector3.zero;
 
-
+        _stillMovAvg = 0f;
+        _stillAvg = 0f;
+        _stillMovAvgData = new Queue<float>();
 
         _lowPassFilterFactor = _accelerometerUpdateInterval / _lowPassKernelWidthInSeconds;
 

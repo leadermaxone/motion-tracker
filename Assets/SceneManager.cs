@@ -97,7 +97,7 @@ public class SceneManager : MonoBehaviour
         lineAccelerationMagnitude_NotFiltered = diagramAccelerationMagnitude.AddLine(colorMagnitude_NotFiltered.ToString(), colorMagnitude_NotFiltered);
         lineAccelerationMagnitudeThreshold = diagramAccelerationMagnitude.AddLine(colorMagnitudeThreshold.ToString(), colorMagnitudeThreshold);
 
-
+        
         lineAccelerationMagnitudeForAvg = diagramAccelerationAvg.AddLine(colorMagnitude.ToString(), colorMagnitude);
         lineAccelerationMovingAverage = diagramAccelerationAvg.AddLine(colorMovingAverage.ToString(), colorMovingAverage);
         lineAccelerationMovingAverageMax = diagramAccelerationAvg.AddLine(colorMovingAverageMax.ToString(), colorMovingAverageMax);
@@ -108,6 +108,7 @@ public class SceneManager : MonoBehaviour
         StartCoroutine(ZoomAndDrag(diagramAccelerationY));
         StartCoroutine(ZoomAndDrag(diagramAccelerationZ));
         StartCoroutine(ZoomAndDrag(diagramAccelerationMagnitude));
+        StartCoroutine(ZoomAndDrag(diagramAccelerationAvg));
 
         sensorReader.Setup(0.1f, OnStillCallback, OnMovingCallback);
         sensorReaderStarted = true;
@@ -243,8 +244,9 @@ public class SceneManager : MonoBehaviour
     private void WriteVisualLogs()
     {
         text.text =
-                        $"Attitude\nX={sensorReader.Attitude.x:#0.00} Y={sensorReader.Attitude.y:#0.00} Z={sensorReader.Attitude.z:#0.00}\n\n" +
-                        $"attitudeEulerProjectedXZ\nX={sensorReader.AttitudeEulerProjectedXZ.x:#0.00} Y={sensorReader.AttitudeEulerProjectedXZ.y:#0.00} Z={sensorReader.AttitudeEulerProjectedXZ.z:#0.00}\n\n" +
+                        //$"Attitude\nX={sensorReader.Attitude.x:#0.00} Y={sensorReader.Attitude.y:#0.00} Z={sensorReader.Attitude.z:#0.00}\n\n" +
+                        //$"attitudeEulerProjectedXZ\nX={sensorReader.AttitudeEulerProjectedXZ.x:#0.00} Y={sensorReader.AttitudeEulerProjectedXZ.y:#0.00} Z={sensorReader.AttitudeEulerProjectedXZ.z:#0.00}\n\n" +
+                        $"Moving Avg={sensorReader.StillMovingAvg:#0.00} \n"+
                         $"Still threshold High={sensorReader.StillHighThreshold:#0.00} \n"+
                         $"Accelerator Magnitude={sensorReader.AccelerationFiltered.magnitude:#0.00}\n\n" +
                         $"LowPassKernelWidthS {sensorReader.LowPassKernelWidthInSeconds:#0.00} \naccelerometerUpdateInterval={sensorReader.AccelerometerUpdateInterval:#0.00}";
