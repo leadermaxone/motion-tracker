@@ -99,22 +99,13 @@ public class SceneManager : MonoBehaviour
 
         
         lineAccelerationMagnitudeForAvg = diagramAccelerationAvg.AddLine(colorMagnitude.ToString(), colorMagnitude);
-        Debug.Log($"Adding line moving avg");
         lineAccelerationMovingAverage = diagramAccelerationAvg.AddLine(colorMovingAverage.ToString(), colorMovingAverage);
-        Debug.Log($"Adding line moving avg max");
         lineAccelerationMovingAverageMax = diagramAccelerationAvg.AddLine(colorMovingAverageMax.ToString(), colorMovingAverageMax);
-        Debug.Log($"Adding line moving avg mmin");
         lineAccelerationMovingAverageMin = diagramAccelerationAvg.AddLine(colorMovingAverageMin.ToString(), colorMovingAverageMin);
-        Debug.Log($"Adding line moving avgdist");
         lineAccelerationMaxDistanceBetweenAverages = diagramAccelerationAvg.AddLine(colorMaxDistanceBetweenAverages.ToString(), colorMaxDistanceBetweenAverages);
-        Debug.Log($"Added all lines");
 
-        }
-        catch (Exception ex)
-        {
-            Debug.Log("ERROR while adding lines "+ex);
-            throw;
-        }
+        
+     
 
         //StartCoroutine(ZoomAndDrag(diagramAccelerationX));
         //StartCoroutine(ZoomAndDrag(diagramAccelerationY));
