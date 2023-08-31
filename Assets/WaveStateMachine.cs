@@ -1,95 +1,133 @@
-﻿using System;
+﻿using UnityEngine;
 
 public class WaveStateController
 {
-    private IWaveState currentState;
-    private void TransitionToState(IWaveState newState)
+    public SensorsReader sensorsReader;
+    public WaveState currentState;
+    public GoingUp goingUp;
+    public GoingDown goingDown;
+    public CheckStep checkStep;
+
+    public WaveStateController(SensorsReader sensorsReader)
+    {
+        this.sensorsReader = sensorsReader;
+        goingUp = new GoingUp(this, sensorsReader);
+        goingDown = new GoingDown(this, sensorsReader);
+        checkStep = new CheckStep(this, sensorsReader);
+    }
+    public void TransitionToState(WaveState newState)
     {
         currentState.OnExit();
         currentState = newState;
         currentState.OnEnter();
     }
+    public void RunState()
+    {
+        currentState.OnUpdate();
+    }
+
+    public bool HasStep()
+    {
+        if (checkStep.stepCounter == 1f)
+        {
+            //we have a full checkStep
+            goingUp.crossedThreshold = false;
+            goingDown.crossedThreshold = false;
+            goingDown.localMin = -1;
+            goingUp.localMax = -1;
+            checkStep.stepCounter = 0;
+            Debug.Log("STEP FROM STATE MACHINE!!!!");
+            return true;
+        }
+        return false;
+    }
 }
 
 public enum WaveStateId
 {
-    GoingUp;
-    GoingDown;
-    CheckStep;
+    GoingUp,
+    GoingDown,
+    CheckStep
 }
 
-public interface IWaveState
+public class WaveState
 {
-    public bool crossedThreshold
-    public void OnEnter();
-    public void OnUpdate();
-    public void OnExit();
-}
-
-public class GoingUp : IWaveState
-{
-    OnUpdate()
+    public WaveState(WaveStateController waveStateController, SensorsReader sensorsReader)
     {
-        if(curAcc > prevAcc)
+        this.waveStateController = waveStateController;
+        this.sensorsReader = sensorsReader;
+    }
+    public WaveStateController waveStateController;
+    public SensorsReader sensorsReader;
+    public bool crossedThreshold;
+    public virtual void OnEnter() { }
+    public virtual void OnUpdate() { }
+    public virtual void OnExit() { }
+}
+
+public class GoingUp : WaveState
+{
+    public GoingUp(WaveStateController waveStateController, SensorsReader sensorsReader) : base(waveStateController, sensorsReader) { }
+    public float localMax;
+    public override void OnUpdate()
+    {
+        base.OnUpdate();
+        if(sensorsReader.AccelerationFiltered.magnitude > sensorsReader.PreviousAccelerationFiltered.magnitude)
         {
             // going up, stay in state
             // check for threshold crossed
-            if (currAcc > threshold)
+            if (sensorsReader.AccelerationFiltered.magnitude > sensorsReader.StillMovingAvg)
                 crossedThreshold = true;
         }
         else
         {
-            localMax = currAcc;
-            WaveStateController.ChangeState(GoingDown)
+            localMax = sensorsReader.AccelerationFiltered.magnitude;
+            waveStateController.TransitionToState(waveStateController.goingDown);
         }
     }
 }
-public class GoingDown : IWaveState
+public class GoingDown : WaveState
 {
-    OnUpdate()
+    public GoingDown(WaveStateController waveStateController, SensorsReader sensorsReader) : base(waveStateController, sensorsReader) { }
+    public float localMin;
+    public override void OnUpdate()
     {
-        if (curAcc < prevAcc)
+        base.OnUpdate();
+        if (sensorsReader.AccelerationFiltered.magnitude < sensorsReader.PreviousAccelerationFiltered.magnitude)
         {
             // going down, stay in state
             // check for threshold crossed
-            if (currAcc < threshold)
+            if (sensorsReader.AccelerationFiltered.magnitude < sensorsReader.StillMovingAvg)
                 crossedThreshold = true;
         }
         else
         {
-            localMin = currAcc;
-            WaveStateController.ChangeState(CheckStep)
+            localMin = sensorsReader.AccelerationFiltered.magnitude;
+            waveStateController.TransitionToState(waveStateController.checkStep);
         }
     }
 }
-public class CheckStep : IWaveState
+public class CheckStep : WaveState
 {
-    OnUpdate()
+    public CheckStep(WaveStateController waveStateController, SensorsReader sensorsReader) : base(waveStateController, sensorsReader) { }
+    public float stepCounter = 0f;
+    public override void OnUpdate()
     {
-        if (GoingUp.crossedThreshold && GoingDown.crossedThreshold)
+        base.OnUpdate();
+        if (waveStateController.goingUp.crossedThreshold && waveStateController.goingDown.crossedThreshold)
         {
-            if(localMax - localMin > stepThreshold)
+            if(
+                waveStateController.goingUp.localMax - sensorsReader.StillMovingAvg > sensorsReader.StillWaveStepDelta &&
+                sensorsReader.StillMovingAvg - waveStateController.goingDown.localMin > sensorsReader.StillWaveStepDelta
+                )
             {
-                StepCounter += 0.5;
+                stepCounter += 0.5f;
             }
         }
-        else
-        {
-            WaveStateController.ChangeState(GoingUp)
-        }
-    }
-    OnExit()
-    {
-        if (StepCounter == 1)
-        {
-            //we have a full step
-            OnStep.Invoke();
-            GoingUp.crossedThreshold = false;
-            GoingDown.crossedThreshold = false;
-            localMin = -1;
-            localMax = -1;
-        }
+
+        waveStateController.TransitionToState(waveStateController.goingUp);
+
     }
 }
 
-}
+

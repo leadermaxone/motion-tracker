@@ -16,9 +16,11 @@ public class SensorsReader : MonoBehaviour
         set => _stillDelayS = value;
     }
     private float _stillDelayS = 0.01f;
-    private event Action OnStill;
-    private event Action OnMoving;
+    public event Action OnStill;
+    public event Action OnMoving;
     internal event Action<float> OnStillHighThresholdChanged;
+    internal event Action<float> OnStillAverageChanged;
+    internal event Action<float> OnStillMaxDistanceFromAverageChanged;
 
     private bool isRecordingSteps = false;
     private bool isRecordingStill = false;
@@ -69,6 +71,13 @@ public class SensorsReader : MonoBehaviour
     }
     private float _stillMaxDistAvg;
 
+    public float StillWaveStepDelta
+    {
+        get => _stillWaveStepDelta;
+        set => _stillWaveStepDelta = value;
+    }
+    private float _stillWaveStepDelta;
+
     private bool sensorsEnabled = false;
 
     public Vector3 AccelerationRaw
@@ -87,6 +96,10 @@ public class SensorsReader : MonoBehaviour
     }
     private Vector3 _currentAccelerationFilteredProjectedXZ;
 
+    public Vector3 PreviousAccelerationFiltered
+    {
+        get => _previousAccelerationFiltered;
+    }
     private Vector3 _previousAccelerationFiltered;
 
     public Quaternion Attitude
@@ -139,6 +152,8 @@ public class SensorsReader : MonoBehaviour
     private bool _isCheckingStandingStill = false;
     private bool _hasStartedWaitingForStill = false;
 
+    private WaveStateController _waveStateController;
+
     void Start()
     {
 
@@ -155,8 +170,8 @@ public class SensorsReader : MonoBehaviour
 
         _lowPassFilterFactor = _accelerometerUpdateInterval / _lowPassKernelWidthInSeconds;
 
-
-       
+        _waveStateController = new WaveStateController(this);
+        StillMovingAverageWindowSize = 300; //at 60hz it's 5 secs worth of data
     }
 
     public void Setup(float stillDelayS, Action OnStillCallback, Action OnMovingCallback)
@@ -229,8 +244,10 @@ public class SensorsReader : MonoBehaviour
             }
             OnStillHighThresholdChanged.Invoke(_stillHighThreshold);
             _stillAvg = _stillAvg / _accelerationMagnitudeFilteredValues.Count;
+            OnStillAverageChanged.Invoke(_stillAvg);
             PrepareRunningAverage(_stillAvg);
             _stillMaxDistAvg = _stillAvg + (_stillHighThreshold - _stillAvg) * 0.75f;
+            OnStillMaxDistanceFromAverageChanged(_stillMaxDistAvg);
             Debug.Log($"Analysis Still Complete: high {_stillHighThreshold} - _stillAvg {_stillAvg}");
         }
         else
@@ -245,6 +262,11 @@ public class SensorsReader : MonoBehaviour
         // invoke user logic
         Debug.Log($"Player Still for long enough!");
         OnStill.Invoke();
+    }
+
+    public void OnStillInvoke()
+    {
+        OnStill?.Invoke();
     }
 
     private void OnStopCheckForStill()
@@ -271,56 +293,17 @@ public class SensorsReader : MonoBehaviour
         _stillMovAvg = _stillMovSum / _stillMovAvgSize;
     }
 
-    private void IsWalkingSoftly(Vector3 acceleration)
-    {
-        var wasGoingUp = false;
-        //TODO: how to init wasGoingUP?
-        var isGoingUp = false;
-        var localMin = 100f;
-        var localMax = 0f;
-        var hasCrossedGoingUp = false;
-        var hasCrossedGoingDown = false;
-        var foundMin = false;
-        var foundMax = false;
-
-        //confirm if going up
-        isGoingUp = acceleration.magnitude > _previousAccelerationFiltered.magnitude;
-
-        // check if crossed going up
-        if (isGoingUp && wasGoingUp && acceleration.magnitude > _stillMovAvg)
-        {
-            hasCrossedGoingUp = true;
-        } 
-        else if(!isGoingUp && !wasGoingUp && acceleration.magnitude < _stillMovAvg)
-        {
-            hasCrossedGoingDown = true;
-        }
-        else if(isGoingUp && !wasGoingUp)
-        {
-            localMin = acceleration.magnitude;
-            foundMin = true;
-        }
-        else if(!isGoingUp && wasGoingUp)
-        {
-            localMax = acceleration.magnitude;
-            foundMax = true;
-        }
-        
-        if(foundMin && hasCrossedGoingUp && foundMax)
-        {
-
-        }
-        //condition for step
-        wasGoingUp = isGoingUp;
-    }
+    
 
     private void CheckStandingStill(Vector3 acceleration)
     {
         CalculateRunningAverage(acceleration.magnitude);
         //TODO convert to sqrMagnitude for better performances
+        _waveStateController.RunState();
         if(
             acceleration.magnitude < _stillHighThreshold
-            || _stillMovAvg - _stillAvg < _stillMaxDistAvg
+            && _stillMovAvg - _stillAvg < _stillMaxDistAvg
+            && !_waveStateController.HasStep()
         )
         {
             if(!_hasStartedWaitingForStill)

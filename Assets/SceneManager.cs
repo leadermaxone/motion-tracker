@@ -43,6 +43,11 @@ public class SceneManager : MonoBehaviour
     private GameObject lineAccelerationMagnitude_NotFiltered;
     private GameObject lineAccelerationMagnitudeThreshold;
 
+    private GameObject lineAccelerationMovingAverage;
+    private GameObject lineAccelerationMovingAverageMax;
+    private GameObject lineAccelerationMovingAverageMin;
+    private GameObject lineAccelerationMaxDistanceBetweenAverages;
+
     private Color colorX = Color.red;
     private Color colorX_NotFiltered = Color.grey;
     private Color colorY = Color.green;
@@ -53,12 +58,18 @@ public class SceneManager : MonoBehaviour
     private Color colorMagnitude_NotFiltered = Color.grey;
     private Color colorMagnitudeThreshold = Color.white;
 
+    private Color colorMovingAverage = Color.green;
+    private Color colorMovingAverageMax = Color.red;
+    private Color colorMovingAverageMin = Color.red;
+    private Color colorMaxDistanceBetweenAverages = Color.blue;
+
     public TextMeshProUGUI text, text2;
     public GameObject PhoneModelAttitude,PhoneModelAcceleration;
     public GameObject AccelerationArrow;
     Vector3 accelerationScaleVector = new Vector3(1, 1, 0.5f);
 
     public UnityEvent<float> OnStillHighThresholdChangedFromSensor = new UnityEvent<float>();
+    public UnityEvent<float> OnStillMaxDistanceFromAverageChangedFromSensor = new UnityEvent<float>();
 
 
 
@@ -83,6 +94,12 @@ public class SceneManager : MonoBehaviour
         lineAccelerationMagnitude_NotFiltered = diagramAccelerationMagnitude.AddLine(colorMagnitude_NotFiltered.ToString(), colorMagnitude_NotFiltered);
         lineAccelerationMagnitudeThreshold = diagramAccelerationMagnitude.AddLine(colorMagnitudeThreshold.ToString(), colorMagnitudeThreshold);
 
+
+        lineAccelerationMovingAverage = diagramAccelerationMagnitude.AddLine(colorMovingAverage.ToString(), colorMovingAverage);
+        lineAccelerationMovingAverageMax = diagramAccelerationMagnitude.AddLine(colorMovingAverageMax.ToString(), colorMovingAverageMax);
+        lineAccelerationMovingAverageMin = diagramAccelerationMagnitude.AddLine(colorMovingAverageMin.ToString(), colorMovingAverageMin);
+        lineAccelerationMaxDistanceBetweenAverages = diagramAccelerationMagnitude.AddLine(colorMaxDistanceBetweenAverages.ToString(), colorMaxDistanceBetweenAverages);
+
         StartCoroutine(ZoomAndDrag(diagramAccelerationX));
         StartCoroutine(ZoomAndDrag(diagramAccelerationY));
         StartCoroutine(ZoomAndDrag(diagramAccelerationZ));
@@ -91,6 +108,7 @@ public class SceneManager : MonoBehaviour
         sensorReader.Setup(0.1f, OnStillCallback, OnMovingCallback);
         sensorReaderStarted = true;
         sensorReader.OnStillHighThresholdChanged += (newThreshold)=> { OnStillHighThresholdChangedFromSensor.Invoke(newThreshold); };
+        sensorReader.OnStillMaxDistanceFromAverageChanged += (newThreshold)=> { OnStillMaxDistanceFromAverageChangedFromSensor.Invoke(newThreshold); };
     }
 
     private void OnStillCallback()
@@ -189,11 +207,18 @@ public class SceneManager : MonoBehaviour
     }
 
    
+    public void OnStillWaveStepDeltaChangedByUI(float newValue)
+    {
+        sensorReader.StillWaveStepDelta = newValue;
+    }
+    public void OnMaxDistanceBetweenAveragesChangedByUI(float newValue)
+    {
+        sensorReader.StillMaxDistanceBetweenAverages = newValue;
+    }
     public void OnStillHighThresholdChangedByUI(float newValue)
     {
         sensorReader.StillHighThreshold = newValue;
     }
-    
 
     public void OnAccelerometerUpdateIntervalChangedByUI(float newValue)
     {
@@ -241,6 +266,13 @@ public class SceneManager : MonoBehaviour
         diagramAccelerationMagnitude.InputPoint(lineAccelerationMagnitude, new Vector2(0.01f, sensorReader.AccelerationFiltered.magnitude));
         diagramAccelerationMagnitude.InputPoint(lineAccelerationMagnitude_NotFiltered, new Vector2(0.01f, sensorReader.AccelerationRaw.magnitude));
         diagramAccelerationMagnitude.InputPoint(lineAccelerationMagnitudeThreshold, new Vector2(0.01f, sensorReader.StillHighThreshold));
+       
+        diagramAccelerationMagnitude.InputPoint(lineAccelerationMovingAverage, new Vector2(0.01f, sensorReader.StillMovingAvg));
+        diagramAccelerationMagnitude.InputPoint(lineAccelerationMovingAverageMax, new Vector2(0.01f, sensorReader.StillMovingAvg+sensorReader.StillWaveStepDelta));
+        diagramAccelerationMagnitude.InputPoint(lineAccelerationMovingAverageMin, new Vector2(0.01f, sensorReader.StillMovingAvg - sensorReader.StillWaveStepDelta));
+        diagramAccelerationMagnitude.InputPoint(lineAccelerationMaxDistanceBetweenAverages, new Vector2(0.01f, sensorReader.StillHighThreshold));
+
+        
 
     }
 
