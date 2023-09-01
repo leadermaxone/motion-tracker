@@ -7,7 +7,8 @@ public class WaveStateController
     public GoingUp goingUp;
     public GoingDown goingDown;
     public CheckStep checkStep;
-
+    public bool isWaveStepDeltaCheckOn;
+    public int stepThreshold;
     public WaveStateController(SensorsReader sensorsReader)
     {
         this.sensorsReader = sensorsReader;
@@ -15,6 +16,8 @@ public class WaveStateController
         goingDown = new GoingDown(this, sensorsReader);
         checkStep = new CheckStep(this, sensorsReader);
         currentState = goingUp;
+        isWaveStepDeltaCheckOn = true;
+        stepThreshold = 2;
     }
     public void TransitionToState(WaveState newState)
     {
@@ -29,7 +32,7 @@ public class WaveStateController
 
     public bool HasStep()
     {
-        if (checkStep.stepCounter == 1f)
+        if (checkStep.stepCounter == stepThreshold)
         {
             SceneManager.StateMachineStepDetected(this);
             //we have a full checkStep
@@ -43,7 +46,17 @@ public class WaveStateController
         }
         return false;
     }
+    public void SetWaveStepDeltaCheck(bool mode)
+    {
+        isWaveStepDeltaCheckOn = mode;
+    }
+    public void SetStepThreshold(int threshold)
+    {
+        stepThreshold = threshold;
+    }
 }
+
+
 
 public enum WaveStateId
 {
@@ -131,11 +144,16 @@ public class CheckStep : WaveState
         if (waveStateController.goingUp.crossedThreshold && waveStateController.goingDown.crossedThreshold)
         {
             if(
+                waveStateController.isWaveStepDeltaCheckOn &&
                 waveStateController.goingUp.localMax - sensorsReader.StillMovingAvg > sensorsReader.StillWaveStepDelta &&
                 sensorsReader.StillMovingAvg - waveStateController.goingDown.localMin > sensorsReader.StillWaveStepDelta
                 )
             {
-                stepCounter += 0.5f;
+                stepCounter += 1;
+            }
+            else if(!waveStateController.isWaveStepDeltaCheckOn)
+            {
+                stepCounter += 1;
             }
         }
         else

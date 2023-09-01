@@ -264,7 +264,7 @@ public class SensorsReader : MonoBehaviour
             _stillAvg = (float)Math.Round(_stillAvg / _accelerationMagnitudeFilteredValues.Count, 3) ;
             //OnStillAverageChanged.Invoke(_stillAvg);
             PrepareRunningAverage(_stillAvg);
-            _stillMaxDistAvg = (float)Math.Round(_stillAvg + (_stillHighThreshold - _stillAvg) * 0.75f, 2);
+            _stillMaxDistAvg = (float)Math.Round(_stillAvg + (_stillHighThreshold - _stillAvg) * 0.75f, 3);
             OnStillMaxDistanceFromAverageChanged(_stillMaxDistAvg);
             Debug.Log($"Analysis Still Complete: high {_stillHighThreshold} - _stillAvg {_stillAvg}");
         }
