@@ -65,7 +65,7 @@ public class SceneManager : MonoBehaviour
     private Color colorMovingAverageMin = Color.red;
     private Color colorMaxDistanceBetweenAverages = Color.blue;
 
-    public TextMeshProUGUI text, text2;
+    public TextMeshProUGUI text, text2, scrollViewText;
     public GameObject PhoneModelAttitude,PhoneModelAcceleration;
     public GameObject AccelerationArrow;
     Vector3 accelerationScaleVector = new Vector3(1, 1, 0.5f);
@@ -260,7 +260,9 @@ public class SceneManager : MonoBehaviour
                          $"Acceleration Filtered XZ\nX={sensorReader.AccelerationFiltered.x:#0.00} Y={sensorReader.AccelerationFiltered.y:#0.00}  Z= {sensorReader.AccelerationFiltered.z:#0.00}\n\n" +
                          $"Acceleration Filtered XZ\nX={sensorReader.AccelerationFilteredProjectedXZ.x:#0.00} Y={sensorReader.AccelerationFilteredProjectedXZ.y:#0.00}  Z= {sensorReader.AccelerationFilteredProjectedXZ.z:#0.00}\n\n";
 
-                        
+        scrollViewText.text += sensorReader.AccelerationFiltered + " - " + sensorReader.WaveStateController.currentState.GetType().Name + "\n";
+
+
     }
 
     private void DrawDiagramLines(Vector3 acceleration)
