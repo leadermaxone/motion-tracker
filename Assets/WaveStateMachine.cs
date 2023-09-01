@@ -74,6 +74,10 @@ public class GoingUp : WaveState
 {
     public GoingUp(WaveStateController waveStateController, SensorsReader sensorsReader) : base(waveStateController, sensorsReader) { }
     public float localMax;
+    public override void OnEnter() 
+    {
+        crossedThreshold = false;
+    }
     public override void OnUpdate()
     {
         base.OnUpdate();
@@ -95,6 +99,10 @@ public class GoingDown : WaveState
 {
     public GoingDown(WaveStateController waveStateController, SensorsReader sensorsReader) : base(waveStateController, sensorsReader) { }
     public float localMin;
+    public override void OnEnter()
+    {
+        crossedThreshold = false;
+    }
     public override void OnUpdate()
     {
         base.OnUpdate();
@@ -128,6 +136,10 @@ public class CheckStep : WaveState
             {
                 stepCounter += 0.5f;
             }
+        }
+        else
+        {
+            stepCounter = 0f;
         }
 
         waveStateController.TransitionToState(waveStateController.goingUp);
