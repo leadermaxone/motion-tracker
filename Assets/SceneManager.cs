@@ -139,6 +139,15 @@ public class SceneManager : MonoBehaviour
         diagram.RaiseZoomEvent(-2f, -2f);
     }
 
+    public void OnZoomDiagramPlus()
+    {
+        diagramAccelerationAvg.RaiseZoomEvent(-0.01f, -0.01f);
+    }    
+    public void OnZoomDiagramMinus()
+    {
+        diagramAccelerationAvg.RaiseZoomEvent(+0.01f, +0.01f);
+    }
+
     public void OnAnalyseStillPressed()
     {
         sensorReader.AnalyseStillData();
@@ -308,7 +317,7 @@ public class SceneManager : MonoBehaviour
         diagramAccelerationAvg.InputPoint(lineAccelerationMovingAverage, new Vector2(0.01f, sensorReader.StillMovingAvg));
         diagramAccelerationAvg.InputPoint(lineAccelerationMovingAverageMax, new Vector2(0.01f, sensorReader.StillMovingAvg+sensorReader.StillWaveStepDelta));
         diagramAccelerationAvg.InputPoint(lineAccelerationMovingAverageMin, new Vector2(0.01f, sensorReader.StillMovingAvg - sensorReader.StillWaveStepDelta));
-        diagramAccelerationAvg.InputPoint(lineAccelerationMaxDistanceBetweenAverages, new Vector2(0.01f, sensorReader.StillHighThreshold));        
+        diagramAccelerationAvg.InputPoint(lineAccelerationMaxDistanceBetweenAverages, new Vector2(0.01f, sensorReader.StillMaxDistanceBetweenAverages));        
 
     }
 
