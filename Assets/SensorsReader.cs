@@ -391,7 +391,8 @@ public class SensorsReader : MonoBehaviour
             _accelerationMagnitudeRawValues.Push(_currentAccelerationRaw.magnitude);
             _accelerationMagnitudeFilteredValues.Push(_currentAccelerationFiltered.magnitude);
         }
-                                                          
+        Debug.Log($"prev: {_previousAccelerationFilteredMagnitude} - cur {_currentAccelerationFilteredMagnitude}");
+
     }
 
     void Update() 
