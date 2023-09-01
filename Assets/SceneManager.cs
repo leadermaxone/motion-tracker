@@ -14,6 +14,7 @@ using UnityEngine.Events;
 
 public class SceneManager : MonoBehaviour
 {
+    private static SceneManager instance;
     public SensorsReader sensorReader;
     //public GameObject recordStepsButton;
     public GameObject recordStillButton;
@@ -21,6 +22,7 @@ public class SceneManager : MonoBehaviour
     public GameObject analyseStillButton;
     public GameObject checkStillButton;
     public GameObject stillStatus;
+    public GameObject stateMachineStepDetectionStatus;
 
     private bool recordStillPressed = false;
     private bool checkStillPressed = false;
@@ -79,13 +81,13 @@ public class SceneManager : MonoBehaviour
     private bool sensorReaderStarted = false;
     void Start()
     {
-
+        instance = this;
         //text = GetComponent<TextMeshProUGUI>();
 
         //text2 = GetComponent<TextMeshProUGUI>();
         //checkStillButton.SetActive(false);
         stillStatus.SetActive(false);
- 
+        stateMachineStepDetectionStatus.SetActive(false);
 
         //lineAccelerationX = diagramAccelerationX.AddLine(colorX.ToString(), colorX);
         //lineAccelerationX_NotFiltered = diagramAccelerationX.AddLine(colorX_NotFiltered.ToString(), colorX_NotFiltered);
@@ -93,7 +95,7 @@ public class SceneManager : MonoBehaviour
         //lineAccelerationY_NotFiltered = diagramAccelerationY.AddLine(colorY_NotFiltered.ToString(), colorY_NotFiltered);
         //lineAccelerationZ = diagramAccelerationZ.AddLine(colorZ.ToString(), colorZ);
         //lineAccelerationZ_NotFiltered = diagramAccelerationZ.AddLine(colorZ_NotFiltered.ToString(), colorZ_NotFiltered);
-        
+
         lineAccelerationMagnitude = diagramAccelerationMagnitude.AddLine(colorMagnitude.ToString(), colorMagnitude);
         lineAccelerationMagnitude_NotFiltered = diagramAccelerationMagnitude.AddLine(colorMagnitude_NotFiltered.ToString(), colorMagnitude_NotFiltered);
         lineAccelerationMagnitudeThreshold = diagramAccelerationMagnitude.AddLine(colorMagnitudeThreshold.ToString(), colorMagnitudeThreshold);
@@ -178,6 +180,8 @@ public class SceneManager : MonoBehaviour
             checkStillPressed = true;
             checkStillButton.GetComponentInChildren<TextMeshProUGUI>().text = "STOP CHECKING";
             stillStatus.SetActive(true);
+            stateMachineStepDetectionStatus.SetActive(true);
+
             stillStatus.GetComponentInChildren<TextMeshProUGUI>().text = "moving";
 
             sensorReader.SetStandingStillRecognition(true);
@@ -189,6 +193,7 @@ public class SceneManager : MonoBehaviour
             checkStillButton.GetComponentInChildren<TextMeshProUGUI>().text = "START CHECK STILL";
             stillStatus.GetComponentInChildren<Image>().color = Color.red;
             stillStatus.SetActive(false);
+            stateMachineStepDetectionStatus.SetActive(false);
 
             sensorReader.SetStandingStillRecognition(false);
         }
@@ -319,6 +324,25 @@ public class SceneManager : MonoBehaviour
         diagramAccelerationAvg.InputPoint(lineAccelerationMovingAverageMin, new Vector2(0.01f, sensorReader.StillMovingAvg - sensorReader.StillWaveStepDelta));
         diagramAccelerationAvg.InputPoint(lineAccelerationMaxDistanceBetweenAverages, new Vector2(0.01f, sensorReader.StillMaxDistanceBetweenAverages));        
 
+    }
+
+    public static void StateMachineStepDetected(WaveStateController waveStateController)
+    {
+        instance.StartCoroutine(OnStateMachineStepDetected());
+        var localMin = waveStateController.goingDown.localMin;
+        for (float i = -0.05f; i < 0.05f; i += 0.01f)
+        {
+            instance.diagramAccelerationAvg.InputPoint(instance.lineAccelerationMaxDistanceBetweenAverages, new Vector2(0.01f, localMin + i));
+        }
+    }
+
+    public static IEnumerator OnStateMachineStepDetected()
+    {
+        instance.stateMachineStepDetectionStatus.GetComponentInChildren<TextMeshProUGUI>().text = "STEP!!!";
+        instance.stateMachineStepDetectionStatus.GetComponentInChildren<Image>().color = Color.green;
+        yield return new WaitForSeconds(0.5f);
+        instance.stateMachineStepDetectionStatus.GetComponentInChildren<TextMeshProUGUI>().text = "...";
+        instance.stateMachineStepDetectionStatus.GetComponentInChildren<Image>().color = Color.red;
     }
 
     private void OnDestroy()

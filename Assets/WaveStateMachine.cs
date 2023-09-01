@@ -31,6 +31,7 @@ public class WaveStateController
     {
         if (checkStep.stepCounter == 1f)
         {
+            SceneManager.StateMachineStepDetected(this);
             //we have a full checkStep
             goingUp.crossedThreshold = false;
             goingDown.crossedThreshold = false;
