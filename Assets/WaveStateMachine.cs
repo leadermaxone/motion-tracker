@@ -61,8 +61,12 @@ public class WaveState
     public WaveStateController waveStateController;
     public SensorsReader sensorsReader;
     public bool crossedThreshold;
+    private string direction;
     public virtual void OnEnter() { }
-    public virtual void OnUpdate() { }
+    public virtual void OnUpdate() {
+        direction = sensorsReader.AccelerationFilteredMagnitude > sensorsReader.PreviousAccelerationFilteredMagnitude ? "UP" : "Down";
+        Debug.Log($"From  {sensorsReader.PreviousAccelerationFilteredMagnitude} to {sensorsReader.AccelerationFilteredMagnitude} going {direction}");
+    }
     public virtual void OnExit() { }
 }
 
@@ -73,16 +77,16 @@ public class GoingUp : WaveState
     public override void OnUpdate()
     {
         base.OnUpdate();
-        if(sensorsReader.AccelerationFiltered.magnitude > sensorsReader.PreviousAccelerationFiltered.magnitude)
+        if(sensorsReader.AccelerationFilteredMagnitude > sensorsReader.PreviousAccelerationFilteredMagnitude)
         {
             // going up, stay in state
             // check for threshold crossed
-            if (sensorsReader.AccelerationFiltered.magnitude > sensorsReader.StillMovingAvg)
+            if (sensorsReader.AccelerationFilteredMagnitude > sensorsReader.StillMovingAvg)
                 crossedThreshold = true;
         }
         else
         {
-            localMax = sensorsReader.AccelerationFiltered.magnitude;
+            localMax = sensorsReader.AccelerationFilteredMagnitude;
             waveStateController.TransitionToState(waveStateController.goingDown);
         }
     }
@@ -94,16 +98,16 @@ public class GoingDown : WaveState
     public override void OnUpdate()
     {
         base.OnUpdate();
-        if (sensorsReader.AccelerationFiltered.magnitude < sensorsReader.PreviousAccelerationFiltered.magnitude)
+        if (sensorsReader.AccelerationFilteredMagnitude < sensorsReader.PreviousAccelerationFilteredMagnitude)
         {
             // going down, stay in state
             // check for threshold crossed
-            if (sensorsReader.AccelerationFiltered.magnitude < sensorsReader.StillMovingAvg)
+            if (sensorsReader.AccelerationFilteredMagnitude < sensorsReader.StillMovingAvg)
                 crossedThreshold = true;
         }
         else
         {
-            localMin = sensorsReader.AccelerationFiltered.magnitude;
+            localMin = sensorsReader.AccelerationFilteredMagnitude;
             waveStateController.TransitionToState(waveStateController.checkStep);
         }
     }

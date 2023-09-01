@@ -90,6 +90,12 @@ public class SensorsReader : MonoBehaviour
         get => _currentAccelerationFiltered;
     }
     private Vector3 _currentAccelerationFiltered;
+
+    public float AccelerationFilteredMagnitude
+    {
+        get => _currentAccelerationFilteredMagnitude;
+    }
+    private float _currentAccelerationFilteredMagnitude;
     public Vector3 AccelerationFilteredProjectedXZ 
     { 
         get => _currentAccelerationFilteredProjectedXZ; 
@@ -101,6 +107,12 @@ public class SensorsReader : MonoBehaviour
         get => _previousAccelerationFiltered;
     }
     private Vector3 _previousAccelerationFiltered;
+
+    public float PreviousAccelerationFilteredMagnitude
+    {
+        get => _previousAccelerationFilteredMagnitude;
+    }
+    private float _previousAccelerationFilteredMagnitude;
 
     public Quaternion Attitude
     {
@@ -249,10 +261,10 @@ public class SensorsReader : MonoBehaviour
                 _stillAvg += current;
             }
             OnStillHighThresholdChanged.Invoke(_stillHighThreshold);
-            _stillAvg = _stillAvg / _accelerationMagnitudeFilteredValues.Count;
+            _stillAvg = (float)Math.Round(_stillAvg / _accelerationMagnitudeFilteredValues.Count, 3) ;
             //OnStillAverageChanged.Invoke(_stillAvg);
             PrepareRunningAverage(_stillAvg);
-            _stillMaxDistAvg = _stillAvg + (_stillHighThreshold - _stillAvg) * 0.75f;
+            _stillMaxDistAvg = (float)Math.Round(_stillAvg + (_stillHighThreshold - _stillAvg) * 0.75f, 2);
             OnStillMaxDistanceFromAverageChanged(_stillMaxDistAvg);
             Debug.Log($"Analysis Still Complete: high {_stillHighThreshold} - _stillAvg {_stillAvg}");
         }
@@ -289,28 +301,28 @@ public class SensorsReader : MonoBehaviour
             _stillMovAvgData.Enqueue(value);
             _stillMovSum += value;
         }
-        _stillMovAvg = _stillMovSum / _stillMovAvgSize;
+        _stillMovAvg = (float)Math.Round(_stillMovSum / _stillMovAvgSize, 3);
     }
     private void CalculateRunningAverage(float newValue)
     {
         _stillMovSum -= _stillMovAvgData.Dequeue();
         _stillMovAvgData.Enqueue(newValue);
         _stillMovSum += newValue;
-        _stillMovAvg = _stillMovSum / _stillMovAvgSize;
+        _stillMovAvg = (float)Math.Round(_stillMovSum / _stillMovAvgSize, 3);
     }
 
     
 
-    private void CheckStandingStill(Vector3 acceleration)
+    private void CheckStandingStill(float accelerationMagnitude)
     {
         Debug.Log("Calculate Running Average");
-        CalculateRunningAverage(acceleration.magnitude);
+        CalculateRunningAverage(accelerationMagnitude);
         //TODO convert to sqrMagnitude for better performances
         Debug.Log("Calculate Run State");
         _waveStateController.RunState();
         Debug.Log("Calculate Run State Done");
         if(
-            acceleration.magnitude < _stillHighThreshold
+            accelerationMagnitude < _stillHighThreshold
             && _stillMovAvg - _stillAvg < _stillMaxDistAvg
             && !_waveStateController.HasStep()
         )
@@ -359,12 +371,18 @@ public class SensorsReader : MonoBehaviour
         _currentAccelerationRaw = LinearAccelerationSensor.current.acceleration.ReadValue();
 
         _currentAccelerationFiltered = GetLowPassValue(_currentAccelerationRaw, _previousAccelerationFiltered);
+        _currentAccelerationFiltered.x = (float)Math.Round(_currentAccelerationFiltered.x, 3);
+        _currentAccelerationFiltered.y = (float)Math.Round(_currentAccelerationFiltered.y, 3);
+        _currentAccelerationFiltered.z = (float)Math.Round(_currentAccelerationFiltered.z, 3);
+
+        _currentAccelerationFilteredMagnitude = (float)Math.Round(_currentAccelerationFiltered.magnitude, 3);
 
         _previousAccelerationFiltered = _currentAccelerationFiltered;
+        _previousAccelerationFilteredMagnitude = _currentAccelerationFilteredMagnitude;
 
-        _currentAccelerationFilteredProjectedXZ.y = (float)Math.Round(_currentAccelerationFiltered.z, 2);
-        _currentAccelerationFilteredProjectedXZ.z = (float)Math.Round(_currentAccelerationFiltered.y, 2);
-        _currentAccelerationFilteredProjectedXZ.x = (float)Math.Round(_currentAccelerationFiltered.x, 2);
+        _currentAccelerationFilteredProjectedXZ.y = (float)Math.Round(_currentAccelerationFiltered.z, 3);
+        _currentAccelerationFilteredProjectedXZ.z = (float)Math.Round(_currentAccelerationFiltered.y, 3);
+        _currentAccelerationFilteredProjectedXZ.x = (float)Math.Round(_currentAccelerationFiltered.x, 3);
 
         if (isRecordingSteps || isRecordingStill)
         {
@@ -385,7 +403,7 @@ public class SensorsReader : MonoBehaviour
 
                 if(_isCheckingStandingStill)
                 {
-                    CheckStandingStill(_currentAccelerationFiltered);
+                    CheckStandingStill(_currentAccelerationFilteredMagnitude);
                 }
 
                 CalculateAttitude();

@@ -268,7 +268,7 @@ public class SceneManager : MonoBehaviour
                         $"Moving Avg={sensorReader.StillMovingAvg:#0.00} \n"+
                         $"Max dist btw avg={sensorReader.StillMaxDistanceBetweenAverages:#0.00} \n"+
                         $"Still threshold High={sensorReader.StillHighThreshold:#0.00} \n"+
-                        $"Accelerator Magnitude={sensorReader.AccelerationFiltered.magnitude:#0.00}\n\n" +
+                        $"Accelerator Magnitude={sensorReader.AccelerationFilteredMagnitude:#0.00}\n\n" +
                         $"LowPassKernelWidthS {sensorReader.LowPassKernelWidthInSeconds:#0.00} \naccelerometerUpdateInterval={sensorReader.AccelerometerUpdateInterval:#0.00}";
         text2.text =
                          $"Acceleration Raw \nX={sensorReader.AccelerationRaw.x:#0.00} Y={sensorReader.AccelerationRaw.y:#0.00} Z={sensorReader.AccelerationRaw.z:#0.00}\n\n" +
@@ -282,7 +282,7 @@ public class SceneManager : MonoBehaviour
                 scrollViewText.text = "";
             }
         
-            scrollViewText.text += sensorReader.AccelerationFiltered.magnitude + " - " + sensorReader.WaveStateController.currentState.GetType().Name + "\n";
+            scrollViewText.text += sensorReader.AccelerationFilteredMagnitude + " - " + sensorReader.WaveStateController.currentState.GetType().Name + "\n";
         }
 
 
@@ -299,12 +299,12 @@ public class SceneManager : MonoBehaviour
         //diagramAccelerationZ.InputPoint(lineAccelerationZ, new Vector2(0.01f, sensorReader.AccelerationFilteredProjectedXZ.z));
         //diagramAccelerationZ.InputPoint(lineAccelerationZ_NotFiltered, new Vector2(0.01f, sensorReader.AccelerationRaw.z));
 
-        diagramAccelerationMagnitude.InputPoint(lineAccelerationMagnitude, new Vector2(0.01f, sensorReader.AccelerationFiltered.magnitude));
+        diagramAccelerationMagnitude.InputPoint(lineAccelerationMagnitude, new Vector2(0.01f, sensorReader.AccelerationFilteredMagnitude));
         diagramAccelerationMagnitude.InputPoint(lineAccelerationMagnitude_NotFiltered, new Vector2(0.01f, sensorReader.AccelerationRaw.magnitude));
         diagramAccelerationMagnitude.InputPoint(lineAccelerationMagnitudeThreshold, new Vector2(0.01f, sensorReader.StillHighThreshold));
 
 
-        diagramAccelerationAvg.InputPoint(lineAccelerationMagnitudeForAvg, new Vector2(0.01f, sensorReader.AccelerationFiltered.magnitude));
+        diagramAccelerationAvg.InputPoint(lineAccelerationMagnitudeForAvg, new Vector2(0.01f, sensorReader.AccelerationFilteredMagnitude));
         diagramAccelerationAvg.InputPoint(lineAccelerationMovingAverage, new Vector2(0.01f, sensorReader.StillMovingAvg));
         diagramAccelerationAvg.InputPoint(lineAccelerationMovingAverageMax, new Vector2(0.01f, sensorReader.StillMovingAvg+sensorReader.StillWaveStepDelta));
         diagramAccelerationAvg.InputPoint(lineAccelerationMovingAverageMin, new Vector2(0.01f, sensorReader.StillMovingAvg - sensorReader.StillWaveStepDelta));
