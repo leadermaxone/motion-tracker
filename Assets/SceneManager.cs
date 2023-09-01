@@ -73,7 +73,8 @@ public class SceneManager : MonoBehaviour
     public UnityEvent<float> OnStillHighThresholdChangedFromSensor = new UnityEvent<float>();
     public UnityEvent<float> OnStillMaxDistanceFromAverageChangedFromSensor = new UnityEvent<float>();
 
-
+    public bool logsEnabled = false;
+    public GameObject pauseLogsButton;
 
     private bool sensorReaderStarted = false;
     void Start()
@@ -242,6 +243,20 @@ public class SceneManager : MonoBehaviour
         sensorReader.StillDelayS = newValue;
     }
 
+    public void OnPauseLogsClicked()
+    {
+        if(logsEnabled)
+        {
+            logsEnabled = false;
+            pauseLogsButton.GetComponentInChildren<TextMeshProUGUI>().text = "Start Logs";
+        }
+        else
+        {
+            logsEnabled = true;
+            pauseLogsButton.GetComponentInChildren<TextMeshProUGUI>().text = "Pause Logs";
+
+        }
+    }
 
 
     private void WriteVisualLogs()
@@ -260,7 +275,15 @@ public class SceneManager : MonoBehaviour
                          $"Acceleration Filtered XZ\nX={sensorReader.AccelerationFiltered.x:#0.00} Y={sensorReader.AccelerationFiltered.y:#0.00}  Z= {sensorReader.AccelerationFiltered.z:#0.00}\n\n" +
                          $"Acceleration Filtered XZ\nX={sensorReader.AccelerationFilteredProjectedXZ.x:#0.00} Y={sensorReader.AccelerationFilteredProjectedXZ.y:#0.00}  Z= {sensorReader.AccelerationFilteredProjectedXZ.z:#0.00}\n\n";
 
-        scrollViewText.text += sensorReader.AccelerationFiltered + " - " + sensorReader.WaveStateController.currentState.GetType().Name + "\n";
+        if(logsEnabled)
+        {
+            if(scrollViewText.text.Length > 2000)
+            {
+                scrollViewText.text = "";
+            }
+        
+            scrollViewText.text += sensorReader.AccelerationFiltered.magnitude + " - " + sensorReader.WaveStateController.currentState.GetType().Name + "\n";
+        }
 
 
     }
