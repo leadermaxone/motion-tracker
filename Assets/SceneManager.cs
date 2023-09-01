@@ -134,8 +134,8 @@ public class SceneManager : MonoBehaviour
     public IEnumerator ZoomAndDrag(DD_DataDiagram diagram)
     {
         yield return new WaitForSeconds(0.1f);
-        diagram.RaiseMoveEvent(0, 40f);
-        diagram.RaiseZoomEvent(-1.5f, -1.5f);
+        diagram.RaiseMoveEvent(0, 20f);
+        diagram.RaiseZoomEvent(-2f, -2f);
     }
 
     public void OnAnalyseStillPressed()
@@ -249,7 +249,9 @@ public class SceneManager : MonoBehaviour
         text.text =
                         //$"Attitude\nX={sensorReader.Attitude.x:#0.00} Y={sensorReader.Attitude.y:#0.00} Z={sensorReader.Attitude.z:#0.00}\n\n" +
                         //$"attitudeEulerProjectedXZ\nX={sensorReader.AttitudeEulerProjectedXZ.x:#0.00} Y={sensorReader.AttitudeEulerProjectedXZ.y:#0.00} Z={sensorReader.AttitudeEulerProjectedXZ.z:#0.00}\n\n" +
+                        $"CURRENT STATE ={sensorReader.WaveStateController.currentState.GetType().Name} \n"+
                         $"Moving Avg={sensorReader.StillMovingAvg:#0.00} \n"+
+                        $"Max dist btw avg={sensorReader.StillMaxDistanceBetweenAverages:#0.00} \n"+
                         $"Still threshold High={sensorReader.StillHighThreshold:#0.00} \n"+
                         $"Accelerator Magnitude={sensorReader.AccelerationFiltered.magnitude:#0.00}\n\n" +
                         $"LowPassKernelWidthS {sensorReader.LowPassKernelWidthInSeconds:#0.00} \naccelerometerUpdateInterval={sensorReader.AccelerometerUpdateInterval:#0.00}";

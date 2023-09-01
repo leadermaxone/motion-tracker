@@ -152,6 +152,10 @@ public class SensorsReader : MonoBehaviour
     private bool _isCheckingStandingStill = false;
     private bool _hasStartedWaitingForStill = false;
 
+    public WaveStateController WaveStateController
+    {
+        get => _waveStateController;
+    }
     private WaveStateController _waveStateController;
 
     void Start()
@@ -173,7 +177,7 @@ public class SensorsReader : MonoBehaviour
         _lowPassFilterFactor = _accelerometerUpdateInterval / _lowPassKernelWidthInSeconds;
 
         _waveStateController = new WaveStateController(this);
-        StillMovingAverageWindowSize = 300; //at 60hz it's 5 secs worth of data
+        _stillMovAvgSize = 60; //at 60hz it's 1/2 secs worth of data
     }
 
     public void Setup(float stillDelayS, Action OnStillCallback, Action OnMovingCallback)
@@ -246,7 +250,7 @@ public class SensorsReader : MonoBehaviour
             }
             OnStillHighThresholdChanged.Invoke(_stillHighThreshold);
             _stillAvg = _stillAvg / _accelerationMagnitudeFilteredValues.Count;
-            OnStillAverageChanged.Invoke(_stillAvg);
+            //OnStillAverageChanged.Invoke(_stillAvg);
             PrepareRunningAverage(_stillAvg);
             _stillMaxDistAvg = _stillAvg + (_stillHighThreshold - _stillAvg) * 0.75f;
             OnStillMaxDistanceFromAverageChanged(_stillMaxDistAvg);
@@ -299,9 +303,12 @@ public class SensorsReader : MonoBehaviour
 
     private void CheckStandingStill(Vector3 acceleration)
     {
+        Debug.Log("Calculate Running Average");
         CalculateRunningAverage(acceleration.magnitude);
         //TODO convert to sqrMagnitude for better performances
+        Debug.Log("Calculate Run State");
         _waveStateController.RunState();
+        Debug.Log("Calculate Run State Done");
         if(
             acceleration.magnitude < _stillHighThreshold
             && _stillMovAvg - _stillAvg < _stillMaxDistAvg

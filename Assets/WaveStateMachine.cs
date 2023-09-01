@@ -14,6 +14,7 @@ public class WaveStateController
         goingUp = new GoingUp(this, sensorsReader);
         goingDown = new GoingDown(this, sensorsReader);
         checkStep = new CheckStep(this, sensorsReader);
+        currentState = goingUp;
     }
     public void TransitionToState(WaveState newState)
     {
