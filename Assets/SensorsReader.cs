@@ -378,7 +378,7 @@ public class SensorsReader : MonoBehaviour
         _currentAccelerationFilteredMagnitude = (float)Math.Round(_currentAccelerationFiltered.magnitude, 3);
 
         _previousAccelerationFiltered = _currentAccelerationFiltered;
-        _previousAccelerationFilteredMagnitude = _currentAccelerationFilteredMagnitude;
+        //_previousAccelerationFilteredMagnitude = _currentAccelerationFilteredMagnitude;
 
         _currentAccelerationFilteredProjectedXZ.y = (float)Math.Round(_currentAccelerationFiltered.z, 3);
         _currentAccelerationFilteredProjectedXZ.z = (float)Math.Round(_currentAccelerationFiltered.y, 3);
@@ -408,7 +408,8 @@ public class SensorsReader : MonoBehaviour
                 }
 
                 CalculateAttitude();
-            }
+                _previousAccelerationFilteredMagnitude = _currentAccelerationFilteredMagnitude;
+        }
     }
 
     public void CalculateAttitude()
