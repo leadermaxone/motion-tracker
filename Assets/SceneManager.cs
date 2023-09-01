@@ -77,6 +77,7 @@ public class SceneManager : MonoBehaviour
 
     public bool logsEnabled = false;
     public GameObject pauseLogsButton;
+    public GameObject waveDeltaCheckButton;
 
     private bool sensorReaderStarted = false;
     void Start()
@@ -139,6 +140,25 @@ public class SceneManager : MonoBehaviour
         yield return new WaitForSeconds(0.1f);
         diagram.RaiseMoveEvent(0, 20f);
         diagram.RaiseZoomEvent(-2f, -2f);
+    }
+
+    public void OnEnableStepDeltaCheck()
+    {
+        if(sensorReader.WaveStateController.isWaveStepDeltaCheckOn)
+        {
+            sensorReader.WaveStateController.isWaveStepDeltaCheckOn = false;
+            waveDeltaCheckButton.GetComponentInChildren<TextMeshProUGUI>().text = "Wave Delta Check: OFF";
+        }
+        else
+        {
+            sensorReader.WaveStateController.isWaveStepDeltaCheckOn = true;
+            waveDeltaCheckButton.GetComponentInChildren<TextMeshProUGUI>().text = "Wave Delta Check: ON";
+        }
+    }
+
+    public void OnStepThresholdChangedFromUI(float value)
+    {
+        sensorReader.WaveStateController.SetStepThreshold((int)value);
     }
 
     public void OnZoomDiagramPlus()
@@ -285,6 +305,7 @@ public class SceneManager : MonoBehaviour
                         $"Accelerator Magnitude={sensorReader.AccelerationFilteredMagnitude:#0.00}\n\n" +
                         $"LowPassKernelWidthS {sensorReader.LowPassKernelWidthInSeconds:#0.00} \naccelerometerUpdateInterval={sensorReader.AccelerometerUpdateInterval:#0.00}";
         text2.text =
+                         $"Wave step threshold \nX={sensorReader.WaveStateController.stepThreshold} isDeltaCheckOn={sensorReader.WaveStateController.isWaveStepDeltaCheckOn}\n\n" +
                          $"Acceleration Raw \nX={sensorReader.AccelerationRaw.x:#0.00} Y={sensorReader.AccelerationRaw.y:#0.00} Z={sensorReader.AccelerationRaw.z:#0.00}\n\n" +
                          $"Acceleration Filtered XZ\nX={sensorReader.AccelerationFiltered.x:#0.00} Y={sensorReader.AccelerationFiltered.y:#0.00}  Z= {sensorReader.AccelerationFiltered.z:#0.00}\n\n" +
                          $"Acceleration Filtered XZ\nX={sensorReader.AccelerationFilteredProjectedXZ.x:#0.00} Y={sensorReader.AccelerationFilteredProjectedXZ.y:#0.00}  Z= {sensorReader.AccelerationFilteredProjectedXZ.z:#0.00}\n\n";
@@ -320,8 +341,11 @@ public class SceneManager : MonoBehaviour
 
         diagramAccelerationAvg.InputPoint(lineAccelerationMagnitudeForAvg, new Vector2(0.01f, sensorReader.AccelerationFilteredMagnitude));
         diagramAccelerationAvg.InputPoint(lineAccelerationMovingAverage, new Vector2(0.01f, sensorReader.StillMovingAvg));
-        diagramAccelerationAvg.InputPoint(lineAccelerationMovingAverageMax, new Vector2(0.01f, sensorReader.StillMovingAvg+sensorReader.StillWaveStepDelta));
-        diagramAccelerationAvg.InputPoint(lineAccelerationMovingAverageMin, new Vector2(0.01f, sensorReader.StillMovingAvg - sensorReader.StillWaveStepDelta));
+        if(sensorReader.WaveStateController.isWaveStepDeltaCheckOn)
+        {
+            diagramAccelerationAvg.InputPoint(lineAccelerationMovingAverageMax, new Vector2(0.01f, sensorReader.StillMovingAvg+sensorReader.StillWaveStepDelta));
+            diagramAccelerationAvg.InputPoint(lineAccelerationMovingAverageMin, new Vector2(0.01f, sensorReader.StillMovingAvg - sensorReader.StillWaveStepDelta));
+        }
         diagramAccelerationAvg.InputPoint(lineAccelerationMaxDistanceBetweenAverages, new Vector2(0.01f, sensorReader.StillMaxDistanceBetweenAverages));        
 
     }
