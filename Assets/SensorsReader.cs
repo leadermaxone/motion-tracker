@@ -462,7 +462,7 @@ public class SensorsReader : MonoBehaviour
         if (LinearAccelerationSensor.current != null)
         {
             InputSystem.EnableDevice(LinearAccelerationSensor.current);
-
+            Debug.Log("ACCELERATION SAMPLING FREQ IS" +LinearAccelerationSensor.current.samplingFrequency);
         }
 
         if(
