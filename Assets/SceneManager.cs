@@ -32,6 +32,7 @@ public class SceneManager : MonoBehaviour
     public DD_DataDiagram diagramAccelerationZ;
     public DD_DataDiagram diagramAccelerationMagnitude;
     public DD_DataDiagram diagramAccelerationAvg;
+    public DD_DataDiagram diagramAccelerationAvgDist;
 
     private GameObject lineAccelerationX;
     private GameObject lineAccelerationX_NotFiltered;
@@ -52,20 +53,16 @@ public class SceneManager : MonoBehaviour
     private GameObject lineAccelerationMovingAverageMin;
     private GameObject lineAccelerationMaxDistanceBetweenAverages;
 
-    private Color colorX = Color.red;
-    private Color colorX_NotFiltered = Color.grey;
-    private Color colorY = Color.green;
-    private Color colorY_NotFiltered = Color.grey;
-    private Color colorZ = Color.blue;
-    private Color colorZ_NotFiltered = Color.grey;    
-    private Color colorMagnitude = Color.magenta;
-    private Color colorMagnitude_NotFiltered = Color.grey;
-    private Color colorMagnitudeThreshold = Color.white;
+    private GameObject lineAccelerationMagnitudeForAvgDist;
+    private GameObject lineAccelerationMovingAverageDist;
+    private GameObject lineAccelerationStillAverageDist;
 
-    private Color colorMovingAverage = Color.green;
-    private Color colorMovingAverageMax = Color.red;
-    private Color colorMovingAverageMin = Color.red;
-    private Color colorMaxDistanceBetweenAverages = Color.blue;
+    private Color colorRed = Color.red;
+    private Color colorGrey = Color.grey;
+    private Color colorGreen = Color.green;
+    private Color colorBlue = Color.blue;
+    private Color colorMagenta = Color.magenta;
+    private Color colorWhite = Color.white;
 
     public TextMeshProUGUI text, text2, scrollViewText;
     public GameObject PhoneModelAttitude,PhoneModelAcceleration;
@@ -97,16 +94,20 @@ public class SceneManager : MonoBehaviour
         //lineAccelerationZ = diagramAccelerationZ.AddLine(colorZ.ToString(), colorZ);
         //lineAccelerationZ_NotFiltered = diagramAccelerationZ.AddLine(colorZ_NotFiltered.ToString(), colorZ_NotFiltered);
 
-        lineAccelerationMagnitude = diagramAccelerationMagnitude.AddLine(colorMagnitude.ToString(), colorMagnitude);
-        lineAccelerationMagnitude_NotFiltered = diagramAccelerationMagnitude.AddLine(colorMagnitude_NotFiltered.ToString(), colorMagnitude_NotFiltered);
-        lineAccelerationMagnitudeThreshold = diagramAccelerationMagnitude.AddLine(colorMagnitudeThreshold.ToString(), colorMagnitudeThreshold);
+        lineAccelerationMagnitude = diagramAccelerationMagnitude.AddLine(colorMagenta.ToString(), colorMagenta);
+        lineAccelerationMagnitude_NotFiltered = diagramAccelerationMagnitude.AddLine(colorGrey.ToString(), colorGrey);
+        lineAccelerationMagnitudeThreshold = diagramAccelerationMagnitude.AddLine(colorWhite.ToString(), colorWhite);
 
         
-        lineAccelerationMagnitudeForAvg = diagramAccelerationAvg.AddLine(colorMagnitude.ToString(), colorMagnitude);
-        lineAccelerationMovingAverage = diagramAccelerationAvg.AddLine(colorMovingAverage.ToString(), colorMovingAverage);
-        lineAccelerationMovingAverageMax = diagramAccelerationAvg.AddLine(colorMovingAverageMax.ToString(), colorMovingAverageMax);
-        lineAccelerationMovingAverageMin = diagramAccelerationAvg.AddLine(colorMovingAverageMin.ToString(), colorMovingAverageMin);
-        lineAccelerationMaxDistanceBetweenAverages = diagramAccelerationAvg.AddLine(colorMaxDistanceBetweenAverages.ToString(), colorMaxDistanceBetweenAverages);
+        lineAccelerationMagnitudeForAvg = diagramAccelerationAvg.AddLine(colorMagenta.ToString(), colorMagenta);
+        lineAccelerationMovingAverage = diagramAccelerationAvg.AddLine(colorGreen.ToString(), colorGreen);
+        lineAccelerationMovingAverageMax = diagramAccelerationAvg.AddLine(colorRed.ToString(), colorRed);
+        lineAccelerationMovingAverageMin = diagramAccelerationAvg.AddLine(colorRed.ToString(), colorRed);
+
+        lineAccelerationMagnitudeForAvgDist = diagramAccelerationAvgDist.AddLine(colorMagenta.ToString(), colorMagenta);
+        lineAccelerationMovingAverageDist = diagramAccelerationAvgDist.AddLine(colorGreen.ToString(), colorGreen);
+        lineAccelerationMaxDistanceBetweenAverages = diagramAccelerationAvgDist.AddLine(colorBlue.ToString(), colorBlue);
+        lineAccelerationStillAverageDist = diagramAccelerationAvgDist.AddLine(colorBlue.ToString(), colorWhite);
 
         
      
@@ -116,6 +117,7 @@ public class SceneManager : MonoBehaviour
         //StartCoroutine(ZoomAndDrag(diagramAccelerationZ));
         StartCoroutine(ZoomAndDrag(diagramAccelerationMagnitude));
         StartCoroutine(ZoomAndDrag(diagramAccelerationAvg));
+        StartCoroutine(ZoomAndDrag(diagramAccelerationAvgDist));
 
         sensorReader.Setup(0.1f, OnStillCallback, OnMovingCallback);
         sensorReaderStarted = true;
@@ -148,11 +150,15 @@ public class SceneManager : MonoBehaviour
         {
             sensorReader.WaveStateController.isWaveStepDeltaCheckOn = false;
             waveDeltaCheckButton.GetComponentInChildren<TextMeshProUGUI>().text = "Wave Delta Check: OFF";
+            diagramAccelerationAvg.DestroyLine(lineAccelerationMovingAverageMax);
+            diagramAccelerationAvg.DestroyLine(lineAccelerationMovingAverageMin);
         }
         else
         {
             sensorReader.WaveStateController.isWaveStepDeltaCheckOn = true;
             waveDeltaCheckButton.GetComponentInChildren<TextMeshProUGUI>().text = "Wave Delta Check: ON";
+            lineAccelerationMovingAverageMax = diagramAccelerationAvg.AddLine(colorRed.ToString(), colorRed);
+            lineAccelerationMovingAverageMin = diagramAccelerationAvg.AddLine(colorRed.ToString(), colorRed);
         }
     }
 
@@ -161,13 +167,21 @@ public class SceneManager : MonoBehaviour
         sensorReader.WaveStateController.SetStepThreshold((int)value);
     }
 
-    public void OnZoomDiagramPlus()
+    public void OnZoomDiagramAvgPlus()
     {
         diagramAccelerationAvg.RaiseZoomEvent(-0.01f, -0.01f);
     }    
-    public void OnZoomDiagramMinus()
+    public void OnZoomDiagramAvgMinus()
     {
         diagramAccelerationAvg.RaiseZoomEvent(+0.01f, +0.01f);
+    }
+    public void OnZoomDiagramAvgDistPlus()
+    {
+        diagramAccelerationAvgDist.RaiseZoomEvent(-0.01f, -0.01f);
+    }    
+    public void OnZoomDiagramAvgDistMinus()
+    {
+        diagramAccelerationAvgDist.RaiseZoomEvent(+0.01f, +0.01f);
     }
 
     public void OnAnalyseStillPressed()
@@ -346,7 +360,12 @@ public class SceneManager : MonoBehaviour
             diagramAccelerationAvg.InputPoint(lineAccelerationMovingAverageMax, new Vector2(0.01f, sensorReader.StillMovingAvg+sensorReader.StillWaveStepDelta));
             diagramAccelerationAvg.InputPoint(lineAccelerationMovingAverageMin, new Vector2(0.01f, sensorReader.StillMovingAvg - sensorReader.StillWaveStepDelta));
         }
-        diagramAccelerationAvg.InputPoint(lineAccelerationMaxDistanceBetweenAverages, new Vector2(0.01f, sensorReader.StillMaxDistanceBetweenAverages));        
+
+
+        diagramAccelerationAvgDist.InputPoint(lineAccelerationMagnitudeForAvgDist, new Vector2(0.01f, sensorReader.AccelerationFilteredMagnitude));
+        diagramAccelerationAvgDist.InputPoint(lineAccelerationMaxDistanceBetweenAverages, new Vector2(0.01f, sensorReader.StillMaxDistanceBetweenAverages));
+        diagramAccelerationAvgDist.InputPoint(lineAccelerationMovingAverageDist, new Vector2(0.01f, sensorReader.StillMovingAvg));
+        diagramAccelerationAvgDist.InputPoint(lineAccelerationStillAverageDist, new Vector2(0.01f, sensorReader.StillAvg));
 
     }
 
