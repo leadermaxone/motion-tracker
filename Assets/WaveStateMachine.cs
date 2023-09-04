@@ -1,40 +1,63 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 public class WaveStateController
 {
     public SensorsReader sensorsReader;
-    public WaveState currentState;
+    public WaveState CurrentState
+    {
+        get => _currentState;
+    }
+    public WaveState _currentState;
     public GoingUp goingUp;
     public GoingDown goingDown;
     public CheckStep checkStep;
-    public bool isWaveStepDeltaCheckOn;
-    public int stepThreshold;
+    public bool IsWaveStepDeltaCheckActive
+    { 
+        get => _isWaveStepDeltaCheckActive;
+        set => _isWaveStepDeltaCheckActive = value;
+    }
+    private bool _isWaveStepDeltaCheckActive;
+
+    public int StepThreshold
+    {
+        get => _stepThreshold;
+        set => _stepThreshold = value;
+    }
+    private int _stepThreshold;
+
+    public event Action<float,float> OnStepDetected;
+
     public WaveStateController(SensorsReader sensorsReader)
     {
         this.sensorsReader = sensorsReader;
         goingUp = new GoingUp(this, sensorsReader);
         goingDown = new GoingDown(this, sensorsReader);
         checkStep = new CheckStep(this, sensorsReader);
-        currentState = goingUp;
-        isWaveStepDeltaCheckOn = true;
-        stepThreshold = 2;
+        _currentState = goingUp;
+        _isWaveStepDeltaCheckActive = false;
+        _stepThreshold = 2;
     }
+
     public void TransitionToState(WaveState newState)
     {
-        currentState.OnExit();
-        currentState = newState;
-        currentState.OnEnter();
+        _currentState.OnExit();
+        _currentState = newState;
+        _currentState.OnEnter();
     }
     public void RunState()
     {
-        currentState.OnUpdate();
+        _currentState.OnUpdate();
     }
 
     public bool HasStep()
     {
-        if (checkStep.stepCounter == stepThreshold)
+        if (checkStep.stepCounter == _stepThreshold)
         {
-            SceneManager.StateMachineStepDetected(this);
+            if(OnStepDetected != null)
+            {
+                OnStepDetected.Invoke(goingDown.localMin, goingUp.localMax);
+            }
             //we have a full checkStep
             goingUp.crossedThreshold = false;
             goingDown.crossedThreshold = false;
@@ -48,11 +71,11 @@ public class WaveStateController
     }
     public void SetWaveStepDeltaCheck(bool mode)
     {
-        isWaveStepDeltaCheckOn = mode;
+        _isWaveStepDeltaCheckActive = mode;
     }
     public void SetStepThreshold(int threshold)
     {
-        stepThreshold = threshold;
+        _stepThreshold = threshold;
     }
 }
 
@@ -144,14 +167,14 @@ public class CheckStep : WaveState
         if (waveStateController.goingUp.crossedThreshold && waveStateController.goingDown.crossedThreshold)
         {
             if(
-                waveStateController.isWaveStepDeltaCheckOn &&
+                waveStateController.IsWaveStepDeltaCheckActive &&
                 waveStateController.goingUp.localMax - sensorsReader.StillMovingAvg > sensorsReader.StillWaveStepDelta &&
                 sensorsReader.StillMovingAvg - waveStateController.goingDown.localMin > sensorsReader.StillWaveStepDelta
                 )
             {
                 stepCounter += 1;
             }
-            else if(!waveStateController.isWaveStepDeltaCheckOn)
+            else if(!waveStateController.IsWaveStepDeltaCheckActive)
             {
                 stepCounter += 1;
             }

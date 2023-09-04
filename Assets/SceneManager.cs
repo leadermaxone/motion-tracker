@@ -1,11 +1,6 @@
 using TMPro;
 using UnityEngine;
-using UnityEngine.InputSystem;
 using UnityEngine.UI;
-using System;
-using System.Collections.Generic;
-
-using Gyroscope = UnityEngine.InputSystem.Gyroscope;
 using System.Collections;
 using UnityEngine.Events;
 
@@ -14,7 +9,6 @@ using UnityEngine.Events;
 
 public class SceneManager : MonoBehaviour
 {
-    private static SceneManager instance;
     public SensorsReader sensorReader;
     //public GameObject recordStepsButton;
     public GameObject recordStillButton;
@@ -79,7 +73,6 @@ public class SceneManager : MonoBehaviour
     private bool sensorReaderStarted = false;
     void Start()
     {
-        instance = this;
         //text = GetComponent<TextMeshProUGUI>();
 
         //text2 = GetComponent<TextMeshProUGUI>();
@@ -123,6 +116,7 @@ public class SceneManager : MonoBehaviour
         sensorReaderStarted = true;
         sensorReader.OnStillHighThresholdChanged += (newThreshold)=> { OnStillHighThresholdChangedFromSensor.Invoke(newThreshold); };
         sensorReader.OnStillMaxDistanceFromAverageChanged += (newThreshold)=> { OnStillMaxDistanceFromAverageChangedFromSensor.Invoke(newThreshold); };
+        sensorReader.OnStateMachineStepDetected += (localMin, localMax) => { OnStateMachineStepDetected(localMin, localMax);};
     }
 
     private void OnStillCallback()
@@ -146,16 +140,16 @@ public class SceneManager : MonoBehaviour
 
     public void OnEnableStepDeltaCheck()
     {
-        if(sensorReader.WaveStateController.isWaveStepDeltaCheckOn)
+        if(sensorReader.GetWaveDeltaStepCheck())
         {
-            sensorReader.WaveStateController.isWaveStepDeltaCheckOn = false;
+            sensorReader.SetWaveDeltaStepCheck(false);
             waveDeltaCheckButton.GetComponentInChildren<TextMeshProUGUI>().text = "Wave Delta Check: OFF";
             diagramAccelerationAvg.DestroyLine(lineAccelerationMovingAverageMax);
             diagramAccelerationAvg.DestroyLine(lineAccelerationMovingAverageMin);
         }
         else
         {
-            sensorReader.WaveStateController.isWaveStepDeltaCheckOn = true;
+            sensorReader.SetWaveDeltaStepCheck(true);
             waveDeltaCheckButton.GetComponentInChildren<TextMeshProUGUI>().text = "Wave Delta Check: ON";
             lineAccelerationMovingAverageMax = diagramAccelerationAvg.AddLine(colorRed.ToString(), colorRed);
             lineAccelerationMovingAverageMin = diagramAccelerationAvg.AddLine(colorRed.ToString(), colorRed);
@@ -164,7 +158,7 @@ public class SceneManager : MonoBehaviour
 
     public void OnStepThresholdChangedFromUI(float value)
     {
-        sensorReader.WaveStateController.SetStepThreshold((int)value);
+        sensorReader.SetStepThreshold(value);
     }
 
     public void OnZoomDiagramAvgPlus()
@@ -312,14 +306,14 @@ public class SceneManager : MonoBehaviour
         text.text =
                         //$"Attitude\nX={sensorReader.Attitude.x:#0.00} Y={sensorReader.Attitude.y:#0.00} Z={sensorReader.Attitude.z:#0.00}\n\n" +
                         //$"attitudeEulerProjectedXZ\nX={sensorReader.AttitudeEulerProjectedXZ.x:#0.00} Y={sensorReader.AttitudeEulerProjectedXZ.y:#0.00} Z={sensorReader.AttitudeEulerProjectedXZ.z:#0.00}\n\n" +
-                        $"CURRENT STATE ={sensorReader.WaveStateController.currentState.GetType().Name} \n"+
+                        $"CURRENT STATE ={sensorReader.GetCurrentWaveState().GetType().Name} \n"+
                         $"Moving Avg={sensorReader.StillMovingAvg:#0.00} \n"+
                         $"Max dist btw avg={sensorReader.StillMaxDistanceBetweenAverages:#0.000} \n"+
                         $"Still threshold High={sensorReader.StillHighThreshold:#0.00} \n"+
                         $"Accelerator Magnitude={sensorReader.AccelerationFilteredMagnitude:#0.00}\n\n" +
                         $"LowPassKernelWidthS {sensorReader.LowPassKernelWidthInSeconds:#0.00} \naccelerometerUpdateInterval={sensorReader.AccelerometerUpdateInterval:#0.00}";
         text2.text =
-                         $"Wave step threshold \nX={sensorReader.WaveStateController.stepThreshold} isDeltaCheckOn={sensorReader.WaveStateController.isWaveStepDeltaCheckOn}\n\n" +
+                         $"Wave step threshold \nX={sensorReader.GetStepThreshold()} isDeltaCheckOn={sensorReader.GetWaveDeltaStepCheck()}\n\n" +
                          $"Acceleration Raw \nX={sensorReader.AccelerationRaw.x:#0.00} Y={sensorReader.AccelerationRaw.y:#0.00} Z={sensorReader.AccelerationRaw.z:#0.00}\n\n" +
                          $"Acceleration Filtered XZ\nX={sensorReader.AccelerationFiltered.x:#0.00} Y={sensorReader.AccelerationFiltered.y:#0.00}  Z= {sensorReader.AccelerationFiltered.z:#0.00}\n\n" +
                          $"Acceleration Filtered XZ\nX={sensorReader.AccelerationFilteredProjectedXZ.x:#0.00} Y={sensorReader.AccelerationFilteredProjectedXZ.y:#0.00}  Z= {sensorReader.AccelerationFilteredProjectedXZ.z:#0.00}\n\n";
@@ -331,7 +325,7 @@ public class SceneManager : MonoBehaviour
                 scrollViewText.text = "";
             }
         
-            scrollViewText.text += sensorReader.AccelerationFilteredMagnitude + " - " + sensorReader.WaveStateController.currentState.GetType().Name + "\n";
+            scrollViewText.text += sensorReader.AccelerationFilteredMagnitude + " - " + sensorReader.GetCurrentWaveState().GetType().Name + "\n";
         }
 
 
@@ -355,7 +349,7 @@ public class SceneManager : MonoBehaviour
 
         diagramAccelerationAvg.InputPoint(lineAccelerationMagnitudeForAvg, new Vector2(0.01f, sensorReader.AccelerationFilteredMagnitude));
         diagramAccelerationAvg.InputPoint(lineAccelerationMovingAverage, new Vector2(0.01f, sensorReader.StillMovingAvg));
-        if(sensorReader.WaveStateController.isWaveStepDeltaCheckOn)
+        if(sensorReader.GetWaveDeltaStepCheck())
         {
             diagramAccelerationAvg.InputPoint(lineAccelerationMovingAverageMax, new Vector2(0.01f, sensorReader.StillMovingAvg+sensorReader.StillWaveStepDelta));
             diagramAccelerationAvg.InputPoint(lineAccelerationMovingAverageMin, new Vector2(0.01f, sensorReader.StillMovingAvg - sensorReader.StillWaveStepDelta));
@@ -369,23 +363,22 @@ public class SceneManager : MonoBehaviour
 
     }
 
-    public static void StateMachineStepDetected(WaveStateController waveStateController)
+    public void OnStateMachineStepDetected(float localMin, float localMax)
     {
-        instance.StartCoroutine(OnStateMachineStepDetected());
-        var localMin = waveStateController.goingDown.localMin;
+        StartCoroutine(OnStateMachineStepDetected());
         for (float i = -0.05f; i < 0.05f; i += 0.01f)
         {
-            instance.diagramAccelerationAvg.InputPoint(instance.lineAccelerationMaxDistanceBetweenAverages, new Vector2(0.01f, localMin + i));
+            diagramAccelerationAvg.InputPoint(lineAccelerationMaxDistanceBetweenAverages, new Vector2(0.01f, localMin + i));
         }
     }
 
-    public static IEnumerator OnStateMachineStepDetected()
+    public  IEnumerator OnStateMachineStepDetected()
     {
-        instance.stateMachineStepDetectionStatus.GetComponentInChildren<TextMeshProUGUI>().text = "STEP!!!";
-        instance.stateMachineStepDetectionStatus.GetComponentInChildren<Image>().color = Color.green;
+        stateMachineStepDetectionStatus.GetComponentInChildren<TextMeshProUGUI>().text = "STEP!!!";
+        stateMachineStepDetectionStatus.GetComponentInChildren<Image>().color = Color.green;
         yield return new WaitForSeconds(0.5f);
-        instance.stateMachineStepDetectionStatus.GetComponentInChildren<TextMeshProUGUI>().text = "...";
-        instance.stateMachineStepDetectionStatus.GetComponentInChildren<Image>().color = Color.red;
+        stateMachineStepDetectionStatus.GetComponentInChildren<TextMeshProUGUI>().text = "...";
+        stateMachineStepDetectionStatus.GetComponentInChildren<Image>().color = Color.red;
     }
 
     private void OnDestroy()
