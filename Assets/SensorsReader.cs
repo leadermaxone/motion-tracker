@@ -19,7 +19,6 @@ public class SensorsReader : MonoBehaviour
     public event Action OnStill;
     public event Action OnMoving;
     internal event Action<float> OnStillHighThresholdChanged;
-    internal event Action<float> OnStillAverageChanged;
     internal event Action<float> OnStillMaxDistanceFromAverageChanged;
     internal event Action<float, float> OnStateMachineStepDetected
     {
@@ -184,7 +183,18 @@ public class SensorsReader : MonoBehaviour
     public bool IsStepRecognitionMachineEnabled 
     {
         get => _isStepRecognitionMachineEnabled;
-        set => _isStepRecognitionMachineEnabled = value;
+        set
+        {
+            if(value && _waveStateController == null)
+            {
+                _waveStateController = new WaveStateController(this);
+            }
+            else if(!value)
+            {
+                _waveStateController = null;
+            }
+            _isStepRecognitionMachineEnabled = value;
+        }
     }
     private bool _isStepRecognitionMachineEnabled;
 
@@ -224,7 +234,7 @@ public class SensorsReader : MonoBehaviour
 
         _lowPassFilterFactor = _accelerometerUpdateInterval / _lowPassKernelWidthInSeconds;
 
-        _waveStateController = new WaveStateController(this);
+        //_waveStateController = new WaveStateController(this);
         _stillMovAvgSize = 60; //at 60hz it's 1/2 secs worth of data
 
 
@@ -296,7 +306,6 @@ public class SensorsReader : MonoBehaviour
             }
             OnStillHighThresholdChanged.Invoke(_stillHighThreshold);
             _stillAvg = (float)Math.Round(_stillAvg / _accelerationMagnitudeFilteredValues.Count, 3) ;
-            //OnStillAverageChanged.Invoke(_stillAvg);
             PrepareRunningAverage(_stillAvg);
             _stillMaxDistAvg = (float)Math.Round(_stillAvg + (_stillHighThreshold - _stillAvg) * 0.75f, 3);
             OnStillMaxDistanceFromAverageChanged(_stillMaxDistAvg);
@@ -351,8 +360,10 @@ public class SensorsReader : MonoBehaviour
         Debug.Log("Calculate Running Average");
         CalculateRunningAverage(accelerationMagnitude);
         //TODO convert to sqrMagnitude for better performances
-        Debug.Log("Calculate Run State");
-        _waveStateController.RunState();
+        if(IsStepRecognitionMachineEnabled && _waveStateController!=null)
+        {
+            _waveStateController.RunState();
+        }
         Debug.Log("Calculate Run State Done");
         if(
             _isStillHighThresholdEnabled && accelerationMagnitude > _stillHighThreshold 
@@ -497,16 +508,16 @@ public class SensorsReader : MonoBehaviour
         //    InputSystem.EnableDevice(Accelerometer.current);
 
         //}
-        if (AttitudeSensor.current != null)
-        {
-            InputSystem.EnableDevice(AttitudeSensor.current);
-
-        }
         //if (GravitySensor.current != null)
         //{
         //    InputSystem.EnableDevice(GravitySensor.current);
 
         //}    
+        if (AttitudeSensor.current != null)
+        {
+            InputSystem.EnableDevice(AttitudeSensor.current);
+
+        }
         if (LinearAccelerationSensor.current != null)
         {
             InputSystem.EnableDevice(LinearAccelerationSensor.current);
@@ -516,8 +527,8 @@ public class SensorsReader : MonoBehaviour
         if(
             //Gyroscope.current != null && Gyroscope.current.enabled &&
             //Accelerometer.current != null &&  Accelerometer.current.enabled &&
-            AttitudeSensor.current != null &&  AttitudeSensor.current.enabled &&
             //GravitySensor.current != null &&  GravitySensor.current.enabled &&
+            AttitudeSensor.current != null &&  AttitudeSensor.current.enabled &&
             LinearAccelerationSensor.current != null && LinearAccelerationSensor.current.enabled
            )
         {
@@ -536,16 +547,16 @@ public class SensorsReader : MonoBehaviour
         //    InputSystem.DisableDevice(Accelerometer.current);
 
         //}
-        if (AttitudeSensor.current != null)
-        {
-            InputSystem.DisableDevice(AttitudeSensor.current);
-
-        }
         //if (GravitySensor.current != null)
         //{
         //    InputSystem.DisableDevice(GravitySensor.current);
 
         //}    
+        if (AttitudeSensor.current != null)
+        {
+            InputSystem.DisableDevice(AttitudeSensor.current);
+
+        }
         if (LinearAccelerationSensor.current != null)
         {
             InputSystem.DisableDevice(LinearAccelerationSensor.current);
@@ -555,8 +566,8 @@ public class SensorsReader : MonoBehaviour
         if (
             //Gyroscope.current != null && !Gyroscope.current.enabled &&
             //Accelerometer.current != null &&  !Accelerometer.current.enabled &&
-            AttitudeSensor.current != null && !AttitudeSensor.current.enabled &&
             //GravitySensor.current != null &&  !GravitySensor.current.enabled &&
+            AttitudeSensor.current != null && !AttitudeSensor.current.enabled &&
             LinearAccelerationSensor.current != null && !LinearAccelerationSensor.current.enabled
            )
         {

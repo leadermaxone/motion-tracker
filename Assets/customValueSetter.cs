@@ -17,21 +17,16 @@ public class customValueSetter : MonoBehaviour
     public float startValue;
 
     public UnityEvent<float> onValueChanged = new UnityEvent<float>();
-    // Start is called before the first frame update
+
     void Start()
     {
         precisionString = precision.ToString(System.Globalization.CultureInfo.InvariantCulture);
-        Debug.Log("precision string >" + precisionString + "< length: "+ precisionString.Length+" indexof: "+ precisionString.IndexOf("."));
         precisionDecimal = precisionString.Length - precisionString.IndexOf(".") - 1;
-        Debug.Log("precisionDecimal is >" + precisionDecimal + "<");
         valueName.text = valueNameString;
         precisionF = "F" + precisionDecimal.ToString();
-        Debug.Log("precision F is >" + precisionF+"<");
         value.text = startValue.ToString(precisionF);
         onValueChanged.Invoke(startValue);
 
-        //Debug.Log($"Value Setter Start. valueNameString is {valueNameString} and startValue is {startValue.ToString()}");
-        //Debug.Log($"Value Setter Start. valueName.text is {valueName.text} and value.text is {value.text}");
     }
 
     public void OnPlusClicked()
@@ -54,7 +49,6 @@ public class customValueSetter : MonoBehaviour
     }
     public void SetValue(float newValue)
     {
-        Debug.Log($"Set Value {newValue} for {this.gameObject.name}");
         value.text = newValue.ToString(precisionF);
     }
 }

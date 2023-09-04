@@ -73,10 +73,8 @@ public class SceneManager : MonoBehaviour
     private bool sensorReaderStarted = false;
     void Start()
     {
-        //text = GetComponent<TextMeshProUGUI>();
 
-        //text2 = GetComponent<TextMeshProUGUI>();
-        //checkStillButton.SetActive(false);
+  
         stillStatus.SetActive(false);
         stateMachineStepDetectionStatus.SetActive(false);
 
@@ -94,8 +92,8 @@ public class SceneManager : MonoBehaviour
         
         lineAccelerationMagnitudeForAvg = diagramAccelerationAvg.AddLine(colorMagenta.ToString(), colorMagenta);
         lineAccelerationMovingAverage = diagramAccelerationAvg.AddLine(colorGreen.ToString(), colorGreen);
-        lineAccelerationMovingAverageMax = diagramAccelerationAvg.AddLine(colorRed.ToString(), colorRed);
-        lineAccelerationMovingAverageMin = diagramAccelerationAvg.AddLine(colorRed.ToString(), colorRed);
+        //lineAccelerationMovingAverageMax = diagramAccelerationAvg.AddLine(colorRed.ToString(), colorRed);
+        //lineAccelerationMovingAverageMin = diagramAccelerationAvg.AddLine(colorRed.ToString(), colorRed);
 
         lineAccelerationMagnitudeForAvgDist = diagramAccelerationAvgDist.AddLine(colorMagenta.ToString(), colorMagenta);
         lineAccelerationMovingAverageDist = diagramAccelerationAvgDist.AddLine(colorGreen.ToString(), colorGreen);
@@ -117,6 +115,10 @@ public class SceneManager : MonoBehaviour
         sensorReader.OnStillHighThresholdChanged += (newThreshold)=> { OnStillHighThresholdChangedFromSensor.Invoke(newThreshold); };
         sensorReader.OnStillMaxDistanceFromAverageChanged += (newThreshold)=> { OnStillMaxDistanceFromAverageChangedFromSensor.Invoke(newThreshold); };
         sensorReader.OnStateMachineStepDetected += (localMin, localMax) => { OnStateMachineStepDetected(localMin, localMax);};
+        sensorReader.IsMaxDistanceBetweenAveragesEnabled = true;
+        sensorReader.IsStillHighThresholdEnabled = true;
+        sensorReader.IsStepRecognitionMachineEnabled = true;
+        sensorReader.SetWaveDeltaStepCheck(false);
     }
 
     private void OnStillCallback()
