@@ -24,10 +24,24 @@ public class SensorsReader : MonoBehaviour
     internal event Action<float, float> OnStateMachineStepDetected
     {
         add {
-            _waveStateController.OnStepDetected += value;
+            if(_waveStateController != null)
+            {
+                _waveStateController.OnStepDetected += value;
+            }
+            else
+            {
+                Debug.Log("OnStateMachineStepDetected ADD error : state machine is null");
+            }
         }
         remove {
-            _waveStateController.OnStepDetected -= value;
+            if (_waveStateController != null)
+            {
+                _waveStateController.OnStepDetected -= value;
+            }
+            else
+            {
+                Debug.Log("OnStateMachineStepDetected REMOVE error : state machine is null");
+            }
         }
     }
 
@@ -362,18 +376,16 @@ public class SensorsReader : MonoBehaviour
 
     private void CheckStandingStill(float accelerationMagnitude)
     {
-        Debug.Log("Calculate Running Average");
         CalculateRunningAverage(accelerationMagnitude);
         //TODO convert to sqrMagnitude for better performances
         if(IsStepRecognitionMachineEnabled && _waveStateController!=null)
         {
             _waveStateController.RunState();
         }
-        Debug.Log("Calculate Run State Done");
         if(
             _isStillHighThresholdEnabled && accelerationMagnitude > _stillHighThreshold 
             || _isMaxDistanceBetweenAveragesEnabled && _stillMovAvg - _stillAvg > _stillMaxDistAvg
-            || _isStepRecognitionMachineEnabled && _waveStateController.HasStep()
+            || _isStepRecognitionMachineEnabled && _waveStateController !=null && _waveStateController.HasStep()
             )
         {
             if(_hasStartedWaitingForStill)
@@ -486,7 +498,7 @@ public class SensorsReader : MonoBehaviour
         }
         else
         {
-            Debug.Log("GetWaveDeltaStepCheck ERROR- step recognition machine is disabled");
+            //Debug.Log("GetWaveDeltaStepCheck ERROR- step recognition machine is disabled");
             return false;
         }
     }
@@ -524,7 +536,7 @@ public class SensorsReader : MonoBehaviour
         else
         {
             Debug.Log("GetCurrentWaveState ERROR- step recognition machine is disabled");
-            return WaveStateController.checkStep;
+            return null;
         }
     }
 

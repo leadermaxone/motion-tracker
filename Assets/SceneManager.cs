@@ -15,7 +15,7 @@ public class SceneManager : MonoBehaviour
     public GameObject checkStillButton;
     public GameObject stepMachineButton;
     public GameObject maxDistanceBetweenAveragesButton;
-    public GameObject HighThresholdButton;
+    public GameObject highThresholdButton;
     public GameObject stillStatus;
     public GameObject stateMachineStepDetectionStatus;
 
@@ -99,7 +99,7 @@ public class SceneManager : MonoBehaviour
         lineAccelerationMagnitudeForAvgDist = diagramAccelerationAvgDist.AddLine(colorMagenta.ToString(), colorMagenta);
         lineAccelerationMovingAverageDist = diagramAccelerationAvgDist.AddLine(colorGreen.ToString(), colorGreen);
         lineAccelerationMaxDistanceBetweenAverages = diagramAccelerationAvgDist.AddLine(colorBlue.ToString(), colorBlue);
-        lineAccelerationStillAverageDist = diagramAccelerationAvgDist.AddLine(colorBlue.ToString(), colorWhite);
+        lineAccelerationStillAverageDist = diagramAccelerationAvgDist.AddLine(colorWhite.ToString(), colorWhite);
 
         
      
@@ -167,7 +167,7 @@ public class SceneManager : MonoBehaviour
         }
         else
         {
-            sensorReader.SetWaveDeltaStepCheck(true);
+            sensorReader.IsStepRecognitionMachineEnabled = true;
             stepMachineButton.GetComponentInChildren<TextMeshProUGUI>().text = "Step Machine: ON";
         }
     }    
@@ -176,12 +176,12 @@ public class SceneManager : MonoBehaviour
         if(sensorReader.IsMaxDistanceBetweenAveragesEnabled)
         {
             sensorReader.IsMaxDistanceBetweenAveragesEnabled = false;
-            stepMachineButton.GetComponentInChildren<TextMeshProUGUI>().text = "Max Dist AVG: OFF";
+            maxDistanceBetweenAveragesButton.GetComponentInChildren<TextMeshProUGUI>().text = "Max Dist AVG: OFF";
         }
         else
         {
-            sensorReader.SetWaveDeltaStepCheck(true);
-            stepMachineButton.GetComponentInChildren<TextMeshProUGUI>().text = "Max Dist AVG: ON";
+            sensorReader.IsMaxDistanceBetweenAveragesEnabled = true;
+            maxDistanceBetweenAveragesButton.GetComponentInChildren<TextMeshProUGUI>().text = "Max Dist AVG: ON";
         }
     }    
     public void OnEnableHighThreshold()
@@ -189,12 +189,12 @@ public class SceneManager : MonoBehaviour
         if(sensorReader.IsStillHighThresholdEnabled)
         {
             sensorReader.IsStillHighThresholdEnabled = false;
-            stepMachineButton.GetComponentInChildren<TextMeshProUGUI>().text = "High Threshold: OFF";
+            highThresholdButton.GetComponentInChildren<TextMeshProUGUI>().text = "High Threshold: OFF";
         }
         else
         {
-            sensorReader.SetWaveDeltaStepCheck(true);
-            stepMachineButton.GetComponentInChildren<TextMeshProUGUI>().text = "High Threshold: ON";
+            sensorReader.IsStillHighThresholdEnabled = true;
+            highThresholdButton.GetComponentInChildren<TextMeshProUGUI>().text = "High Threshold: ON";
         }
     }
 
@@ -353,13 +353,18 @@ public class SceneManager : MonoBehaviour
         text.text =
                         //$"Attitude\nX={sensorReader.Attitude.x:#0.00} Y={sensorReader.Attitude.y:#0.00} Z={sensorReader.Attitude.z:#0.00}\n\n" +
                         //$"attitudeEulerProjectedXZ\nX={sensorReader.AttitudeEulerProjectedXZ.x:#0.00} Y={sensorReader.AttitudeEulerProjectedXZ.y:#0.00} Z={sensorReader.AttitudeEulerProjectedXZ.z:#0.00}\n\n" +
-                        $"State machine [{sensorReader.IsStepRecognitionMachineEnabled}]={sensorReader.GetCurrentWaveState().GetType().Name} \n" +
-                        $"Wave max/min threshold [{sensorReader.GetWaveDeltaStepCheck()}] \nX={sensorReader.GetStepThreshold()}\n" +
+                        $"State machine [{sensorReader.IsStepRecognitionMachineEnabled}]={sensorReader.GetCurrentWaveState()?.GetType().Name} \n" +
+                        $"Wave max/min [{sensorReader.GetWaveDeltaStepCheck()}] \nX={sensorReader.StillWaveStepDelta}\n" +
+                        $"# of Up/Down to count a step {sensorReader.GetStepThreshold()}\n" +
                         $"Max dist btw avg [{sensorReader.IsMaxDistanceBetweenAveragesEnabled}]={sensorReader.StillMaxDistanceBetweenAverages:#0.000} \n" +
                         $"Still threshold High [{sensorReader.IsStillHighThresholdEnabled}]={sensorReader.StillHighThreshold:#0.00} \n" +
                         $"Accelerometer Frequency ={sensorReader.AccelerometerFrequency:#0.00}";
         text2.text =
-                        $"Moving Avg={sensorReader.StillMovingAvg:#0.00} \n"+
+                        $"High Threshold Check: {sensorReader.IsStillHighThresholdEnabled && sensorReader.AccelerationFilteredMagnitude > sensorReader.StillHighThreshold} \n" +
+                        $"Max dist btw avg Check: {sensorReader.IsMaxDistanceBetweenAveragesEnabled && sensorReader.StillMovingAvg - sensorReader.StillAvg > sensorReader.StillMaxDistanceBetweenAverages} \n" +
+                        $"--> {sensorReader.StillMovingAvg} - {sensorReader.StillAvg} = {sensorReader.StillMovingAvg - sensorReader.StillAvg} > {sensorReader.StillMaxDistanceBetweenAverages} \n" +
+                        $"State machine step Check: {sensorReader.IsStepRecognitionMachineEnabled && sensorReader.WaveStateController != null && sensorReader.WaveStateController.HasStep()} \n" +
+                        $"Moving Avg={sensorReader.StillMovingAvg:#0.00} Still Avg={sensorReader.StillAvg:#0.00} \n"+
                         $"Accelerator Magnitude={sensorReader.AccelerationFilteredMagnitude:#0.00}\n" +
                          $"Acceleration Filtered XZ\nX={sensorReader.AccelerationFiltered.x:#0.00} Y={sensorReader.AccelerationFiltered.y:#0.00}  Z= {sensorReader.AccelerationFiltered.z:#0.00}\n" +
                         $"LowPassKernelWidthS {sensorReader.LowPassKernelWidthInSeconds:#0.00} \naccelerometerUpdateInterval={sensorReader.AccelerometerUpdateInterval:#0.00}";
@@ -387,30 +392,22 @@ public class SceneManager : MonoBehaviour
 
         //diagramAccelerationZ.InputPoint(lineAccelerationZ, new Vector2(0.01f, sensorReader.AccelerationFilteredProjectedXZ.z));
         //diagramAccelerationZ.InputPoint(lineAccelerationZ_NotFiltered, new Vector2(0.01f, sensorReader.AccelerationRaw.z));
-        Debug.Log("drawing diagramAccelerationMagnitude");
-        Debug.Log($"drawing diagramAccelerationMagnitude sensorReader.AccelerationFilteredMagnitude {sensorReader.AccelerationFilteredMagnitude}");
-        Debug.Log($"drawing diagramAccelerationMagnitude sensorReader.AccelerationRaw.magnitude {sensorReader.AccelerationRaw.magnitude}");
-        Debug.Log($"drawing diagramAccelerationMagnitude sensorReader.StillHighThreshold {sensorReader.StillHighThreshold}");
         diagramAccelerationMagnitude.InputPoint(lineAccelerationMagnitude, new Vector2(0.01f, sensorReader.AccelerationFilteredMagnitude));
         diagramAccelerationMagnitude.InputPoint(lineAccelerationMagnitude_NotFiltered, new Vector2(0.01f, sensorReader.AccelerationRaw.magnitude));
         diagramAccelerationMagnitude.InputPoint(lineAccelerationMagnitudeThreshold, new Vector2(0.01f, sensorReader.StillHighThreshold));
 
 
-        Debug.Log("drawing diagramAccelerationAvg");
         diagramAccelerationAvg.InputPoint(lineAccelerationMagnitudeForAvg, new Vector2(0.01f, sensorReader.AccelerationFilteredMagnitude));
         diagramAccelerationAvg.InputPoint(lineAccelerationMovingAverage, new Vector2(0.01f, sensorReader.StillMovingAvg));
-        Debug.Log($"drawing - GetWaveDeltaStepCheck {sensorReader.GetWaveDeltaStepCheck()}");
         if(sensorReader.GetWaveDeltaStepCheck())
         {
-        Debug.Log($"drawing diagramAccelerationAvg - sensorReader.StillMovingAvg {sensorReader.StillMovingAvg} ");
-        Debug.Log($"drawing diagramAccelerationAvg - sensorReader.StillWaveStepDelta {sensorReader.StillWaveStepDelta} ");
             diagramAccelerationAvg.InputPoint(lineAccelerationMovingAverageMax, new Vector2(0.01f, sensorReader.StillMovingAvg+sensorReader.StillWaveStepDelta));
             diagramAccelerationAvg.InputPoint(lineAccelerationMovingAverageMin, new Vector2(0.01f, sensorReader.StillMovingAvg - sensorReader.StillWaveStepDelta));
         }
 
 
         diagramAccelerationAvgDist.InputPoint(lineAccelerationMagnitudeForAvgDist, new Vector2(0.01f, sensorReader.AccelerationFilteredMagnitude));
-        diagramAccelerationAvgDist.InputPoint(lineAccelerationMaxDistanceBetweenAverages, new Vector2(0.01f, sensorReader.StillMaxDistanceBetweenAverages));
+        diagramAccelerationAvgDist.InputPoint(lineAccelerationMaxDistanceBetweenAverages, new Vector2(0.01f, sensorReader.StillMaxDistanceBetweenAverages+sensorReader.StillAvg));
         diagramAccelerationAvgDist.InputPoint(lineAccelerationMovingAverageDist, new Vector2(0.01f, sensorReader.StillMovingAvg));
         diagramAccelerationAvgDist.InputPoint(lineAccelerationStillAverageDist, new Vector2(0.01f, sensorReader.StillAvg));
 
