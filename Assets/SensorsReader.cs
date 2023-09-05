@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.InputSystem;
+using static UnityEngine.Rendering.DebugUI;
 
 
 
@@ -209,6 +210,12 @@ public class SensorsReader : MonoBehaviour
         set => _isStillHighThresholdEnabled = value;
     }
     private bool _isStillHighThresholdEnabled;
+
+    public float AccelerometerFrequency
+    {
+        get => LinearAccelerationSensor.current.samplingFrequency;
+        set => LinearAccelerationSensor.current.samplingFrequency = value;
+    }
 
     void Start()
     {
@@ -466,28 +473,59 @@ public class SensorsReader : MonoBehaviour
         }
         else
         {
-            Debug.Log("SetWaveDeltaStepCheck - step recognition machine is disabled");
+            Debug.Log("SetWaveDeltaStepCheck ERROR- step recognition machine is disabled");
         }
 
     }
 
     public bool GetWaveDeltaStepCheck()
     {
-        return WaveStateController.IsWaveStepDeltaCheckActive;
+        if(IsStepRecognitionMachineEnabled && WaveStateController != null)
+        {
+            return WaveStateController.IsWaveStepDeltaCheckActive;
+        }
+        else
+        {
+            Debug.Log("GetWaveDeltaStepCheck ERROR- step recognition machine is disabled");
+            return false;
+        }
     }
 
     public void SetStepThreshold(float value)
     {
-        WaveStateController.StepThreshold = (int)value;
+        if(IsStepRecognitionMachineEnabled && WaveStateController != null)
+        {
+            WaveStateController.StepThreshold = (int)value;
+        }
+        else
+        {
+            Debug.Log("SetStepThreshold ERROR- step recognition machine is disabled");
+        }
     }    
     public int GetStepThreshold()
     {
-        return WaveStateController.StepThreshold;
+        if (IsStepRecognitionMachineEnabled && WaveStateController != null)
+        {
+            return WaveStateController.StepThreshold;
+        }
+        else
+        {
+            Debug.Log("GetStepThreshold ERROR- step recognition machine is disabled");
+            return -1;
+        }
     }
 
     public WaveState GetCurrentWaveState()
     {
-        return WaveStateController.CurrentState;
+        if (IsStepRecognitionMachineEnabled && WaveStateController != null)
+        {
+            return WaveStateController.CurrentState;
+        }
+        else
+        {
+            Debug.Log("GetCurrentWaveState ERROR- step recognition machine is disabled");
+            return WaveStateController.checkStep;
+        }
     }
 
     public void SetAccelerometerUpdateIntervalChanged(float newValue)

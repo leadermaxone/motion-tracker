@@ -20,8 +20,15 @@ public class customValueSetter : MonoBehaviour
 
     void Start()
     {
-        precisionString = precision.ToString(System.Globalization.CultureInfo.InvariantCulture);
-        precisionDecimal = precisionString.Length - precisionString.IndexOf(".") - 1;
+        if(precisionString.IndexOf(".")  != -1)
+        {
+            precisionString = precision.ToString(System.Globalization.CultureInfo.InvariantCulture);
+            precisionDecimal = precisionString.Length - precisionString.IndexOf(".") - 1;
+        }
+        else
+        {
+            precisionDecimal = 0;
+        }
         valueName.text = valueNameString;
         precisionF = "F" + precisionDecimal.ToString();
         value.text = startValue.ToString(precisionF);
