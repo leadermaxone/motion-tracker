@@ -23,11 +23,9 @@ public class SensorsReader : MonoBehaviour
     internal event Action<float, float> OnStateMachineStepDetected
     {
         add {
-            OnStateMachineStepDetected += value;
             _waveStateController.OnStepDetected += value;
         }
         remove {
-            OnStateMachineStepDetected -= value;
             _waveStateController.OnStepDetected -= value;
         }
     }
@@ -462,7 +460,15 @@ public class SensorsReader : MonoBehaviour
 
     public void SetWaveDeltaStepCheck(bool mode)
     {
-        WaveStateController.IsWaveStepDeltaCheckActive = mode;
+        if(IsStepRecognitionMachineEnabled && WaveStateController != null)
+        {
+            WaveStateController.IsWaveStepDeltaCheckActive = mode;
+        }
+        else
+        {
+            Debug.Log("SetWaveDeltaStepCheck - step recognition machine is disabled");
+        }
+
     }
 
     public bool GetWaveDeltaStepCheck()
