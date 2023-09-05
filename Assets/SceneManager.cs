@@ -115,10 +115,10 @@ public class SceneManager : MonoBehaviour
         sensorReaderStarted = true;
         sensorReader.OnStillHighThresholdChanged += (newThreshold)=> { OnStillHighThresholdChangedFromSensor.Invoke(newThreshold); };
         sensorReader.OnStillMaxDistanceFromAverageChanged += (newThreshold)=> { OnStillMaxDistanceFromAverageChangedFromSensor.Invoke(newThreshold); };
+        sensorReader.IsStepRecognitionMachineEnabled = true;
         sensorReader.OnStateMachineStepDetected += (localMin, localMax) => { OnStateMachineStepDetected(localMin, localMax);};
         sensorReader.IsMaxDistanceBetweenAveragesEnabled = true;
         sensorReader.IsStillHighThresholdEnabled = true;
-        sensorReader.IsStepRecognitionMachineEnabled = true;
         sensorReader.SetWaveDeltaStepCheck(false);
     }
 
@@ -387,16 +387,23 @@ public class SceneManager : MonoBehaviour
 
         //diagramAccelerationZ.InputPoint(lineAccelerationZ, new Vector2(0.01f, sensorReader.AccelerationFilteredProjectedXZ.z));
         //diagramAccelerationZ.InputPoint(lineAccelerationZ_NotFiltered, new Vector2(0.01f, sensorReader.AccelerationRaw.z));
-
+        Debug.Log("drawing diagramAccelerationMagnitude");
+        Debug.Log($"drawing diagramAccelerationMagnitude sensorReader.AccelerationFilteredMagnitude {sensorReader.AccelerationFilteredMagnitude}");
+        Debug.Log($"drawing diagramAccelerationMagnitude sensorReader.AccelerationRaw.magnitude {sensorReader.AccelerationRaw.magnitude}");
+        Debug.Log($"drawing diagramAccelerationMagnitude sensorReader.StillHighThreshold {sensorReader.StillHighThreshold}");
         diagramAccelerationMagnitude.InputPoint(lineAccelerationMagnitude, new Vector2(0.01f, sensorReader.AccelerationFilteredMagnitude));
         diagramAccelerationMagnitude.InputPoint(lineAccelerationMagnitude_NotFiltered, new Vector2(0.01f, sensorReader.AccelerationRaw.magnitude));
         diagramAccelerationMagnitude.InputPoint(lineAccelerationMagnitudeThreshold, new Vector2(0.01f, sensorReader.StillHighThreshold));
 
 
+        Debug.Log("drawing diagramAccelerationAvg");
         diagramAccelerationAvg.InputPoint(lineAccelerationMagnitudeForAvg, new Vector2(0.01f, sensorReader.AccelerationFilteredMagnitude));
         diagramAccelerationAvg.InputPoint(lineAccelerationMovingAverage, new Vector2(0.01f, sensorReader.StillMovingAvg));
+        Debug.Log($"drawing - GetWaveDeltaStepCheck {sensorReader.GetWaveDeltaStepCheck()}");
         if(sensorReader.GetWaveDeltaStepCheck())
         {
+        Debug.Log($"drawing diagramAccelerationAvg - sensorReader.StillMovingAvg {sensorReader.StillMovingAvg} ");
+        Debug.Log($"drawing diagramAccelerationAvg - sensorReader.StillWaveStepDelta {sensorReader.StillWaveStepDelta} ");
             diagramAccelerationAvg.InputPoint(lineAccelerationMovingAverageMax, new Vector2(0.01f, sensorReader.StillMovingAvg+sensorReader.StillWaveStepDelta));
             diagramAccelerationAvg.InputPoint(lineAccelerationMovingAverageMin, new Vector2(0.01f, sensorReader.StillMovingAvg - sensorReader.StillWaveStepDelta));
         }
