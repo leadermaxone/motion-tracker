@@ -77,9 +77,9 @@ public class SensorsReader : MonoBehaviour
     public float StillMovingAverageWindowSize
     {
         get => _stillMovAvgSize;
-        set => _stillMovAvgSize = value;
+        set => _stillMovAvgSize = (int)value;
     }
-    private float _stillMovAvgSize;
+    private int _stillMovAvgSize;
     private float _stillMovSum;
     private Queue<float> _stillMovAvgData;
     public float StillMovingAvg

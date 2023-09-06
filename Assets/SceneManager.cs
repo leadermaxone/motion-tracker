@@ -198,11 +198,16 @@ public class SceneManager : MonoBehaviour
         }
     }
 
+    
+    public void OnMovingAverageWindowSizeChangedFromUI(float value)
+    {
+        sensorReader.StillMovingAverageWindowSize = value;
+    }
+
     public void OnAccelerometerFrequencyChangedFromUI(float value)
     {
         sensorReader.AccelerometerFrequency = value;
     }
-
     public void OnStepThresholdChangedFromUI(float value)
     {
         sensorReader.SetStepThreshold(value);
@@ -358,7 +363,7 @@ public class SceneManager : MonoBehaviour
                         $"# of Up/Down to count a step {sensorReader.GetStepThreshold()}\n" +
                         $"Max dist btw avg [{sensorReader.IsMaxDistanceBetweenAveragesEnabled}]={sensorReader.StillMaxDistanceBetweenAverages:#0.000} \n" +
                         $"Still threshold High [{sensorReader.IsStillHighThresholdEnabled}]={sensorReader.StillHighThreshold:#0.00} \n" +
-                        $"Accelerometer Frequency ={sensorReader.AccelerometerFrequency:#0.00}";
+                        $"Accelerometer Frequency ={sensorReader.AccelerometerFrequency:#0.00} - Avg W Size={sensorReader.StillMovingAverageWindowSize}";
         text2.text =
                         $"High Threshold Check: {sensorReader.IsStillHighThresholdEnabled && sensorReader.AccelerationFilteredMagnitude > sensorReader.StillHighThreshold} \n" +
                         $"Max dist btw avg Check: {sensorReader.IsMaxDistanceBetweenAveragesEnabled && sensorReader.StillMovingAvg - sensorReader.StillAvg > sensorReader.StillMaxDistanceBetweenAverages} \n" +
