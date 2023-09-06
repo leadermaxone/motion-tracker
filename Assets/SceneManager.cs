@@ -112,14 +112,26 @@ public class SceneManager : MonoBehaviour
         StartCoroutine(ZoomAndDrag(diagramAccelerationAvgDist));
 
         sensorReader.Setup(0.1f, OnStillCallback, OnMovingCallback);
-        sensorReaderStarted = true;
         sensorReader.OnStillHighThresholdChanged += (newThreshold)=> { OnStillHighThresholdChangedFromSensor.Invoke(newThreshold); };
         sensorReader.OnStillMaxDistanceFromAverageChanged += (newThreshold)=> { OnStillMaxDistanceFromAverageChangedFromSensor.Invoke(newThreshold); };
-        sensorReader.IsStepRecognitionMachineEnabled = true;
+
+        sensorReader.IsStepRecognitionMachineEnabled = false;
         sensorReader.OnStateMachineStepDetected += (localMin, localMax) => { OnStateMachineStepDetected(localMin, localMax);};
-        sensorReader.IsMaxDistanceBetweenAveragesEnabled = true;
-        sensorReader.IsStillHighThresholdEnabled = true;
+        sensorReader.StillWaveStepDelta = 0.007f;
         sensorReader.SetWaveDeltaStepCheck(false);
+        sensorReader.SetStepThreshold(1);
+
+        sensorReader.IsMaxDistanceBetweenAveragesEnabled = true;
+        sensorReader.StillMaxDistanceBetweenAverages = 0.015f;
+
+        sensorReader.IsStillHighThresholdEnabled = true;
+        sensorReader.StillHighThreshold = 0.5f;
+
+        sensorReader.AccelerometerFrequency = 60;
+        sensorReader.StillMovingAverageWindowSize = 20;
+        sensorReader.AccelerometerUpdateInterval = 0.10f;
+        sensorReader.LowPassKernelWidthInSeconds = 0.80f;
+        sensorReaderStarted = true;
     }
 
     private void OnStillCallback()
@@ -363,11 +375,10 @@ public class SceneManager : MonoBehaviour
                         $"# of Up/Down to count a step {sensorReader.GetStepThreshold()}\n" +
                         $"Max dist btw avg [{sensorReader.IsMaxDistanceBetweenAveragesEnabled}]={sensorReader.StillMaxDistanceBetweenAverages:#0.000} \n" +
                         $"Still threshold High [{sensorReader.IsStillHighThresholdEnabled}]={sensorReader.StillHighThreshold:#0.00} \n" +
-                        $"Accelerometer Frequency ={sensorReader.AccelerometerFrequency:#0.00} - Avg W Size={sensorReader.StillMovingAverageWindowSize}";
+                        $"Accelerometer Frequency ={sensorReader.AccelerometerFrequency:#0.00} \n Avg W Size={sensorReader.StillMovingAverageWindowSize}";
         text2.text =
                         $"High Threshold Check: {sensorReader.IsStillHighThresholdEnabled && sensorReader.AccelerationFilteredMagnitude > sensorReader.StillHighThreshold} \n" +
                         $"Max dist btw avg Check: {sensorReader.IsMaxDistanceBetweenAveragesEnabled && sensorReader.StillMovingAvg - sensorReader.StillAvg > sensorReader.StillMaxDistanceBetweenAverages} \n" +
-                        $"--> {sensorReader.StillMovingAvg} - {sensorReader.StillAvg} = {sensorReader.StillMovingAvg - sensorReader.StillAvg} > {sensorReader.StillMaxDistanceBetweenAverages} \n" +
                         $"State machine step Check: {sensorReader.IsStepRecognitionMachineEnabled && sensorReader.WaveStateController != null && sensorReader.WaveStateController.HasStep()} \n" +
                         $"Moving Avg={sensorReader.StillMovingAvg:#0.00} Still Avg={sensorReader.StillAvg:#0.00} \n"+
                         $"Accelerator Magnitude={sensorReader.AccelerationFilteredMagnitude:#0.00}\n" +

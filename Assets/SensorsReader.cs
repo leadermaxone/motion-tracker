@@ -30,8 +30,9 @@ public class SensorsReader : MonoBehaviour
             }
             else
             {
-                Debug.Log("OnStateMachineStepDetected ADD error : state machine is null");
+                Debug.Log("OnStateMachineStepDetected ADD warning : state machine is null");
             }
+            _onStateMachineStepDetected += value;
         }
         remove {
             if (_waveStateController != null)
@@ -42,8 +43,11 @@ public class SensorsReader : MonoBehaviour
             {
                 Debug.Log("OnStateMachineStepDetected REMOVE error : state machine is null");
             }
+            _onStateMachineStepDetected -= value;
+
         }
     }
+    private event Action<float, float> _onStateMachineStepDetected;
 
     private bool isRecordingSteps = false;
     private bool isRecordingStill = false;
@@ -201,6 +205,10 @@ public class SensorsReader : MonoBehaviour
             if(value && _waveStateController == null)
             {
                 _waveStateController = new WaveStateController(this);
+                if(_onStateMachineStepDetected != null)
+                {
+                    _waveStateController.OnStepDetected += _onStateMachineStepDetected;
+                }
             }
             else if(!value)
             {
@@ -329,6 +337,7 @@ public class SensorsReader : MonoBehaviour
             _stillMaxDistAvg = (float)Math.Round(_stillAvg + (_stillHighThreshold - _stillAvg) * 0.75f, 3);
             OnStillMaxDistanceFromAverageChanged(_stillMaxDistAvg);
             Debug.Log($"Analysis Still Complete: high {_stillHighThreshold} - _stillAvg {_stillAvg}");
+            _accelerationMagnitudeFilteredValues.Clear();
         }
         else
         {
@@ -358,6 +367,8 @@ public class SensorsReader : MonoBehaviour
     }
     private void PrepareRunningAverage(float value)
     {
+        _stillMovSum = 0;
+        _stillMovAvgData.Clear();
         for (int i=0; i< _stillMovAvgSize; i++)
         {
             _stillMovAvgData.Enqueue(value);
@@ -522,7 +533,7 @@ public class SensorsReader : MonoBehaviour
         }
         else
         {
-            Debug.Log("GetStepThreshold ERROR- step recognition machine is disabled");
+            //Debug.Log("GetStepThreshold ERROR- step recognition machine is disabled");
             return -1;
         }
     }
@@ -535,7 +546,7 @@ public class SensorsReader : MonoBehaviour
         }
         else
         {
-            Debug.Log("GetCurrentWaveState ERROR- step recognition machine is disabled");
+            //Debug.Log("GetCurrentWaveState ERROR- step recognition machine is disabled");
             return null;
         }
     }
