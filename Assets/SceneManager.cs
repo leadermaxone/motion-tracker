@@ -372,7 +372,7 @@ public class SceneManager : MonoBehaviour
                         //$"attitudeEulerProjectedXZ\nX={sensorReader.AttitudeEulerProjectedXZ.x:#0.00} Y={sensorReader.AttitudeEulerProjectedXZ.y:#0.00} Z={sensorReader.AttitudeEulerProjectedXZ.z:#0.00}\n\n" +
                         $"State machine [{sensorReader.IsStepRecognitionMachineEnabled}]={sensorReader.GetCurrentWaveState()?.GetType().Name} \n" +
                         $"Wave max/min [{sensorReader.IsWaveStepDeltaCheckActive}] \nX={sensorReader.StillWaveStepDelta}\n" +
-                        $"# of Up/Down to count a step {sensorReader.GetStepThreshold()}\n" +
+                        $"# of Up/Down to count a step {sensorReader.StepThreshold}\n" +
                         $"Max dist btw avg [{sensorReader.IsMaxDistanceBetweenAveragesEnabled}]={sensorReader.StillMaxDistanceBetweenAverages:#0.000} \n" +
                         $"Still threshold High [{sensorReader.IsStillHighThresholdEnabled}]={sensorReader.StillHighThreshold:#0.00} \n" +
                         $"Accelerometer Frequency ={sensorReader.AccelerometerFrequency:#0.00} \n Avg W Size={sensorReader.StillMovingAverageWindowSize}";
@@ -415,7 +415,7 @@ public class SceneManager : MonoBehaviour
 
         diagramAccelerationAvg.InputPoint(lineAccelerationMagnitudeForAvg, new Vector2(0.01f, sensorReader.AccelerationFilteredMagnitude));
         diagramAccelerationAvg.InputPoint(lineAccelerationMovingAverage, new Vector2(0.01f, sensorReader.StillMovingAvg));
-        if(sensorReader.GetWaveDeltaStepCheck())
+        if(sensorReader.IsWaveStepDeltaCheckActive)
         {
             diagramAccelerationAvg.InputPoint(lineAccelerationMovingAverageMax, new Vector2(0.01f, sensorReader.StillMovingAvg+sensorReader.StillWaveStepDelta));
             diagramAccelerationAvg.InputPoint(lineAccelerationMovingAverageMin, new Vector2(0.01f, sensorReader.StillMovingAvg - sensorReader.StillWaveStepDelta));
