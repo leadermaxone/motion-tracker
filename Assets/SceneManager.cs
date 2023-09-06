@@ -118,8 +118,8 @@ public class SceneManager : MonoBehaviour
         sensorReader.IsStepRecognitionMachineEnabled = false;
         sensorReader.OnStateMachineStepDetected += (localMin, localMax) => { OnStateMachineStepDetected(localMin, localMax);};
         sensorReader.StillWaveStepDelta = 0.007f;
-        sensorReader.SetWaveDeltaStepCheck(false);
-        sensorReader.SetStepThreshold(1);
+        sensorReader.IsWaveStepDeltaCheckActive = false;
+        sensorReader.StepThreshold = 1;
 
         sensorReader.IsMaxDistanceBetweenAveragesEnabled = true;
         sensorReader.StillMaxDistanceBetweenAverages = 0.015f;
@@ -155,16 +155,16 @@ public class SceneManager : MonoBehaviour
 
     public void OnEnableStepDeltaCheck()
     {
-        if(sensorReader.GetWaveDeltaStepCheck())
+        if(sensorReader.IsWaveStepDeltaCheckActive)
         {
-            sensorReader.SetWaveDeltaStepCheck(false);
+            sensorReader.IsWaveStepDeltaCheckActive = false;
             waveDeltaCheckButton.GetComponentInChildren<TextMeshProUGUI>().text = "Wave Delta Check: OFF";
             diagramAccelerationAvg.DestroyLine(lineAccelerationMovingAverageMax);
             diagramAccelerationAvg.DestroyLine(lineAccelerationMovingAverageMin);
         }
         else
         {
-            sensorReader.SetWaveDeltaStepCheck(true);
+            sensorReader.IsWaveStepDeltaCheckActive = true;
             waveDeltaCheckButton.GetComponentInChildren<TextMeshProUGUI>().text = "Wave Delta Check: ON";
             lineAccelerationMovingAverageMax = diagramAccelerationAvg.AddLine(colorRed.ToString(), colorRed);
             lineAccelerationMovingAverageMin = diagramAccelerationAvg.AddLine(colorRed.ToString(), colorRed);
@@ -222,7 +222,7 @@ public class SceneManager : MonoBehaviour
     }
     public void OnStepThresholdChangedFromUI(float value)
     {
-        sensorReader.SetStepThreshold(value);
+        sensorReader.StepThreshold = value;
     }
 
     public void OnZoomDiagramAvgPlus()
@@ -255,13 +255,13 @@ public class SceneManager : MonoBehaviour
             recordStillPressed = true;
             recordStillButton.GetComponentInChildren<TextMeshProUGUI>().text = "STOP RECORDING";
             //checkStillButton.SetActive(false);
-            sensorReader.SetStillRecorder(true);
+            sensorReader.IsRecordingStill = true;
         }
         else
         {
             recordStillPressed = false;
             recordStillButton.GetComponentInChildren<TextMeshProUGUI>().text = "TRAIN STAY STILL";
-            sensorReader.SetStillRecorder(false);
+            sensorReader.IsRecordingStill = false;
         }
     }
 
@@ -276,7 +276,7 @@ public class SceneManager : MonoBehaviour
 
             stillStatus.GetComponentInChildren<TextMeshProUGUI>().text = "moving";
 
-            sensorReader.SetStandingStillRecognition(true);
+            sensorReader.IsCheckingStandingStill = true;
         }
         else
         {
@@ -287,7 +287,7 @@ public class SceneManager : MonoBehaviour
             stillStatus.SetActive(false);
             stateMachineStepDetectionStatus.SetActive(false);
 
-            sensorReader.SetStandingStillRecognition(false);
+            sensorReader.IsCheckingStandingStill = false;
         }
     }
 
@@ -371,7 +371,7 @@ public class SceneManager : MonoBehaviour
                         //$"Attitude\nX={sensorReader.Attitude.x:#0.00} Y={sensorReader.Attitude.y:#0.00} Z={sensorReader.Attitude.z:#0.00}\n\n" +
                         //$"attitudeEulerProjectedXZ\nX={sensorReader.AttitudeEulerProjectedXZ.x:#0.00} Y={sensorReader.AttitudeEulerProjectedXZ.y:#0.00} Z={sensorReader.AttitudeEulerProjectedXZ.z:#0.00}\n\n" +
                         $"State machine [{sensorReader.IsStepRecognitionMachineEnabled}]={sensorReader.GetCurrentWaveState()?.GetType().Name} \n" +
-                        $"Wave max/min [{sensorReader.GetWaveDeltaStepCheck()}] \nX={sensorReader.StillWaveStepDelta}\n" +
+                        $"Wave max/min [{sensorReader.IsWaveStepDeltaCheckActive}] \nX={sensorReader.StillWaveStepDelta}\n" +
                         $"# of Up/Down to count a step {sensorReader.GetStepThreshold()}\n" +
                         $"Max dist btw avg [{sensorReader.IsMaxDistanceBetweenAveragesEnabled}]={sensorReader.StillMaxDistanceBetweenAverages:#0.000} \n" +
                         $"Still threshold High [{sensorReader.IsStillHighThresholdEnabled}]={sensorReader.StillHighThreshold:#0.00} \n" +
