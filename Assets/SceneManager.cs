@@ -59,7 +59,7 @@ public class SceneManager : MonoBehaviour
     private Color colorMagenta = Color.magenta;
     private Color colorWhite = Color.white;
 
-    public TextMeshProUGUI text, text2, scrollViewText;
+    public TextMeshProUGUI text, text2;
     public GameObject PhoneModelAttitude,PhoneModelAcceleration;
     public GameObject AccelerationArrow;
     Vector3 accelerationScaleVector = new Vector3(1, 1, 0.5f);
@@ -377,21 +377,23 @@ public class SceneManager : MonoBehaviour
         sensorReader.StillDelayS = newValue;
     }
 
-    public void OnPauseLogsClicked()
+    public void OnStateMachineStepDetected(float localMin, float localMax)
     {
-        if(logsEnabled)
+        StartCoroutine(OnStateMachineStepDetected());
+        for (float i = -0.05f; i < 0.05f; i += 0.01f)
         {
-            logsEnabled = false;
-            pauseLogsButton.GetComponentInChildren<TextMeshProUGUI>().text = "Start Logs";
-        }
-        else
-        {
-            logsEnabled = true;
-            pauseLogsButton.GetComponentInChildren<TextMeshProUGUI>().text = "Pause Logs";
-
+            diagramAccelerationAvg.InputPoint(lineAccelerationMaxDistanceBetweenAverages, new Vector2(0.01f, localMin + i));
         }
     }
 
+    public IEnumerator OnStateMachineStepDetected()
+    {
+        stateMachineStepDetectionStatus.GetComponentInChildren<TextMeshProUGUI>().text = "STEP!!!";
+        stateMachineStepDetectionStatus.GetComponentInChildren<Image>().color = Color.green;
+        yield return new WaitForSeconds(0.5f);
+        stateMachineStepDetectionStatus.GetComponentInChildren<TextMeshProUGUI>().text = "...";
+        stateMachineStepDetectionStatus.GetComponentInChildren<Image>().color = Color.red;
+    }
 
     private void WriteVisualLogs()
     {
@@ -412,17 +414,6 @@ public class SceneManager : MonoBehaviour
                         $"Accelerator Magnitude={sensorReader.AccelerationFilteredMagnitude:#0.00}\n" +
                          $"Acceleration Filtered XZ\nX={sensorReader.AccelerationFiltered.x:#0.00} Y={sensorReader.AccelerationFiltered.y:#0.00}  Z= {sensorReader.AccelerationFiltered.z:#0.00}\n" +
                         $"LowPassKernelWidthS {sensorReader.LowPassKernelWidthInSeconds:#0.00} \naccelerometerUpdateInterval={sensorReader.AccelerometerUpdateInterval:#0.00}";
-
-        if(logsEnabled)
-        {
-            if(scrollViewText.text.Length > 2000)
-            {
-                scrollViewText.text = "";
-            }
-        
-            scrollViewText.text += sensorReader.AccelerationFilteredMagnitude + " - " + sensorReader.CurrentWaveState?.GetType().Name + "\n";
-        }
-
 
     }
 
@@ -457,23 +448,7 @@ public class SceneManager : MonoBehaviour
 
     }
 
-    public void OnStateMachineStepDetected(float localMin, float localMax)
-    {
-        StartCoroutine(OnStateMachineStepDetected());
-        for (float i = -0.05f; i < 0.05f; i += 0.01f)
-        {
-            diagramAccelerationAvg.InputPoint(lineAccelerationMaxDistanceBetweenAverages, new Vector2(0.01f, localMin + i));
-        }
-    }
 
-    public  IEnumerator OnStateMachineStepDetected()
-    {
-        stateMachineStepDetectionStatus.GetComponentInChildren<TextMeshProUGUI>().text = "STEP!!!";
-        stateMachineStepDetectionStatus.GetComponentInChildren<Image>().color = Color.green;
-        yield return new WaitForSeconds(0.5f);
-        stateMachineStepDetectionStatus.GetComponentInChildren<TextMeshProUGUI>().text = "...";
-        stateMachineStepDetectionStatus.GetComponentInChildren<Image>().color = Color.red;
-    }
 
     private void OnDestroy()
     {
