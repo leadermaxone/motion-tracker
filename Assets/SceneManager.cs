@@ -136,16 +136,16 @@ public class SceneManager : MonoBehaviour
             AccelerometerUpdateInterval = 0.10f,
             LowPassKernelWidthInSeconds = 0.80f
         };
-        sensorsReaderOptions.OnStateMachineStepDetected += (localMin, localMax) => { OnStateMachineStepDetected(localMin, localMax); };
-        sensorsReaderOptions.OnStillDelayChanged += (newValue)=> { OnStillDelayChangedFromSensor.Invoke(newValue); };
-        sensorsReaderOptions.OnStillHighThresholdChanged += (newThreshold)=> { OnStillHighThresholdChangedFromSensor.Invoke(newThreshold); };
-        sensorsReaderOptions.OnStillMaxDistanceFromAverageChanged += (newThreshold)=> { OnStillMaxDistanceFromAverageChangedFromSensor.Invoke(newThreshold); };
-        sensorsReaderOptions.OnStillWaveStepDeltaChanged += (newValue)=> { OnStillWaveStepDeltaChangedFromSensor.Invoke(newValue); };
-        sensorsReaderOptions.OnStepThresholdChanged += (newValue)=> { OnStepThresholdChangedFromSensor.Invoke(newValue); };
-        sensorsReaderOptions.OnAccelerometerFrequencyChanged += (newValue)=> { OnAccelerometerFrequencyChangedFromSensor.Invoke(newValue); };
-        sensorsReaderOptions.OnStillMovingAverageWindowSizeChanged += (newValue)=> { OnStillMovingAverageWindowSizeChangedFromSensor.Invoke(newValue); };
-        sensorsReaderOptions.OnAccelerometerUpdateIntervalChanged += (newValue)=> { OnAccelerometerUpdateIntervalChangedFromSensor.Invoke(newValue); };
-        sensorsReaderOptions.OnLowPassKernelWidthInSecondsChanged += (newValue)=> { OnLowPassKernelWidthInSecondsChangedFromSensor.Invoke(newValue); };
+        sensorReader.OnStateMachineStepDetected += (localMin, localMax) => { OnStateMachineStepDetected(localMin, localMax); };
+        sensorReader.OnStillDelayChanged += (newValue)=> { OnStillDelayChangedFromSensor.Invoke(newValue); };
+        sensorReader.OnStillHighThresholdChanged += (newThreshold)=> { OnStillHighThresholdChangedFromSensor.Invoke(newThreshold); };
+        sensorReader.OnStillMaxDistanceFromAverageChanged += (newThreshold)=> { OnStillMaxDistanceFromAverageChangedFromSensor.Invoke(newThreshold); };
+        sensorReader.OnStillWaveStepDeltaChanged += (newValue)=> { OnStillWaveStepDeltaChangedFromSensor.Invoke(newValue); };
+        sensorReader.OnStepThresholdChanged += (newValue)=> { OnStepThresholdChangedFromSensor.Invoke(newValue); };
+        sensorReader.OnAccelerometerFrequencyChanged += (newValue)=> { OnAccelerometerFrequencyChangedFromSensor.Invoke(newValue); };
+        sensorReader.OnStillMovingAverageWindowSizeChanged += (newValue)=> { OnStillMovingAverageWindowSizeChangedFromSensor.Invoke(newValue); };
+        sensorReader.OnAccelerometerUpdateIntervalChanged += (newValue)=> { OnAccelerometerUpdateIntervalChangedFromSensor.Invoke(newValue); };
+        sensorReader.OnLowPassKernelWidthInSecondsChanged += (newValue)=> { OnLowPassKernelWidthInSecondsChangedFromSensor.Invoke(newValue); };
 
         sensorReader.SetupAndStartSensors(0.1f, OnStillCallback, OnMovingCallback, sensorsReaderOptions);
         sensorReaderStarted = true;

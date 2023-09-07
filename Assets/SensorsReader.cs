@@ -654,17 +654,6 @@ public class SensorsReader : MonoBehaviour
 }
 public class SensorsReaderOptions
 {
-    public event Action<float>? OnStillDelayChanged;
-    public event Action<float>? OnStillHighThresholdChanged;
-    public event Action<float>? OnStillMaxDistanceFromAverageChanged;
-    public event Action<float>? OnStillWaveStepDeltaChanged;
-    public event Action<float>? OnStepThresholdChanged;
-    public event Action<float>? OnAccelerometerFrequencyChanged;
-    public event Action<float>? OnStillMovingAverageWindowSizeChanged;
-    public event Action<float>? OnAccelerometerUpdateIntervalChanged;
-    public event Action<float>? OnLowPassKernelWidthInSecondsChanged;
-    public event Action<float,float>? OnStateMachineStepDetected;
-
     public bool IsStepRecognitionMachineEnabled { get; set; } = false;
     public float StillWaveStepDelta { get; set; } = 0.007f;
     public bool IsWaveStepDeltaCheckActive { get; set; } = false;
