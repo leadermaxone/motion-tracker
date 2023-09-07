@@ -31,8 +31,8 @@ public class customValueSetter : MonoBehaviour
         }
         valueName.text = valueNameString;
         precisionF = "F" + precisionDecimal.ToString();
-        value.text = startValue.ToString(precisionF);
-        onValueChanged.Invoke(startValue);
+        //value.text = startValue.ToString(precisionF);
+        //onValueChanged.Invoke(startValue);
 
     }
 

@@ -11,16 +11,17 @@ using static UnityEngine.Rendering.DebugUI;
 
 public class SensorsReader : MonoBehaviour
 {
-    public float StillDelayS
-    {
-        get => _stillDelayS;
-        set => _stillDelayS = value;
-    }
-    private float _stillDelayS = 0.01f;
     public event Action OnStill;
     public event Action OnMoving;
+    internal event Action<float> OnStillDelayChanged;
     internal event Action<float> OnStillHighThresholdChanged;
     internal event Action<float> OnStillMaxDistanceFromAverageChanged;
+    internal event Action<float> OnStillWaveStepDeltaChanged;
+    internal event Action<float> OnStepThresholdChanged;
+    internal event Action<float> OnAccelerometerFrequencyChanged;
+    internal event Action<float> OnStillMovingAverageWindowSizeChanged;
+    internal event Action<float> OnAccelerometerUpdateIntervalChanged;
+    internal event Action<float> OnLowPassKernelWidthInSecondsChanged;
     internal event Action<float, float> OnStateMachineStepDetected
     {
         add {
@@ -48,6 +49,18 @@ public class SensorsReader : MonoBehaviour
         }
     }
     private event Action<float, float> _onStateMachineStepDetected;
+
+    public float StillDelayS
+    {
+        get => _stillDelayS;
+        set
+        {
+            _stillDelayS = value;
+            if (OnStillDelayChanged != null)
+                OnStillDelayChanged.Invoke(value);
+        }
+    }
+    private float _stillDelayS;
 
     private bool isRecordingSteps = false;
     public bool IsRecordingStill
@@ -96,6 +109,8 @@ public class SensorsReader : MonoBehaviour
             if (IsStepRecognitionMachineEnabled && WaveStateController != null)
             {
                 WaveStateController.StepThreshold = (int)value;
+                if (OnStepThresholdChanged != null)
+                    OnStepThresholdChanged.Invoke((int)value);
             }
             else
             {
@@ -118,7 +133,11 @@ public class SensorsReader : MonoBehaviour
     public float StillMovingAverageWindowSize
     {
         get => _stillMovAvgSize;
-        set => _stillMovAvgSize = (int)value;
+        set {
+            _stillMovAvgSize = (int)value;
+            if (OnStillMovingAverageWindowSizeChanged != null)
+                OnStillMovingAverageWindowSizeChanged.Invoke((int)value);
+        }
     }
     private int _stillMovAvgSize;
     private float _stillMovSum;
@@ -138,7 +157,12 @@ public class SensorsReader : MonoBehaviour
     public float StillWaveStepDelta
     {
         get => _stillWaveStepDelta;
-        set => _stillWaveStepDelta = value;
+        set
+        {
+            _stillWaveStepDelta = value;
+            if (OnStillWaveStepDeltaChanged != null)
+                OnStillWaveStepDeltaChanged.Invoke(value);
+        }
     }
     private float _stillWaveStepDelta;
 
@@ -228,6 +252,8 @@ public class SensorsReader : MonoBehaviour
         {
             _accelerometerUpdateInterval = value;
             _lowPassFilterFactor = _accelerometerUpdateInterval / _lowPassKernelWidthInSeconds;
+            if (OnAccelerometerUpdateIntervalChanged != null)
+                OnAccelerometerUpdateIntervalChanged.Invoke(value);
         }
     }
     private float _accelerometerUpdateInterval;
@@ -239,6 +265,8 @@ public class SensorsReader : MonoBehaviour
         {
             _lowPassKernelWidthInSeconds = value;
             _lowPassFilterFactor = _accelerometerUpdateInterval / _lowPassKernelWidthInSeconds;
+            if (OnLowPassKernelWidthInSecondsChanged != null)
+                OnLowPassKernelWidthInSecondsChanged.Invoke(value);
         }
     }
     private float _lowPassKernelWidthInSeconds;
@@ -313,7 +341,12 @@ public class SensorsReader : MonoBehaviour
     public float AccelerometerFrequency
     {
         get => LinearAccelerationSensor.current.samplingFrequency;
-        set => LinearAccelerationSensor.current.samplingFrequency = value;
+        set
+        {
+            LinearAccelerationSensor.current.samplingFrequency = value;
+            if (OnAccelerometerFrequencyChanged != null)
+                OnAccelerometerFrequencyChanged.Invoke(value);
+        }
     }
 
     void Start()
