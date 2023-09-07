@@ -149,6 +149,8 @@ public class SceneManager : MonoBehaviour
 
         sensorReader.SetupAndStartSensors(0.1f, OnStillCallback, OnMovingCallback, sensorsReaderOptions);
         sensorReaderStarted = true;
+
+        waveDeltaCheckButton.GetComponent<CustomButtonBehaviour>().SetUIState(sensorsReaderOptions.IsWaveStepDeltaCheckActive);
     }
 
     private void OnStillCallback()
@@ -174,19 +176,30 @@ public class SceneManager : MonoBehaviour
     {
         if(sensorReader.IsWaveStepDeltaCheckActive)
         {
+            waveDeltaCheckButton.GetComponent<CustomButtonBehaviour>().SetUIState(false);
             sensorReader.IsWaveStepDeltaCheckActive = false;
-            waveDeltaCheckButton.GetComponentInChildren<TextMeshProUGUI>().text = "Wave Delta Check: OFF";
             diagramAccelerationAvg.DestroyLine(lineAccelerationMovingAverageMax);
             diagramAccelerationAvg.DestroyLine(lineAccelerationMovingAverageMin);
         }
         else
         {
+            waveDeltaCheckButton.GetComponent<CustomButtonBehaviour>().SetUIState(true);
             sensorReader.IsWaveStepDeltaCheckActive = true;
-            waveDeltaCheckButton.GetComponentInChildren<TextMeshProUGUI>().text = "Wave Delta Check: ON";
             lineAccelerationMovingAverageMax = diagramAccelerationAvg.AddLine(colorRed.ToString(), colorRed);
             lineAccelerationMovingAverageMin = diagramAccelerationAvg.AddLine(colorRed.ToString(), colorRed);
         }
     }    
+    public void SetStepDeltaCheckUI (bool mode)
+    {
+        if(mode)
+        {
+            waveDeltaCheckButton.GetComponentInChildren<TextMeshProUGUI>().text = "Wave Delta Check: ON";
+        }
+        else
+        {
+            waveDeltaCheckButton.GetComponentInChildren<TextMeshProUGUI>().text = "Wave Delta Check: OFF";
+        }
+    }
     public void OnEnableStepRecognitionMachine()
     {
         if(sensorReader.IsStepRecognitionMachineEnabled)
@@ -351,12 +364,10 @@ public class SceneManager : MonoBehaviour
     {
         sensorReader.StillHighThreshold = newValue;
     }
-
     public void OnAccelerometerUpdateIntervalChangedByUI(float newValue)
     {
         sensorReader.AccelerometerUpdateInterval = newValue;
     }
-
     public void OnLowPassKernelWidthInSecondsChangedByUI(float newValue)
     {
         sensorReader.LowPassKernelWidthInSeconds = newValue;
