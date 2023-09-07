@@ -379,7 +379,10 @@ public class SensorsReader : MonoBehaviour
                 }
                 _stillAvg += current;
             }
-            OnStillHighThresholdChanged.Invoke(_stillHighThreshold);
+            if(OnStillHighThresholdChanged != null)
+            {
+                OnStillHighThresholdChanged.Invoke(_stillHighThreshold);
+            }
             _stillAvg = (float)Math.Round(_stillAvg / _accelerationMagnitudeFilteredValues.Count, 3);
             PrepareRunningAverage(_stillAvg);
             _stillMaxDistAvg = (float)Math.Round(_stillAvg + (_stillHighThreshold - _stillAvg) * 0.75f, 3);
@@ -398,12 +401,10 @@ public class SensorsReader : MonoBehaviour
         yield return new WaitForSeconds(_stillDelayS);
         // invoke user logic
         Debug.Log($"Player Still for long enough!");
-        OnStill.Invoke();
-    }
-
-    public void OnStillInvoke()
-    {
-        OnStill?.Invoke();
+        if(OnStill != null)
+        {
+            OnStill.Invoke();
+        }
     }
 
     private void OnStopCheckForStill()
@@ -454,7 +455,10 @@ public class SensorsReader : MonoBehaviour
                 {
                     StopCoroutine(_stillCoroutine);
                 }
-                OnMoving.Invoke();
+                if(OnMoving != null)
+                {
+                    OnMoving.Invoke();
+                }
             }
         }
         else
