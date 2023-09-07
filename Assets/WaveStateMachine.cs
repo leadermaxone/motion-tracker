@@ -35,8 +35,8 @@ public class WaveStateController
         goingDown = new GoingDown(this, sensorsReader);
         checkStep = new CheckStep(this, sensorsReader);
         _currentState = goingUp;
-        _isWaveStepDeltaCheckActive = false;
-        _stepThreshold = 2;
+        //_isWaveStepDeltaCheckActive = false;
+        //_stepThreshold = 2;
     }
 
     public void TransitionToState(WaveState newState)
@@ -68,14 +68,6 @@ public class WaveStateController
             return true;
         }
         return false;
-    }
-    public void SetWaveStepDeltaCheck(bool mode)
-    {
-        _isWaveStepDeltaCheckActive = mode;
-    }
-    public void SetStepThreshold(int threshold)
-    {
-        _stepThreshold = threshold;
     }
 }
 

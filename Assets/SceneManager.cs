@@ -118,7 +118,6 @@ public class SceneManager : MonoBehaviour
         StartCoroutine(ZoomAndDrag(diagramAccelerationAvg));
         StartCoroutine(ZoomAndDrag(diagramAccelerationAvgDist));
 
-        sensorReader.Setup(0.1f, OnStillCallback, OnMovingCallback);
         sensorReader.OnStillDelayChanged += (newValue)=> { OnStillDelayChangedFromSensor.Invoke(newValue); };
         sensorReader.OnStillHighThresholdChanged += (newThreshold)=> { OnStillHighThresholdChangedFromSensor.Invoke(newThreshold); };
         sensorReader.OnStillMaxDistanceFromAverageChanged += (newThreshold)=> { OnStillMaxDistanceFromAverageChangedFromSensor.Invoke(newThreshold); };
@@ -129,6 +128,7 @@ public class SceneManager : MonoBehaviour
         sensorReader.OnAccelerometerUpdateIntervalChanged += (newValue)=> { OnAccelerometerUpdateIntervalChangedFromSensor.Invoke(newValue); };
         sensorReader.OnLowPassKernelWidthInSecondsChanged += (newValue)=> { OnLowPassKernelWidthInSecondsChangedFromSensor.Invoke(newValue); };
 
+        sensorReader.Setup(0.1f, OnStillCallback, OnMovingCallback);
 
         sensorReader.IsStepRecognitionMachineEnabled = false;
         sensorReader.OnStateMachineStepDetected += (localMin, localMax) => { OnStateMachineStepDetected(localMin, localMax);};
@@ -385,9 +385,9 @@ public class SceneManager : MonoBehaviour
         text.text =
                         //$"Attitude\nX={sensorReader.Attitude.x:#0.00} Y={sensorReader.Attitude.y:#0.00} Z={sensorReader.Attitude.z:#0.00}\n\n" +
                         //$"attitudeEulerProjectedXZ\nX={sensorReader.AttitudeEulerProjectedXZ.x:#0.00} Y={sensorReader.AttitudeEulerProjectedXZ.y:#0.00} Z={sensorReader.AttitudeEulerProjectedXZ.z:#0.00}\n\n" +
-                        $"State machine [{sensorReader.IsStepRecognitionMachineEnabled}]={sensorReader.GetCurrentWaveState()?.GetType().Name} \n" +
-                        $"Wave max/min [{sensorReader.IsWaveStepDeltaCheckActive}] \nX={sensorReader.StillWaveStepDelta}\n" +
-                        $"# of Up/Down to count a step {sensorReader.StepThreshold}\n" +
+                        $"State machine [{sensorReader.IsStepRecognitionMachineEnabled}]={sensorReader.CurrentWaveState?.GetType().Name}/{sensorReader.WaveStateController?.CurrentState.GetType().Name} \n" +
+                        $"Wave max/min [{sensorReader.IsWaveStepDeltaCheckActive}/{sensorReader.WaveStateController?.IsWaveStepDeltaCheckActive}] \nX={sensorReader.StillWaveStepDelta}\n" +
+                        $"# of Up/Down to count a step {sensorReader.StepThreshold}/{sensorReader.WaveStateController?.StepThreshold}\n" +
                         $"Max dist btw avg [{sensorReader.IsMaxDistanceBetweenAveragesEnabled}]={sensorReader.StillMaxDistanceBetweenAverages:#0.000} \n" +
                         $"Still threshold High [{sensorReader.IsStillHighThresholdEnabled}]={sensorReader.StillHighThreshold:#0.00} \n" +
                         $"Accelerometer Frequency ={sensorReader.AccelerometerFrequency:#0.00} \n Avg W Size={sensorReader.StillMovingAverageWindowSize}";
@@ -407,7 +407,7 @@ public class SceneManager : MonoBehaviour
                 scrollViewText.text = "";
             }
         
-            scrollViewText.text += sensorReader.AccelerationFilteredMagnitude + " - " + sensorReader.GetCurrentWaveState().GetType().Name + "\n";
+            scrollViewText.text += sensorReader.AccelerationFilteredMagnitude + " - " + sensorReader.CurrentWaveState?.GetType().Name + "\n";
         }
 
 

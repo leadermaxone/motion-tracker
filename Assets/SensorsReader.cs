@@ -25,30 +25,90 @@ public class SensorsReader : MonoBehaviour
     internal event Action<float, float> OnStateMachineStepDetected
     {
         add {
-            if (_waveStateController != null)
-            {
-                _waveStateController.OnStepDetected += value;
-            }
-            else
-            {
-                Debug.Log("OnStateMachineStepDetected ADD warning : state machine is null");
-            }
             _onStateMachineStepDetected += value;
+            if (_waveStateController != null)
+                _waveStateController.OnStepDetected += value;
         }
         remove {
-            if (_waveStateController != null)
-            {
-                _waveStateController.OnStepDetected -= value;
-            }
-            else
-            {
-                Debug.Log("OnStateMachineStepDetected REMOVE error : state machine is null");
-            }
             _onStateMachineStepDetected -= value;
-
+            if (_waveStateController != null)
+                _waveStateController.OnStepDetected -= value;
         }
     }
     private event Action<float, float> _onStateMachineStepDetected;
+    public WaveStateController WaveStateController
+    {
+        get => _waveStateController;
+    }
+    private WaveStateController _waveStateController;
+
+    public bool IsStepRecognitionMachineEnabled
+    {
+        get => _isStepRecognitionMachineEnabled;
+        set
+        {
+            if (value && _waveStateController == null)
+            {
+                _waveStateController = new WaveStateController(this);
+                if (_onStateMachineStepDetected != null)
+                {
+                    _waveStateController.OnStepDetected += _onStateMachineStepDetected;
+                }
+                _waveStateController.StepThreshold = (int)StepThreshold;
+                _waveStateController.IsWaveStepDeltaCheckActive = IsWaveStepDeltaCheckActive;
+
+            }
+            else if (!value)
+            {
+                _waveStateController = null;
+            }
+            _isStepRecognitionMachineEnabled = value;
+        }
+    }
+    private bool _isStepRecognitionMachineEnabled;
+
+    public float StepThreshold
+    {
+        get => _stepThreshold;
+        set
+        {
+            _stepThreshold = value;
+            if (OnStepThresholdChanged != null)
+                OnStepThresholdChanged.Invoke(value);
+
+            if (_waveStateController != null)
+                _waveStateController.StepThreshold = (int)value;
+        }
+    }
+    private float _stepThreshold;
+
+    public WaveState CurrentWaveState
+    {
+        get
+        {
+            if (IsStepRecognitionMachineEnabled && WaveStateController != null)
+            {
+                return _waveStateController.CurrentState;
+            }
+            else
+            {
+                //Debug.Log("GetCurrentWaveState ERROR- step recognition machine is disabled");
+                return null;
+            }
+        }
+    }
+
+    public bool IsWaveStepDeltaCheckActive
+    {
+        get => _isWaveStepDeltaCheckActive;
+        set
+        {
+            _isWaveStepDeltaCheckActive = value;
+            if (_waveStateController != null)
+                _waveStateController.IsWaveStepDeltaCheckActive = value;
+        }
+    }
+    private bool _isWaveStepDeltaCheckActive;
 
     public float StillDelayS
     {
@@ -90,38 +150,16 @@ public class SensorsReader : MonoBehaviour
     }
     private float _stepLowThreshold;
 
-    public float StepThreshold
-    {
-        get
-        {
-            if (IsStepRecognitionMachineEnabled && WaveStateController != null)
-            {
-                return WaveStateController.StepThreshold;
-            }
-            else
-            {
-                //Debug.Log("GetStepThreshold ERROR- step recognition machine is disabled");
-                return -1;
-            }
-        }
-        set
-        {
-            if (IsStepRecognitionMachineEnabled && WaveStateController != null)
-            {
-                WaveStateController.StepThreshold = (int)value;
-                if (OnStepThresholdChanged != null)
-                    OnStepThresholdChanged.Invoke((int)value);
-            }
-            else
-            {
-                Debug.Log("SetStepThreshold ERROR- step recognition machine is disabled");
-            }
-        }
-    }
+   
     public float StillHighThreshold
     {
         get => _stillHighThreshold;
-        set => _stillHighThreshold = value;
+        set
+        {
+            _stillHighThreshold = value;
+            if (OnStillHighThresholdChanged != null)
+                OnStillHighThresholdChanged.Invoke(value);
+        }
     }
     private float _stillHighThreshold;
 
@@ -150,7 +188,12 @@ public class SensorsReader : MonoBehaviour
     public float StillMaxDistanceBetweenAverages
     {
         get => _stillMaxDistAvg;
-        set => _stillMaxDistAvg = value;
+        set
+        {
+            _stillMaxDistAvg = value;
+            if (OnStillMaxDistanceFromAverageChanged != null)
+                OnStillMaxDistanceFromAverageChanged.Invoke(value);
+        }
     }
     private float _stillMaxDistAvg;
 
@@ -165,34 +208,6 @@ public class SensorsReader : MonoBehaviour
         }
     }
     private float _stillWaveStepDelta;
-
-    public bool IsWaveStepDeltaCheckActive
-    {
-        get
-        {
-            if (IsStepRecognitionMachineEnabled && WaveStateController != null)
-            {
-                return WaveStateController.IsWaveStepDeltaCheckActive;
-            }
-            else
-            {
-                //Debug.Log("GetWaveDeltaStepCheck ERROR- step recognition machine is disabled");
-                return false;
-            }
-        }
-        set
-        {
-            if (IsStepRecognitionMachineEnabled && WaveStateController != null)
-            {
-                WaveStateController.IsWaveStepDeltaCheckActive = value;
-            }
-            else
-            {
-                Debug.Log("SetWaveDeltaStepCheck ERROR- step recognition machine is disabled");
-            }
-        }
-    }
-
 
     private bool sensorsEnabled = false;
 
@@ -296,33 +311,7 @@ public class SensorsReader : MonoBehaviour
     private bool _isCheckingStandingStill = false;
     private bool _hasStartedWaitingForStill = false;
 
-    public WaveStateController WaveStateController
-    {
-        get => _waveStateController;
-    }
-    private WaveStateController _waveStateController;
-
-    public bool IsStepRecognitionMachineEnabled
-    {
-        get => _isStepRecognitionMachineEnabled;
-        set
-        {
-            if(value && _waveStateController == null)
-            {
-                _waveStateController = new WaveStateController(this);
-                if(_onStateMachineStepDetected != null)
-                {
-                    _waveStateController.OnStepDetected += _onStateMachineStepDetected;
-                }
-            }
-            else if(!value)
-            {
-                _waveStateController = null;
-            }
-            _isStepRecognitionMachineEnabled = value;
-        }
-    }
-    private bool _isStepRecognitionMachineEnabled;
+  
 
     public bool IsMaxDistanceBetweenAveragesEnabled
     {
@@ -372,11 +361,11 @@ public class SensorsReader : MonoBehaviour
         _lowPassFilterFactor = _accelerometerUpdateInterval / _lowPassKernelWidthInSeconds;
 
         //_waveStateController = new WaveStateController(this);
-        _stillMovAvgSize = 60; //at 60hz it's 1/2 secs worth of data
+        StillMovingAverageWindowSize = 60; //at 60hz it's 1/2 secs worth of data
 
 
 
-        _stillDelayS = stillDelayS;
+        StillDelayS = stillDelayS;
         OnStill += OnStillCallback;
         OnMoving += OnMovingCallback;
 
@@ -412,14 +401,13 @@ public class SensorsReader : MonoBehaviour
                 }
                 _stillAvg += current;
             }
-            if(OnStillHighThresholdChanged != null)
-            {
+            if (OnStillHighThresholdChanged != null)
                 OnStillHighThresholdChanged.Invoke(_stillHighThreshold);
-            }
             _stillAvg = (float)Math.Round(_stillAvg / _accelerationMagnitudeFilteredValues.Count, 3);
             PrepareRunningAverage(_stillAvg);
             _stillMaxDistAvg = (float)Math.Round(_stillAvg + (_stillHighThreshold - _stillAvg) * 0.75f, 3);
-            OnStillMaxDistanceFromAverageChanged(_stillMaxDistAvg);
+            if (OnStillMaxDistanceFromAverageChanged != null)
+                OnStillMaxDistanceFromAverageChanged(_stillMaxDistAvg);
             Debug.Log($"Analysis Still Complete: high {_stillHighThreshold} - _stillAvg {_stillAvg}");
             _accelerationMagnitudeFilteredValues.Clear();
         }
@@ -571,26 +559,6 @@ public class SensorsReader : MonoBehaviour
         _attitudeEulerProjectedXZ.z = -(float)Math.Round(_attitudeValueEuler.y, 1);
         _attitudeEulerProjectedXZ.x = -(float)Math.Round(_attitudeValueEuler.x, 1);
 
-    }
-
-
-
-
-
-
-
-
-    public WaveState GetCurrentWaveState()
-    {
-        if (IsStepRecognitionMachineEnabled && WaveStateController != null)
-        {
-            return WaveStateController.CurrentState;
-        }
-        else
-        {
-            //Debug.Log("GetCurrentWaveState ERROR- step recognition machine is disabled");
-            return null;
-        }
     }
 
     void EnableSensors()
