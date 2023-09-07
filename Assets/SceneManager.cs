@@ -241,16 +241,16 @@ public class SceneManager : MonoBehaviour
     }
 
     
-    public void OnMovingAverageWindowSizeChangedFromUI(float value)
+    public void OnMovingAverageWindowSizeChangedByUI(float value)
     {
         sensorReader.StillMovingAverageWindowSize = value;
     }
 
-    public void OnAccelerometerFrequencyChangedFromUI(float value)
+    public void OnAccelerometerFrequencyChangedByUI(float value)
     {
         sensorReader.AccelerometerFrequency = value;
     }
-    public void OnStepThresholdChangedFromUI(float value)
+    public void OnStepThresholdChangedByUI(float value)
     {
         sensorReader.StepThreshold = value;
     }

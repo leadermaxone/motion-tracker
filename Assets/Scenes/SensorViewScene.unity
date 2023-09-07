@@ -71677,7 +71677,7 @@ PrefabInstance:
     - target: {fileID: 6707307859849961118, guid: 08fe0dc0f4b88394cbb924d3e0d63c88,
         type: 3}
       propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: OnAccelerometerFrequencyChangedFromUI
+      value: OnAccelerometerFrequencyChangedByUI
       objectReference: {fileID: 0}
     - target: {fileID: 6707307859849961118, guid: 08fe0dc0f4b88394cbb924d3e0d63c88,
         type: 3}
@@ -90293,7 +90293,7 @@ PrefabInstance:
     - target: {fileID: 6707307859849961118, guid: 08fe0dc0f4b88394cbb924d3e0d63c88,
         type: 3}
       propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: OnStepThresholdChangedFromUI
+      value: OnStepThresholdChangedByUI
       objectReference: {fileID: 0}
     - target: {fileID: 6707307859849961118, guid: 08fe0dc0f4b88394cbb924d3e0d63c88,
         type: 3}
@@ -107812,7 +107812,7 @@ PrefabInstance:
     - target: {fileID: 6707307859849961118, guid: 08fe0dc0f4b88394cbb924d3e0d63c88,
         type: 3}
       propertyPath: onValueChanged.m_PersistentCalls.m_Calls.Array.data[0].m_MethodName
-      value: OnMovingAverageWindowSizeChangedFromUI
+      value: OnMovingAverageWindowSizeChangedByUI
       objectReference: {fileID: 0}
     - target: {fileID: 6707307859849961118, guid: 08fe0dc0f4b88394cbb924d3e0d63c88,
         type: 3}
