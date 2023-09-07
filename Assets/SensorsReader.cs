@@ -11,8 +11,8 @@ using static UnityEngine.Rendering.DebugUI;
 
 public class SensorsReader : MonoBehaviour
 {
-    public event Action OnStill;
-    public event Action OnMoving;
+    internal event Action OnStill;
+    internal event Action OnMoving;
     internal event Action<float> OnStillDelayChanged;
     internal event Action<float> OnStillHighThresholdChanged;
     internal event Action<float> OnStillMaxDistanceFromAverageChanged;
@@ -344,7 +344,7 @@ public class SensorsReader : MonoBehaviour
       
     }
 
-    public void Setup(float stillDelayS, Action OnStillCallback, Action OnMovingCallback)
+    public void SetupAndStartSensors(float stillDelayS, Action OnStillCallback, Action OnMovingCallback, SensorsReaderOptions? sensorsReaderOptions)
     {
         _currentAccelerationFiltered = Vector3.zero;
         _currentAccelerationRaw = Vector3.zero;
@@ -360,15 +360,27 @@ public class SensorsReader : MonoBehaviour
 
         _lowPassFilterFactor = _accelerometerUpdateInterval / _lowPassKernelWidthInSeconds;
 
-        //_waveStateController = new WaveStateController(this);
-        StillMovingAverageWindowSize = 60; //at 60hz it's 1/2 secs worth of data
-
-
-
         StillDelayS = stillDelayS;
         OnStill += OnStillCallback;
         OnMoving += OnMovingCallback;
 
+        SensorsReaderOptions options = sensorsReaderOptions ?? new SensorsReaderOptions();
+
+        IsStepRecognitionMachineEnabled = options.IsStepRecognitionMachineEnabled;
+        StillWaveStepDelta = options.StillWaveStepDelta;
+        IsWaveStepDeltaCheckActive = options.IsWaveStepDeltaCheckActive;
+        StepThreshold = options.StepThreshold;
+
+        IsMaxDistanceBetweenAveragesEnabled = options.IsMaxDistanceBetweenAveragesEnabled;
+        StillMaxDistanceBetweenAverages = options.StillMaxDistanceBetweenAverages;
+
+        IsStillHighThresholdEnabled = options.IsStillHighThresholdEnabled;
+        StillHighThreshold = options.StillHighThreshold;
+
+        AccelerometerFrequency = options.AccelerometerFrequency;
+        StillMovingAverageWindowSize = options.StillMovingAverageWindowSize;
+        AccelerometerUpdateInterval = options.AccelerometerUpdateInterval;
+        LowPassKernelWidthInSeconds = options.LowPassKernelWidthInSeconds;
 
         if (!sensorsEnabled)
         {
@@ -639,4 +651,30 @@ public class SensorsReader : MonoBehaviour
             sensorsEnabled = false;
         }
     }
+}
+public class SensorsReaderOptions
+{
+    public event Action<float>? OnStillDelayChanged;
+    public event Action<float>? OnStillHighThresholdChanged;
+    public event Action<float>? OnStillMaxDistanceFromAverageChanged;
+    public event Action<float>? OnStillWaveStepDeltaChanged;
+    public event Action<float>? OnStepThresholdChanged;
+    public event Action<float>? OnAccelerometerFrequencyChanged;
+    public event Action<float>? OnStillMovingAverageWindowSizeChanged;
+    public event Action<float>? OnAccelerometerUpdateIntervalChanged;
+    public event Action<float>? OnLowPassKernelWidthInSecondsChanged;
+    public event Action<float,float>? OnStateMachineStepDetected;
+
+    public bool IsStepRecognitionMachineEnabled { get; set; } = false;
+    public float StillWaveStepDelta { get; set; } = 0.007f;
+    public bool IsWaveStepDeltaCheckActive { get; set; } = false;
+    public float StepThreshold { get; set; } = 1;
+    public bool IsMaxDistanceBetweenAveragesEnabled { get; set; } = true;
+    public float StillMaxDistanceBetweenAverages { get; set; } = 0.015f;
+    public bool IsStillHighThresholdEnabled { get; set; } = true;
+    public float StillHighThreshold { get; set; } = 0.5f;
+    public float AccelerometerFrequency { get; set; } = 60;
+    public float StillMovingAverageWindowSize { get; set; } = 20;
+    public float AccelerometerUpdateInterval { get; set; } = 0.10f;
+    public float LowPassKernelWidthInSeconds { get; set; } = 0.80f;
 }
