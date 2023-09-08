@@ -69,8 +69,10 @@ public class SceneManager : MonoBehaviour
     private Color Magenta = Color.magenta;
     private Color White = Color.white;
 
-    public TextMeshProUGUI text, text2;
-    public GameObject PhoneModelAttitude,PhoneModelAcceleration;
+    public TextMeshProUGUI textLeft;
+    public TextMeshProUGUI textRight;
+    //public GameObject PhoneModelAttitude;
+    public GameObject PhoneModelAcceleration;
     public GameObject AccelerationArrow;
     Vector3 accelerationScaleVector = new Vector3(1, 1, 0.5f);
 
@@ -190,7 +192,7 @@ public class SceneManager : MonoBehaviour
 
         DrawDiagramLines(sensorReader.AccelerationFilteredProjectedXZ);
 
-        PhoneModelAttitude.transform.rotation = Quaternion.Euler(sensorReader.AttitudeEulerProjectedXZ);
+        //PhoneModelAttitude.transform.rotation = Quaternion.Euler(sensorReader.AttitudeEulerProjectedXZ);
 
         WriteVisualLogs();
             
@@ -447,24 +449,23 @@ public class SceneManager : MonoBehaviour
 
     private void WriteVisualLogs()
     {
-        text.text =
+        /*textLeft.text =
                         //$"Attitude\nX={sensorReader.Attitude.x:#0.00} Y={sensorReader.Attitude.y:#0.00} Z={sensorReader.Attitude.z:#0.00}\n\n" +
                         //$"attitudeEulerProjectedXZ\nX={sensorReader.AttitudeEulerProjectedXZ.x:#0.00} Y={sensorReader.AttitudeEulerProjectedXZ.y:#0.00} Z={sensorReader.AttitudeEulerProjectedXZ.z:#0.00}\n\n" +
-                        $"State machine [{sensorReader.IsStepRecognitionMachineEnabled}]={sensorReader.CurrentWaveState?.GetType().Name}/{sensorReader.StepRecognitionMachine?.CurrentState.GetType().Name} \n" +
                         $"Wave max/min [{sensorReader.IsWaveAmplitudeCheckActive}/{sensorReader.StepRecognitionMachine?.IsWaveAmplitudeCheckActive}] \nX={sensorReader.MaxWaveAmplitude}\n" +
                         $"# of Up/Down to count a step {sensorReader.NumberOfPeaksForAStep}/{sensorReader.StepRecognitionMachine?.NumberOfPeaksForAStep}\n" +
                         $"Max dist btw avg [{sensorReader.IsMaxDistanceBetweenAveragesEnabled}]={sensorReader.MaxDistanceBetweenAverages:#0.000} \n" +
                         $"Still threshold High [{sensorReader.IsHighThresholdEnabled}]={sensorReader.HighThreshold:#0.00} \n" +
                         $"Accelerometer Frequency ={sensorReader.AccelerometerFrequency:#0.00} \n Avg W Size={sensorReader.MovingAverageWindowSize}";
-        text2.text =
+        */
+        textRight.text =
                         $"High Threshold Check: {sensorReader.IsHighThresholdEnabled && sensorReader.AccelerationFilteredMagnitude > sensorReader.HighThreshold} \n" +
                         $"Max dist btw avg Check: {sensorReader.IsMaxDistanceBetweenAveragesEnabled && sensorReader.MovingAverage - sensorReader.StillAverage > sensorReader.MaxDistanceBetweenAverages} \n" +
                         $"State machine step Check: {sensorReader.IsStepRecognitionMachineEnabled && sensorReader.StepRecognitionMachine != null && sensorReader.StepRecognitionMachine.HasStep()} \n" +
-                        $"Moving Avg={sensorReader.MovingAverage:#0.00} Still Avg={sensorReader.StillAverage:#0.00} \n"+
+                        $"State machine [{sensorReader.IsStepRecognitionMachineEnabled}]={sensorReader.StepRecognitionMachine?.CurrentState.GetType().Name} \n" +
+                        $"Moving Avg={sensorReader.MovingAverage:#0.00} Still Avg={sensorReader.StillAverage:#0.00} \n" +
                         $"Accelerator Magnitude={sensorReader.AccelerationFilteredMagnitude:#0.00}\n" +
-                         $"Acceleration Filtered XZ\nX={sensorReader.AccelerationFiltered.x:#0.00} Y={sensorReader.AccelerationFiltered.y:#0.00}  Z= {sensorReader.AccelerationFiltered.z:#0.00}\n" +
-                        $"LowPassKernelWidthS {sensorReader.LowPassKernelWidthInSeconds:#0.00} \naccelerometerUpdateInterval={sensorReader.AccelerometerUpdateInterval:#0.00}";
-
+                         $"Acceleration Filtered XZ\nX={sensorReader.AccelerationFiltered.x:#0.00} Y={sensorReader.AccelerationFiltered.y:#0.00}  Z= {sensorReader.AccelerationFiltered.z:#0.00}\n";
     }
 
     private void DrawDiagramLines(Vector3 acceleration)

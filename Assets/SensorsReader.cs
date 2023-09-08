@@ -385,7 +385,7 @@ public class SensorsReader : MonoBehaviour
                 CheckStill(_currentAccelerationFilteredMagnitude);
             }
 
-            CalculateAttitude();
+            //CalculateAttitude();
             _previousAccelerationFilteredMagnitude = _currentAccelerationFilteredMagnitude;
         }
     }
@@ -550,36 +550,21 @@ public class SensorsReader : MonoBehaviour
     void EnableSensors()
     {
         //if (Gyroscope.current != null)
-        //{
         //    InputSystem.EnableDevice(Gyroscope.current);
-
-        //}
         //if (Accelerometer.current != null)
-        //{
         //    InputSystem.EnableDevice(Accelerometer.current);
-
-        //}
         //if (GravitySensor.current != null)
-        //{
         //    InputSystem.EnableDevice(GravitySensor.current);
-
-        //}    
-        if (AttitudeSensor.current != null)
-        {
-            InputSystem.EnableDevice(AttitudeSensor.current);
-
-        }
+        //if (AttitudeSensor.current != null)
+        //    InputSystem.EnableDevice(AttitudeSensor.current);
         if (LinearAccelerationSensor.current != null)
-        {
             InputSystem.EnableDevice(LinearAccelerationSensor.current);
-            Debug.Log("ACCELERATION SAMPLING FREQ IS" + LinearAccelerationSensor.current.samplingFrequency);
-        }
 
         if (
             //Gyroscope.current != null && Gyroscope.current.enabled &&
             //Accelerometer.current != null &&  Accelerometer.current.enabled &&
             //GravitySensor.current != null &&  GravitySensor.current.enabled &&
-            AttitudeSensor.current != null && AttitudeSensor.current.enabled &&
+            //AttitudeSensor.current != null && AttitudeSensor.current.enabled &&
             LinearAccelerationSensor.current != null && LinearAccelerationSensor.current.enabled
            )
         {
@@ -589,36 +574,21 @@ public class SensorsReader : MonoBehaviour
     public void DisableSensors()
     {
         //if (Gyroscope.current != null)
-        //{
         //    InputSystem.DisableDevice(Gyroscope.current);
-
-        //}
         //if (Accelerometer.current != null)
-        //{
         //    InputSystem.DisableDevice(Accelerometer.current);
-
-        //}
         //if (GravitySensor.current != null)
-        //{
         //    InputSystem.DisableDevice(GravitySensor.current);
-
-        //}    
-        if (AttitudeSensor.current != null)
-        {
-            InputSystem.DisableDevice(AttitudeSensor.current);
-
-        }
+        //if (AttitudeSensor.current != null)
+        //    InputSystem.DisableDevice(AttitudeSensor.current);
         if (LinearAccelerationSensor.current != null)
-        {
             InputSystem.DisableDevice(LinearAccelerationSensor.current);
-
-        }
 
         if (
             //Gyroscope.current != null && !Gyroscope.current.enabled &&
             //Accelerometer.current != null &&  !Accelerometer.current.enabled &&
             //GravitySensor.current != null &&  !GravitySensor.current.enabled &&
-            AttitudeSensor.current != null && !AttitudeSensor.current.enabled &&
+            //AttitudeSensor.current != null && !AttitudeSensor.current.enabled &&
             LinearAccelerationSensor.current != null && !LinearAccelerationSensor.current.enabled
            )
         {
