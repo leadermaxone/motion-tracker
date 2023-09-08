@@ -641,7 +641,7 @@ public class SensorsReaderOptions
     public bool IsMaxDistanceBetweenAveragesEnabled { get; set; } = true;
     public float StillMaxDistanceBetweenAverages { get; set; } = 0.015f;
     public bool IsStillHighThresholdEnabled { get; set; } = true;
-    public float StillHighThreshold { get; set; } = 0.5f;
+    public float StillHighThreshold { get; set; } = 0.05f;
     public float AccelerometerFrequency { get; set; } = 60;
     public float StillMovingAverageWindowSize { get; set; } = 20;
     public float AccelerometerUpdateInterval { get; set; } = 0.10f;

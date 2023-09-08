@@ -89,7 +89,7 @@ public class SceneManager : MonoBehaviour
             StillMaxDistanceBetweenAverages = 0.015f,
 
             IsStillHighThresholdEnabled = true,
-            StillHighThreshold = 0.5f,
+            StillHighThreshold = 0.05f,
 
             AccelerometerFrequency = 60,
             StillMovingAverageWindowSize = 20,
