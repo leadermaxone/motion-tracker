@@ -114,7 +114,7 @@ public class GoingUp : WaveState
         {
             // going up, stay in state
             // check for threshold crossed
-            if (sensorsReader.AccelerationFilteredMagnitude > sensorsReader.StillMovingAvg)
+            if (sensorsReader.AccelerationFilteredMagnitude > sensorsReader.StillMovingAverage)
                 crossedThreshold = true;
         }
         else
@@ -139,7 +139,7 @@ public class GoingDown : WaveState
         {
             // going down, stay in state
             // check for threshold crossed
-            if (sensorsReader.AccelerationFilteredMagnitude < sensorsReader.StillMovingAvg)
+            if (sensorsReader.AccelerationFilteredMagnitude < sensorsReader.StillMovingAverage)
                 crossedThreshold = true;
         }
         else
@@ -160,8 +160,8 @@ public class CheckStep : WaveState
         {
             if(
                 waveStateController.IsWaveStepDeltaCheckActive &&
-                waveStateController.goingUp.localMax - sensorsReader.StillMovingAvg > sensorsReader.StillWaveStepDelta &&
-                sensorsReader.StillMovingAvg - waveStateController.goingDown.localMin > sensorsReader.StillWaveStepDelta
+                waveStateController.goingUp.localMax - sensorsReader.StillMovingAverage > sensorsReader.StillWaveStepDelta &&
+                sensorsReader.StillMovingAverage - waveStateController.goingDown.localMin > sensorsReader.StillWaveStepDelta
                 )
             {
                 stepCounter += 1;

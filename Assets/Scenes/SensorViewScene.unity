@@ -15051,7 +15051,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 2
+  m_RootOrder: 4
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &236115981
 MonoBehaviour:
@@ -18096,6 +18096,7 @@ GameObject:
   - component: {fileID: 278962704}
   - component: {fileID: 278962703}
   - component: {fileID: 278962702}
+  - component: {fileID: 278962705}
   m_Layer: 5
   m_Name: Button Set High Threshold
   m_TagString: Untagged
@@ -18167,19 +18168,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 278962703}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 2145113124}
-        m_TargetAssemblyTypeName: SceneManager, Assembly-CSharp
-        m_MethodName: OnEnableHighThreshold
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &278962703
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -18218,6 +18207,48 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 278962700}
   m_CullTransparentMesh: 1
+--- !u!114 &278962705
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 278962700}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8a7e1545af723d64484d156bdd6cdb20, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  OnClick:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 2145113124}
+        m_TargetAssemblyTypeName: SceneManager, Assembly-CSharp
+        m_MethodName: OnEnableHighThresholdPressed
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  SetStateCallback:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 2145113124}
+        m_TargetAssemblyTypeName: SceneManager, Assembly-CSharp
+        m_MethodName: SetHighThresholdUI
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &279732910
 GameObject:
   m_ObjectHideFlags: 0
@@ -21462,6 +21493,7 @@ GameObject:
   - component: {fileID: 324754037}
   - component: {fileID: 324754036}
   - component: {fileID: 324754035}
+  - component: {fileID: 324754038}
   m_Layer: 5
   m_Name: Button Set Max Dist Btw Averages
   m_TagString: Untagged
@@ -21533,19 +21565,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 324754036}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 2145113124}
-        m_TargetAssemblyTypeName: SceneManager, Assembly-CSharp
-        m_MethodName: OnEnableMaxDistanceBetweenAverages
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &324754036
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -21584,6 +21604,48 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 324754033}
   m_CullTransparentMesh: 1
+--- !u!114 &324754038
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 324754033}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8a7e1545af723d64484d156bdd6cdb20, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  OnClick:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 2145113124}
+        m_TargetAssemblyTypeName: SceneManager, Assembly-CSharp
+        m_MethodName: OnEnableMaxDistanceBetweenAverages
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  SetStateCallback:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 2145113124}
+        m_TargetAssemblyTypeName: SceneManager, Assembly-CSharp
+        m_MethodName: SetMaxDistanceBetweenAveragesUI
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &325755083
 GameObject:
   m_ObjectHideFlags: 0
@@ -43781,6 +43843,7 @@ GameObject:
   - component: {fileID: 695786600}
   - component: {fileID: 695786599}
   - component: {fileID: 695786598}
+  - component: {fileID: 695786601}
   m_Layer: 5
   m_Name: Button Step Recognition Machine
   m_TagString: Untagged
@@ -43852,19 +43915,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 695786599}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 2145113124}
-        m_TargetAssemblyTypeName: SceneManager, Assembly-CSharp
-        m_MethodName: OnEnableStepRecognitionMachine
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &695786599
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -43903,6 +43954,48 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 695786596}
   m_CullTransparentMesh: 1
+--- !u!114 &695786601
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 695786596}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8a7e1545af723d64484d156bdd6cdb20, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  OnClick:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 2145113124}
+        m_TargetAssemblyTypeName: SceneManager, Assembly-CSharp
+        m_MethodName: OnEnableStepRecognitionMachine
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  SetStateCallback:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 2145113124}
+        m_TargetAssemblyTypeName: SceneManager, Assembly-CSharp
+        m_MethodName: SetStepRecognitionMachineUI
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &697065515
 GameObject:
   m_ObjectHideFlags: 0
@@ -44770,6 +44863,7 @@ GameObject:
   - component: {fileID: 710442268}
   - component: {fileID: 710442267}
   - component: {fileID: 710442266}
+  - component: {fileID: 710442269}
   m_Layer: 5
   m_Name: Button Analyse Still
   m_TagString: Untagged
@@ -44841,19 +44935,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 710442267}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 2145113124}
-        m_TargetAssemblyTypeName: SceneManager, Assembly-CSharp
-        m_MethodName: OnAnalyseStillPressed
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &710442267
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -44892,6 +44974,36 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 710442264}
   m_CullTransparentMesh: 1
+--- !u!114 &710442269
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 710442264}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8a7e1545af723d64484d156bdd6cdb20, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  OnClick:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 2145113124}
+        m_TargetAssemblyTypeName: SceneManager, Assembly-CSharp
+        m_MethodName: OnAnalyseStillPressed
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  SetStateCallback:
+    m_PersistentCalls:
+      m_Calls: []
 --- !u!1 &711107854
 GameObject:
   m_ObjectHideFlags: 0
@@ -52223,7 +52335,7 @@ PrefabInstance:
     - target: {fileID: 8078196548053978678, guid: dddfd18b4383d764e87e13894faa2681,
         type: 3}
       propertyPath: m_RootOrder
-      value: 5
+      value: 7
       objectReference: {fileID: 0}
     - target: {fileID: 8078196548053978678, guid: dddfd18b4383d764e87e13894faa2681,
         type: 3}
@@ -59000,7 +59112,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 0}
-  m_RootOrder: 3
+  m_RootOrder: 5
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &953251957
 GameObject:
@@ -66599,12 +66711,12 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 2091883198}
-  m_RootOrder: -1
+  m_Father: {fileID: 0}
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 0, y: -2426.3}
+  m_AnchoredPosition: {x: 0, y: 105.69995}
   m_SizeDelta: {x: 1172.12, y: 476.26}
   m_Pivot: {x: 0, y: 0}
 --- !u!114 &1079212372
@@ -66816,12 +66928,12 @@ RectTransform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
-  m_Father: {fileID: 2091883198}
-  m_RootOrder: -1
+  m_Father: {fileID: 0}
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 1}
   m_AnchorMax: {x: 0, y: 1}
-  m_AnchoredPosition: {x: 586.06, y: -2426.3}
+  m_AnchoredPosition: {x: 586.06, y: 105.69995}
   m_SizeDelta: {x: 586.06, y: 476.26}
   m_Pivot: {x: 0, y: 0}
 --- !u!114 &1086462214
@@ -77578,7 +77690,7 @@ PrefabInstance:
     - target: {fileID: 2032272966027325722, guid: d29f8f933085d41b7820861bc9b4d045,
         type: 3}
       propertyPath: m_RootOrder
-      value: 6
+      value: 8
       objectReference: {fileID: 0}
     - target: {fileID: 2032272966027325722, guid: d29f8f933085d41b7820861bc9b4d045,
         type: 3}
@@ -94001,6 +94113,11 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 2091883198}
     m_Modifications:
+    - target: {fileID: 895126603922801059, guid: 08fe0dc0f4b88394cbb924d3e0d63c88,
+        type: 3}
+      propertyPath: m_text
+      value: Kernel Width S
+      objectReference: {fileID: 0}
     - target: {fileID: 5544061048929788457, guid: 08fe0dc0f4b88394cbb924d3e0d63c88,
         type: 3}
       propertyPath: m_Pivot.x
@@ -106722,7 +106839,7 @@ PrefabInstance:
     - target: {fileID: 2032272966027325722, guid: d29f8f933085d41b7820861bc9b4d045,
         type: 3}
       propertyPath: m_RootOrder
-      value: 4
+      value: 6
       objectReference: {fileID: 0}
     - target: {fileID: 2032272966027325722, guid: d29f8f933085d41b7820861bc9b4d045,
         type: 3}
@@ -117431,6 +117548,7 @@ GameObject:
   - component: {fileID: 1973775707}
   - component: {fileID: 1973775706}
   - component: {fileID: 1973775705}
+  - component: {fileID: 1973775709}
   m_Layer: 5
   m_Name: Button Start Check Still
   m_TagString: Untagged
@@ -117481,19 +117599,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 1973775706}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 2145113124}
-        m_TargetAssemblyTypeName: SceneManager, Assembly-CSharp
-        m_MethodName: OnCheckStandingStillPressed
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &1973775706
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -117553,6 +117659,48 @@ RectTransform:
   m_AnchoredPosition: {x: 416, y: 768}
   m_SizeDelta: {x: 318.7, y: 100}
   m_Pivot: {x: 0.5, y: 0.5}
+--- !u!114 &1973775709
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1973775704}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8a7e1545af723d64484d156bdd6cdb20, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  OnClick:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 2145113124}
+        m_TargetAssemblyTypeName: SceneManager, Assembly-CSharp
+        m_MethodName: OnCheckStandingStillPressed
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  SetStateCallback:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 2145113124}
+        m_TargetAssemblyTypeName: SceneManager, Assembly-CSharp
+        m_MethodName: SetCheckStandingStillUI
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &1974083852
 GameObject:
   m_ObjectHideFlags: 0
@@ -125137,33 +125285,31 @@ RectTransform:
   - {fileID: 2108466785}
   - {fileID: 710442265}
   - {fileID: 1973775708}
-  - {fileID: 449674372}
+  - {fileID: 278962701}
   - {fileID: 1758340550}
+  - {fileID: 2072004892}
+  - {fileID: 449674372}
+  - {fileID: 763590436}
   - {fileID: 1133881768}
   - {fileID: 1564099001}
-  - {fileID: 2072004892}
-  - {fileID: 1079212370}
-  - {fileID: 1086462212}
-  - {fileID: 2066199305}
-  - {fileID: 76757663}
-  - {fileID: 1495764944}
+  - {fileID: 324754034}
   - {fileID: 192769476}
-  - {fileID: 329316775}
-  - {fileID: 169750583}
-  - {fileID: 763590436}
+  - {fileID: 695786597}
   - {fileID: 81633647}
   - {fileID: 1493452668}
   - {fileID: 1067248005}
+  - {fileID: 1160307947}
+  - {fileID: 1782858943}
   - {fileID: 1439018732}
   - {fileID: 1932547421}
+  - {fileID: 76757663}
+  - {fileID: 329316775}
+  - {fileID: 169750583}
+  - {fileID: 2066199305}
+  - {fileID: 1495764944}
   - {fileID: 800046028}
   - {fileID: 1631323086}
   - {fileID: 1087922612}
-  - {fileID: 695786597}
-  - {fileID: 278962701}
-  - {fileID: 324754034}
-  - {fileID: 1160307947}
-  - {fileID: 1782858943}
   m_Father: {fileID: 0}
   m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -126402,6 +126548,7 @@ GameObject:
   - component: {fileID: 2108466788}
   - component: {fileID: 2108466787}
   - component: {fileID: 2108466786}
+  - component: {fileID: 2108466789}
   m_Layer: 5
   m_Name: Button Record Still
   m_TagString: Untagged
@@ -126473,19 +126620,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 2108466787}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 2145113124}
-        m_TargetAssemblyTypeName: SceneManager, Assembly-CSharp
-        m_MethodName: OnRecordStillPressed
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!114 &2108466787
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -126524,6 +126659,48 @@ CanvasRenderer:
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 2108466784}
   m_CullTransparentMesh: 1
+--- !u!114 &2108466789
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 2108466784}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 8a7e1545af723d64484d156bdd6cdb20, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  OnClick:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 2145113124}
+        m_TargetAssemblyTypeName: SceneManager, Assembly-CSharp
+        m_MethodName: OnRecordStillPressed
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
+  SetStateCallback:
+    m_PersistentCalls:
+      m_Calls:
+      - m_Target: {fileID: 2145113124}
+        m_TargetAssemblyTypeName: SceneManager, Assembly-CSharp
+        m_MethodName: SetRecordStillUI
+        m_Mode: 0
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &2108991713
 GameObject:
   m_ObjectHideFlags: 0
@@ -129539,6 +129716,11 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 2091883198}
     m_Modifications:
+    - target: {fileID: 895126603922801059, guid: 08fe0dc0f4b88394cbb924d3e0d63c88,
+        type: 3}
+      propertyPath: m_text
+      value: Accelerometer Update Interval
+      objectReference: {fileID: 0}
     - target: {fileID: 5544061048929788457, guid: 08fe0dc0f4b88394cbb924d3e0d63c88,
         type: 3}
       propertyPath: m_Pivot.x

@@ -2,16 +2,16 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.Events;
 using UnityEngine.InputSystem;
-using static UnityEngine.Rendering.DebugUI;
 
 
 
 
 public class SensorsReader : MonoBehaviour
 {
+    #region CallBacks
     internal event Action OnStill;
+    private Coroutine _stillCoroutine;
     internal event Action OnMoving;
     internal event Action<float> OnStillDelayChanged;
     internal event Action<float> OnStillHighThresholdChanged;
@@ -36,6 +36,8 @@ public class SensorsReader : MonoBehaviour
         }
     }
     private event Action<float, float> _onStateMachineStepDetected;
+    #endregion
+    #region State Machine
     public WaveStateController WaveStateController
     {
         get => _waveStateController;
@@ -109,60 +111,14 @@ public class SensorsReader : MonoBehaviour
         }
     }
     private bool _isWaveStepDeltaCheckActive;
+    #endregion
 
-    public float StillDelayS
-    {
-        get => _stillDelayS;
-        set
-        {
-            _stillDelayS = value;
-            if (OnStillDelayChanged != null)
-                OnStillDelayChanged.Invoke(value);
-        }
-    }
-    private float _stillDelayS;
 
-    private bool isRecordingSteps = false;
-    public bool IsRecordingStill
-    {
-        get => _isRecordingStill;
-        set
-        {
-            if (value)
-            {
-                ClearRegisteredData();
-            }
-            _isRecordingStill = value;
-        }
-    }
-    private bool _isRecordingStill = false;
-
-    public float StepHighThreshold
-    {
-        get => _stepHighThreshold;
-        set => _stepHighThreshold = value;
-    }
-    private float _stepHighThreshold;
-    public float StepLowThreshold
-    {
-        get => _stepLowThreshold;
-        set => _stepLowThreshold = value;
-    }
-    private float _stepLowThreshold;
 
    
-    public float StillHighThreshold
-    {
-        get => _stillHighThreshold;
-        set
-        {
-            _stillHighThreshold = value;
-            if (OnStillHighThresholdChanged != null)
-                OnStillHighThresholdChanged.Invoke(value);
-        }
-    }
-    private float _stillHighThreshold;
-
+     
+   
+    #region Moving Average
     public float StillAvg
     {
         get => _stillAvg;
@@ -170,32 +126,35 @@ public class SensorsReader : MonoBehaviour
     private float _stillAvg;
     public float StillMovingAverageWindowSize
     {
-        get => _stillMovAvgSize;
+        get => _stillMovingAverageSize;
         set {
-            _stillMovAvgSize = (int)value;
+            _stillMovingAverageSize = (int)value;
             if (OnStillMovingAverageWindowSizeChanged != null)
                 OnStillMovingAverageWindowSizeChanged.Invoke((int)value);
         }
     }
-    private int _stillMovAvgSize;
-    private float _stillMovSum;
-    private Queue<float> _stillMovAvgData;
-    public float StillMovingAvg
+    private int _stillMovingAverageSize;
+    
+    private float _stillMovingSum;
+    private Queue<float> _stillMovingAverageData;
+    public float StillMovingAverage
     {
-        get => _stillMovAvg;
+        get => _stillMovingAverage;
     }
-    private float _stillMovAvg;
+    private float _stillMovingAverage;
+    #endregion
+    #region Thresholds and values
     public float StillMaxDistanceBetweenAverages
     {
-        get => _stillMaxDistAvg;
+        get => _stillMaxDistanceBetweenAverages;
         set
         {
-            _stillMaxDistAvg = value;
+            _stillMaxDistanceBetweenAverages = value;
             if (OnStillMaxDistanceFromAverageChanged != null)
                 OnStillMaxDistanceFromAverageChanged.Invoke(value);
         }
     }
-    private float _stillMaxDistAvg;
+    private float _stillMaxDistanceBetweenAverages;
 
     public float StillWaveStepDelta
     {
@@ -208,9 +167,31 @@ public class SensorsReader : MonoBehaviour
         }
     }
     private float _stillWaveStepDelta;
-
+    public float StillHighThreshold
+    {
+        get => _stillHighThreshold;
+        set
+        {
+            _stillHighThreshold = value;
+            if (OnStillHighThresholdChanged != null)
+                OnStillHighThresholdChanged.Invoke(value);
+        }
+    }
+    private float _stillHighThreshold;
+    public float StillDelayS
+    {
+        get => _stillDelayS;
+        set
+        {
+            _stillDelayS = value;
+            if (OnStillDelayChanged != null)
+                OnStillDelayChanged.Invoke(value);
+        }
+    }
+    private float _stillDelayS;
+    #endregion
+    #region Sensor Values
     private bool sensorsEnabled = false;
-
     public Vector3 AccelerationRaw
     {
         get => _currentAccelerationRaw;
@@ -258,8 +239,6 @@ public class SensorsReader : MonoBehaviour
     Vector3 _attitudeEulerProjectedXZ;
     private Vector3 _attitudeValueEuler;
 
-
-
     public float AccelerometerUpdateInterval
     {
         get => _accelerometerUpdateInterval;
@@ -288,14 +267,36 @@ public class SensorsReader : MonoBehaviour
 
     private float _lowPassFilterFactor;
 
+    public float AccelerometerFrequency
+    {
+        get => LinearAccelerationSensor.current.samplingFrequency;
+        set
+        {
+            LinearAccelerationSensor.current.samplingFrequency = value;
+            if (OnAccelerometerFrequencyChanged != null)
+                OnAccelerometerFrequencyChanged.Invoke(value);
+        }
+    }
 
     private Stack<Vector3> _accelerationFilteredValues = new Stack<Vector3>();
     private Stack<Vector3> _accelerationRawValues = new Stack<Vector3>();
     private Stack<float> _accelerationMagnitudeRawValues = new Stack<float>();
     private Stack<float> _accelerationMagnitudeFilteredValues = new Stack<float>();
-
-
-    private Coroutine _stillCoroutine;
+    #endregion
+    #region State Variables
+    public bool IsRecordingStill
+    {
+        get => _isRecordingStill;
+        set
+        {
+            if (value)
+            {
+                ClearRegisteredData();
+            }
+            _isRecordingStill = value;
+        }
+    }
+    private bool _isRecordingStill = false;
     public bool IsCheckingStandingStill
     {
         get => _isCheckingStandingStill;
@@ -311,8 +312,6 @@ public class SensorsReader : MonoBehaviour
     private bool _isCheckingStandingStill = false;
     private bool _hasStartedWaitingForStill = false;
 
-  
-
     public bool IsMaxDistanceBetweenAveragesEnabled
     {
         get => _isMaxDistanceBetweenAveragesEnabled;
@@ -326,23 +325,7 @@ public class SensorsReader : MonoBehaviour
         set => _isStillHighThresholdEnabled = value;
     }
     private bool _isStillHighThresholdEnabled;
-
-    public float AccelerometerFrequency
-    {
-        get => LinearAccelerationSensor.current.samplingFrequency;
-        set
-        {
-            LinearAccelerationSensor.current.samplingFrequency = value;
-            if (OnAccelerometerFrequencyChanged != null)
-                OnAccelerometerFrequencyChanged.Invoke(value);
-        }
-    }
-
-    void Start()
-    {
-
-      
-    }
+    #endregion
 
     public void SetupAndStartSensors(float stillDelayS, Action OnStillCallback, Action OnMovingCallback, SensorsReaderOptions? sensorsReaderOptions)
     {
@@ -350,13 +333,11 @@ public class SensorsReader : MonoBehaviour
         _currentAccelerationRaw = Vector3.zero;
         _currentAccelerationFilteredProjectedXZ = Vector3.zero;
         _currentAccelerationFilteredProjectedXZ = Vector3.zero;
-
         _attitudeEulerProjectedXZ = Vector3.zero;
         _attitudeValueEuler = Vector3.zero;
-
-        _stillMovAvg = 0f;
+        _stillMovingAverage = 0f;
         _stillAvg = 0f;
-        _stillMovAvgData = new Queue<float>();
+        _stillMovingAverageData = new Queue<float>();
 
         _lowPassFilterFactor = _accelerometerUpdateInterval / _lowPassKernelWidthInSeconds;
 
@@ -397,10 +378,68 @@ public class SensorsReader : MonoBehaviour
             }
         }
     }
+    void Update()
+    {
 
+        if (sensorsEnabled)
+        {
+            CalculateAccelerometerValue();
+
+            if (_isCheckingStandingStill)
+            {
+                CheckStandingStill(_currentAccelerationFilteredMagnitude);
+            }
+
+            CalculateAttitude();
+            _previousAccelerationFilteredMagnitude = _currentAccelerationFilteredMagnitude;
+        }
+    }
+    void CalculateAccelerometerValue()
+
+    {
+
+        _currentAccelerationRaw = LinearAccelerationSensor.current.acceleration.ReadValue();
+
+        _currentAccelerationFiltered = GetLowPassValue(_currentAccelerationRaw, _previousAccelerationFiltered);
+        _currentAccelerationFiltered.x = (float)Math.Round(_currentAccelerationFiltered.x, 3);
+        _currentAccelerationFiltered.y = (float)Math.Round(_currentAccelerationFiltered.y, 3);
+        _currentAccelerationFiltered.z = (float)Math.Round(_currentAccelerationFiltered.z, 3);
+
+        _currentAccelerationFilteredMagnitude = (float)Math.Round(_currentAccelerationFiltered.magnitude, 3);
+
+        _previousAccelerationFiltered = _currentAccelerationFiltered;
+
+        _currentAccelerationFilteredProjectedXZ.y = (float)Math.Round(_currentAccelerationFiltered.z, 3);
+        _currentAccelerationFilteredProjectedXZ.z = (float)Math.Round(_currentAccelerationFiltered.y, 3);
+        _currentAccelerationFilteredProjectedXZ.x = (float)Math.Round(_currentAccelerationFiltered.x, 3);
+
+        if (_isRecordingStill)
+        {
+            _accelerationRawValues.Push(_currentAccelerationRaw);
+            _accelerationFilteredValues.Push(_currentAccelerationFiltered);
+            _accelerationMagnitudeRawValues.Push(_currentAccelerationRaw.magnitude);
+            _accelerationMagnitudeFilteredValues.Push(_currentAccelerationFiltered.magnitude);
+        }
+    }
+    Vector3 GetLowPassValue(Vector3 currentValue, Vector3 prevValue)
+
+    {
+        return Vector3.Lerp(prevValue, currentValue, _lowPassFilterFactor);
+    }
+    public void CalculateAttitude()
+    {
+        _attitude = AttitudeSensor.current.attitude.ReadValue();
+
+        _attitudeValueEuler = _attitude.eulerAngles;
+        _attitudeEulerProjectedXZ.y = -(float)Math.Round(_attitudeValueEuler.z, 1);
+        _attitudeEulerProjectedXZ.z = -(float)Math.Round(_attitudeValueEuler.y, 1);
+        _attitudeEulerProjectedXZ.x = -(float)Math.Round(_attitudeValueEuler.x, 1);
+
+    }
+    
     public void AnalyseStillData()
     {
-        if(_accelerationMagnitudeFilteredValues.Count > 0)
+        if (_accelerationMagnitudeFilteredValues.Count > 0)
         {
             _stillHighThreshold = 0f;
             _stillAvg = 0f;
@@ -415,11 +454,15 @@ public class SensorsReader : MonoBehaviour
             }
             if (OnStillHighThresholdChanged != null)
                 OnStillHighThresholdChanged.Invoke(_stillHighThreshold);
+
             _stillAvg = (float)Math.Round(_stillAvg / _accelerationMagnitudeFilteredValues.Count, 3);
+
             PrepareRunningAverage(_stillAvg);
-            _stillMaxDistAvg = (float)Math.Round(_stillAvg + (_stillHighThreshold - _stillAvg) * 0.75f, 3);
+
+            _stillMaxDistanceBetweenAverages = (float)Math.Round(_stillAvg + (_stillHighThreshold - _stillAvg) * 0.75f, 3);
             if (OnStillMaxDistanceFromAverageChanged != null)
-                OnStillMaxDistanceFromAverageChanged(_stillMaxDistAvg);
+                OnStillMaxDistanceFromAverageChanged(_stillMaxDistanceBetweenAverages);
+
             Debug.Log($"Analysis Still Complete: high {_stillHighThreshold} - _stillAvg {_stillAvg}");
             _accelerationMagnitudeFilteredValues.Clear();
         }
@@ -428,44 +471,24 @@ public class SensorsReader : MonoBehaviour
             Debug.Log($"Analysis Still Error: nothing to analyse");
         }
     }
-
-    private IEnumerator WaitForStill()
-    {
-        yield return new WaitForSeconds(_stillDelayS);
-        // invoke user logic
-        Debug.Log($"Player Still for long enough!");
-        if(OnStill != null)
-        {
-            OnStill.Invoke();
-        }
-    }
-
-    private void OnStopCheckForStill()
-    {
-        if (_stillCoroutine != null)
-        {
-            StopCoroutine(_stillCoroutine);
-        }
-    }
     private void PrepareRunningAverage(float value)
     {
-        _stillMovSum = 0;
-        _stillMovAvgData.Clear();
-        for (int i=0; i< _stillMovAvgSize; i++)
+        _stillMovingSum = 0;
+        _stillMovingAverageData.Clear();
+        for (int i = 0; i < _stillMovingAverageSize; i++)
         {
-            _stillMovAvgData.Enqueue(value);
-            _stillMovSum += value;
+            _stillMovingAverageData.Enqueue(value);
+            _stillMovingSum += value;
         }
-        _stillMovAvg = (float)Math.Round(_stillMovSum / _stillMovAvgSize, 3);
+        _stillMovingAverage = (float)Math.Round(_stillMovingSum / _stillMovingAverageSize, 3);
     }
     private void CalculateRunningAverage(float newValue)
     {
-        _stillMovSum -= _stillMovAvgData.Dequeue();
-        _stillMovAvgData.Enqueue(newValue);
-        _stillMovSum += newValue;
-        _stillMovAvg = (float)Math.Round(_stillMovSum / _stillMovAvgSize, 3);
+        _stillMovingSum -= _stillMovingAverageData.Dequeue();
+        _stillMovingAverageData.Enqueue(newValue);
+        _stillMovingSum += newValue;
+        _stillMovingAverage = (float)Math.Round(_stillMovingSum / _stillMovingAverageSize, 3);
     }
-   
 
     private void CheckStandingStill(float accelerationMagnitude)
     {
@@ -477,7 +500,7 @@ public class SensorsReader : MonoBehaviour
         }
         if (
             _isStillHighThresholdEnabled && accelerationMagnitude > _stillHighThreshold
-            || _isMaxDistanceBetweenAveragesEnabled && _stillMovAvg - _stillAvg > _stillMaxDistAvg
+            || _isMaxDistanceBetweenAveragesEnabled && _stillMovingAverage - _stillAvg > _stillMaxDistanceBetweenAverages
             || _isStepRecognitionMachineEnabled && _waveStateController != null && _waveStateController.HasStep()
             )
         {
@@ -504,6 +527,24 @@ public class SensorsReader : MonoBehaviour
         }
     }
 
+    private IEnumerator WaitForStill()
+    {
+        yield return new WaitForSeconds(_stillDelayS);
+        // invoke user logic
+        Debug.Log($"Player Still for long enough!");
+        if (OnStill != null)
+        {
+            OnStill.Invoke();
+        }
+    }
+    private void OnStopCheckForStill()
+    {
+        if (_stillCoroutine != null)
+        {
+            StopCoroutine(_stillCoroutine);
+        }
+    }
+ 
     private void ClearRegisteredData()
     {
         _accelerationMagnitudeFilteredValues.Clear();
@@ -511,68 +552,6 @@ public class SensorsReader : MonoBehaviour
         _accelerationFilteredValues.Clear();
         _accelerationRawValues.Clear();
     }
-    Vector3 GetLowPassValue(Vector3 currentValue, Vector3 prevValue)
-
-    {
-        return Vector3.Lerp(prevValue, currentValue, _lowPassFilterFactor);
-    }
-
-    void CalculateAccelerometerValue()
-
-    {
-
-        _currentAccelerationRaw = LinearAccelerationSensor.current.acceleration.ReadValue();
-
-        _currentAccelerationFiltered = GetLowPassValue(_currentAccelerationRaw, _previousAccelerationFiltered);
-        _currentAccelerationFiltered.x = (float)Math.Round(_currentAccelerationFiltered.x, 3);
-        _currentAccelerationFiltered.y = (float)Math.Round(_currentAccelerationFiltered.y, 3);
-        _currentAccelerationFiltered.z = (float)Math.Round(_currentAccelerationFiltered.z, 3);
-
-        _currentAccelerationFilteredMagnitude = (float)Math.Round(_currentAccelerationFiltered.magnitude, 3);
-
-        _previousAccelerationFiltered = _currentAccelerationFiltered;
-
-        _currentAccelerationFilteredProjectedXZ.y = (float)Math.Round(_currentAccelerationFiltered.z, 3);
-        _currentAccelerationFilteredProjectedXZ.z = (float)Math.Round(_currentAccelerationFiltered.y, 3);
-        _currentAccelerationFilteredProjectedXZ.x = (float)Math.Round(_currentAccelerationFiltered.x, 3);
-
-        if (isRecordingSteps || _isRecordingStill)
-        {
-            _accelerationRawValues.Push(_currentAccelerationRaw);
-            _accelerationFilteredValues.Push(_currentAccelerationFiltered);
-            _accelerationMagnitudeRawValues.Push(_currentAccelerationRaw.magnitude);
-            _accelerationMagnitudeFilteredValues.Push(_currentAccelerationFiltered.magnitude);
-        }
-    }
-
-    void Update()
-    {
-
-        if (sensorsEnabled)
-        {
-            CalculateAccelerometerValue();
-
-            if (_isCheckingStandingStill)
-            {
-                CheckStandingStill(_currentAccelerationFilteredMagnitude);
-            }
-
-            CalculateAttitude();
-            _previousAccelerationFilteredMagnitude = _currentAccelerationFilteredMagnitude;
-        }
-    }
-
-    public void CalculateAttitude()
-    {
-        _attitude = AttitudeSensor.current.attitude.ReadValue();
-
-        _attitudeValueEuler = _attitude.eulerAngles;
-        _attitudeEulerProjectedXZ.y = -(float)Math.Round(_attitudeValueEuler.z, 1);
-        _attitudeEulerProjectedXZ.z = -(float)Math.Round(_attitudeValueEuler.y, 1);
-        _attitudeEulerProjectedXZ.x = -(float)Math.Round(_attitudeValueEuler.x, 1);
-
-    }
-
     void EnableSensors()
     {
         //if (Gyroscope.current != null)

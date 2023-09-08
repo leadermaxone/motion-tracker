@@ -9,7 +9,8 @@ public class CustomButtonBehaviour : MonoBehaviour
 
     public void Start()
     {
-        GetComponent<Button>().onClick.AddListener(() => { OnClick?.Invoke(); });
+        if(OnClick != null)
+            GetComponent<Button>().onClick.AddListener(() => { OnClick.Invoke(); });
     }
 
     public void SetUIState(bool status)
