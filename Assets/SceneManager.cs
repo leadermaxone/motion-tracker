@@ -258,11 +258,13 @@ public class SceneManager : MonoBehaviour
         {
             maxDistanceBetweenAveragesButton.GetComponent<CustomButtonBehaviour>().SetUIState(false);
             sensorReader.IsMaxDistanceBetweenAveragesEnabled = false;
+            diagramAccelerationAvgDist.DestroyLine(lineAccelerationMaxDistanceBetweenAverages);
         }
         else
         {
             maxDistanceBetweenAveragesButton.GetComponent<CustomButtonBehaviour>().SetUIState(true);
             sensorReader.IsMaxDistanceBetweenAveragesEnabled = true;
+            lineAccelerationMaxDistanceBetweenAverages = diagramAccelerationAvgDist.AddLine(colorBlue.ToString(), colorBlue);
         }
     }
     public void SetMaxDistanceBetweenAveragesUI(bool mode)
@@ -282,13 +284,14 @@ public class SceneManager : MonoBehaviour
         if (sensorReader.IsStillHighThresholdEnabled)
         {
             highThresholdButton.GetComponent<CustomButtonBehaviour>().SetUIState(false);
-            SetHighThresholdUI(false);
             sensorReader.IsStillHighThresholdEnabled = false;
+            diagramAccelerationMagnitude.DestroyLine(lineAccelerationMagnitudeThreshold);
         }
         else
         {
             highThresholdButton.GetComponent<CustomButtonBehaviour>().SetUIState(true);
             sensorReader.IsStillHighThresholdEnabled = true;
+            lineAccelerationMagnitudeThreshold = diagramAccelerationMagnitude.AddLine(colorWhite.ToString(), colorWhite);
         }
     }
     public void SetHighThresholdUI(bool mode)
@@ -429,7 +432,7 @@ public class SceneManager : MonoBehaviour
         StartCoroutine(OnStateMachineStepDetected());
         for (float i = -0.05f; i < 0.05f; i += 0.01f)
         {
-            diagramAccelerationAvg.InputPoint(lineAccelerationMaxDistanceBetweenAverages, new Vector2(0.01f, localMin + i));
+            diagramAccelerationAvg.InputPoint(lineAccelerationMovingAverage, new Vector2(0.01f, localMin + i));
         }
     }
 
@@ -476,7 +479,9 @@ public class SceneManager : MonoBehaviour
         //diagramAccelerationZ.InputPoint(lineAccelerationZ_NotFiltered, new Vector2(0.01f, sensorReader.AccelerationRaw.z));
         diagramAccelerationMagnitude.InputPoint(lineAccelerationMagnitude, new Vector2(0.01f, sensorReader.AccelerationFilteredMagnitude));
         diagramAccelerationMagnitude.InputPoint(lineAccelerationMagnitude_NotFiltered, new Vector2(0.01f, sensorReader.AccelerationRaw.magnitude));
-        diagramAccelerationMagnitude.InputPoint(lineAccelerationMagnitudeThreshold, new Vector2(0.01f, sensorReader.StillHighThreshold));
+        if(sensorReader.IsStillHighThresholdEnabled)
+            diagramAccelerationMagnitude.InputPoint(lineAccelerationMagnitudeThreshold, new Vector2(0.01f, sensorReader.StillHighThreshold));
+
 
 
         diagramAccelerationAvg.InputPoint(lineAccelerationMagnitudeForAvg, new Vector2(0.01f, sensorReader.AccelerationFilteredMagnitude));
@@ -489,7 +494,8 @@ public class SceneManager : MonoBehaviour
 
 
         diagramAccelerationAvgDist.InputPoint(lineAccelerationMagnitudeForAvgDist, new Vector2(0.01f, sensorReader.AccelerationFilteredMagnitude));
-        diagramAccelerationAvgDist.InputPoint(lineAccelerationMaxDistanceBetweenAverages, new Vector2(0.01f, sensorReader.StillMaxDistanceBetweenAverages+sensorReader.StillAvg));
+        if(sensorReader.IsMaxDistanceBetweenAveragesEnabled)
+            diagramAccelerationAvgDist.InputPoint(lineAccelerationMaxDistanceBetweenAverages, new Vector2(0.01f, sensorReader.StillMaxDistanceBetweenAverages+sensorReader.StillAvg));
         diagramAccelerationAvgDist.InputPoint(lineAccelerationMovingAverageDist, new Vector2(0.01f, sensorReader.StillMovingAverage));
         diagramAccelerationAvgDist.InputPoint(lineAccelerationStillAverageDist, new Vector2(0.01f, sensorReader.StillAvg));
 
