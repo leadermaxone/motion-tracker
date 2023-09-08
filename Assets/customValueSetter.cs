@@ -5,7 +5,7 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.Events;
 
-public class customValueSetter : MonoBehaviour
+public class CustomValueSetter : MonoBehaviour
 {
     public TextMeshProUGUI value;
     public TextMeshProUGUI valueName;

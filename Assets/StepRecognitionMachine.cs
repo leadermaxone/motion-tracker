@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 
-public class WaveStateController
+public class StepRecognitionMachine
 {
     public SensorsReader sensorsReader;
     public WaveState CurrentState
@@ -12,31 +12,31 @@ public class WaveStateController
     public GoingUp goingUp;
     public GoingDown goingDown;
     public CheckStep checkStep;
-    public bool IsWaveStepDeltaCheckActive
+    public bool IsWaveAmplitudeCheckActive
     { 
-        get => _isWaveStepDeltaCheckActive;
-        set => _isWaveStepDeltaCheckActive = value;
+        get => _isWaveAmplitudeCheckActive;
+        set => _isWaveAmplitudeCheckActive = value;
     }
-    private bool _isWaveStepDeltaCheckActive;
+    private bool _isWaveAmplitudeCheckActive;
 
-    public int StepThreshold
+    public int NumberOfPeaksForAStep
     {
-        get => _stepThreshold;
-        set => _stepThreshold = value;
+        get => _numberOfPeaksForAStep;
+        set => _numberOfPeaksForAStep = value;
     }
-    private int _stepThreshold;
+    private int _numberOfPeaksForAStep;
 
     public event Action<float,float> OnStepDetected;
 
-    public WaveStateController(SensorsReader sensorsReader)
+    public StepRecognitionMachine(SensorsReader sensorsReader)
     {
         this.sensorsReader = sensorsReader;
         goingUp = new GoingUp(this, sensorsReader);
         goingDown = new GoingDown(this, sensorsReader);
         checkStep = new CheckStep(this, sensorsReader);
         _currentState = goingUp;
-        //_isWaveStepDeltaCheckActive = false;
-        //_stepThreshold = 2;
+        //_isWaveAmplitudeCheckActive = false;
+        //_numberOfPeaksForAStep = 2;
     }
 
     public void TransitionToState(WaveState newState)
@@ -52,7 +52,7 @@ public class WaveStateController
 
     public bool HasStep()
     {
-        if (checkStep.stepCounter == _stepThreshold)
+        if (checkStep.numberOfUpDowns == _numberOfPeaksForAStep)
         {
             if(OnStepDetected != null)
             {
@@ -63,7 +63,7 @@ public class WaveStateController
             goingDown.crossedThreshold = false;
             goingDown.localMin = -1;
             goingUp.localMax = -1;
-            checkStep.stepCounter = 0;
+            checkStep.numberOfUpDowns = 0;
             Debug.Log("STEP FROM STATE MACHINE!!!!");
             return true;
         }
@@ -82,26 +82,22 @@ public enum WaveStateId
 
 public class WaveState
 {
-    public WaveState(WaveStateController waveStateController, SensorsReader sensorsReader)
+    public WaveState(StepRecognitionMachine stepMachine, SensorsReader sensorsReader)
     {
-        this.waveStateController = waveStateController;
+        this.stepMachine = stepMachine;
         this.sensorsReader = sensorsReader;
     }
-    public WaveStateController waveStateController;
+    public StepRecognitionMachine stepMachine;
     public SensorsReader sensorsReader;
     public bool crossedThreshold;
-    private string direction;
     public virtual void OnEnter() { }
-    public virtual void OnUpdate() {
-        direction = sensorsReader.AccelerationFilteredMagnitude > sensorsReader.PreviousAccelerationFilteredMagnitude ? "UP" : "Down";
-        Debug.Log($"From  {sensorsReader.PreviousAccelerationFilteredMagnitude} to {sensorsReader.AccelerationFilteredMagnitude} going {direction}");
-    }
+    public virtual void OnUpdate() { }
     public virtual void OnExit() { }
 }
 
 public class GoingUp : WaveState
 {
-    public GoingUp(WaveStateController waveStateController, SensorsReader sensorsReader) : base(waveStateController, sensorsReader) { }
+    public GoingUp(StepRecognitionMachine waveStateController, SensorsReader sensorsReader) : base(waveStateController, sensorsReader) { }
     public float localMax;
     public override void OnEnter() 
     {
@@ -114,19 +110,19 @@ public class GoingUp : WaveState
         {
             // going up, stay in state
             // check for threshold crossed
-            if (sensorsReader.AccelerationFilteredMagnitude > sensorsReader.StillMovingAverage)
+            if (sensorsReader.AccelerationFilteredMagnitude > sensorsReader.MovingAverage)
                 crossedThreshold = true;
         }
         else
         {
             localMax = sensorsReader.AccelerationFilteredMagnitude;
-            waveStateController.TransitionToState(waveStateController.goingDown);
+            stepMachine.TransitionToState(stepMachine.goingDown);
         }
     }
 }
 public class GoingDown : WaveState
 {
-    public GoingDown(WaveStateController waveStateController, SensorsReader sensorsReader) : base(waveStateController, sensorsReader) { }
+    public GoingDown(StepRecognitionMachine waveStateController, SensorsReader sensorsReader) : base(waveStateController, sensorsReader) { }
     public float localMin;
     public override void OnEnter()
     {
@@ -139,44 +135,45 @@ public class GoingDown : WaveState
         {
             // going down, stay in state
             // check for threshold crossed
-            if (sensorsReader.AccelerationFilteredMagnitude < sensorsReader.StillMovingAverage)
+            if (sensorsReader.AccelerationFilteredMagnitude < sensorsReader.MovingAverage)
                 crossedThreshold = true;
         }
         else
         {
             localMin = sensorsReader.AccelerationFilteredMagnitude;
-            waveStateController.TransitionToState(waveStateController.checkStep);
+            stepMachine.TransitionToState(stepMachine.checkStep);
         }
     }
 }
 public class CheckStep : WaveState
 {
-    public CheckStep(WaveStateController waveStateController, SensorsReader sensorsReader) : base(waveStateController, sensorsReader) { }
-    public float stepCounter = 0f;
+    public CheckStep(StepRecognitionMachine waveStateController, SensorsReader sensorsReader) : base(waveStateController, sensorsReader) { }
+    public float numberOfUpDowns = 0f;
     public override void OnUpdate()
     {
         base.OnUpdate();
-        if (waveStateController.goingUp.crossedThreshold && waveStateController.goingDown.crossedThreshold)
+        if (stepMachine.goingUp.crossedThreshold && stepMachine.goingDown.crossedThreshold)
         {
+            // Alternatively check only for upper threshold, as it seems from data that soft steps are not symmetrical
             if(
-                waveStateController.IsWaveStepDeltaCheckActive &&
-                waveStateController.goingUp.localMax - sensorsReader.StillMovingAverage > sensorsReader.StillWaveStepDelta &&
-                sensorsReader.StillMovingAverage - waveStateController.goingDown.localMin > sensorsReader.StillWaveStepDelta
+                stepMachine.IsWaveAmplitudeCheckActive &&
+                stepMachine.goingUp.localMax - sensorsReader.MovingAverage > sensorsReader.MaxWaveAmplitude &&
+                sensorsReader.MovingAverage - stepMachine.goingDown.localMin > sensorsReader.MaxWaveAmplitude
                 )
             {
-                stepCounter += 1;
+                numberOfUpDowns += 1;
             }
-            else if(!waveStateController.IsWaveStepDeltaCheckActive)
+            else if(!stepMachine.IsWaveAmplitudeCheckActive)
             {
-                stepCounter += 1;
+                numberOfUpDowns += 1;
             }
         }
         else
         {
-            stepCounter = 0f;
+            numberOfUpDowns = 0f;
         }
 
-        waveStateController.TransitionToState(waveStateController.goingUp);
+        stepMachine.TransitionToState(stepMachine.goingUp);
 
     }
 }
