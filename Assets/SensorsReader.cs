@@ -370,6 +370,7 @@ public class SensorsReader : MonoBehaviour
                 EnableSensors();
                 _currentAccelerationRaw = LinearAccelerationSensor.current.acceleration.ReadValue();
                 _previousAccelerationFiltered = _currentAccelerationRaw;
+                PrepareRunningAverage(_currentAccelerationRaw.magnitude);
             }
             catch (Exception e)
             {
@@ -384,7 +385,7 @@ public class SensorsReader : MonoBehaviour
         if (sensorsEnabled)
         {
             CalculateAccelerometerValue();
-
+            CalculateRunningAverage(_currentAccelerationFilteredMagnitude);
             if (_isCheckingStandingStill)
             {
                 CheckStandingStill(_currentAccelerationFilteredMagnitude);
@@ -457,7 +458,7 @@ public class SensorsReader : MonoBehaviour
 
             _stillAvg = (float)Math.Round(_stillAvg / _accelerationMagnitudeFilteredValues.Count, 3);
 
-            PrepareRunningAverage(_stillAvg);
+            //PrepareRunningAverage(_stillAvg);
 
             _stillMaxDistanceBetweenAverages = (float)Math.Round(_stillAvg + (_stillHighThreshold - _stillAvg) * 0.75f, 3);
             if (OnStillMaxDistanceFromAverageChanged != null)
@@ -492,7 +493,7 @@ public class SensorsReader : MonoBehaviour
 
     private void CheckStandingStill(float accelerationMagnitude)
     {
-        CalculateRunningAverage(accelerationMagnitude);
+        //CalculateRunningAverage(accelerationMagnitude);
         //TODO convert to sqrMagnitude for better performances
         if (IsStepRecognitionMachineEnabled && _waveStateController != null)
         {
