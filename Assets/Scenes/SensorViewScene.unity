@@ -129926,8 +129926,8 @@ MonoBehaviour:
   diagramMagnitudeAndHighThresholdCheck: {fileID: 1541936164}
   diagramStepAndAmplitudeCheck: {fileID: 261896271}
   diagramDistanceBetweenAveragesCheck: {fileID: 1587921844}
-  textLeft: {fileID: 0}
-  textRight: {fileID: 0}
+  textLeft: {fileID: 1079212372}
+  textRight: {fileID: 1086462214}
   PhoneModelAcceleration: {fileID: 2047696458}
   AccelerationArrow: {fileID: 442843990}
 --- !u!224 &2145113125
