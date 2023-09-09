@@ -149,7 +149,12 @@ public class SensorsReader : MonoBehaviour
         }
     }
     private float _maxDistanceBetweenAverages;
-
+    public float DefaultMaxDistanceFromStillAverage
+    {
+        get => _defaultMaxDistanceFromStillAverage;
+        set => _defaultMaxDistanceFromStillAverage = value;
+    }
+    private float _defaultMaxDistanceFromStillAverage = 0.75f;
     public float MaxWaveAmplitude
     {
         get => _maxWaveAmplitude;
@@ -454,7 +459,7 @@ public class SensorsReader : MonoBehaviour
 
             //PrepareRunningAverage(_stillAverage);
 
-            _maxDistanceBetweenAverages = (float)Math.Round(_stillAverage + (_highThreshold - _stillAverage) * 0.75f, 3);
+            _maxDistanceBetweenAverages = (float)Math.Round(_stillAverage + (_highThreshold - _stillAverage) * _defaultMaxDistanceFromStillAverage, 3);
             if (OnMaxDistanceBetweenAveragesChanged != null)
                 OnMaxDistanceBetweenAveragesChanged(_maxDistanceBetweenAverages);
 
