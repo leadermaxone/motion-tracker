@@ -125,3 +125,74 @@ A first improvement would be to account for asymmetric patterns. In fact, it has
 This could lead to expanding the step check for different occurrences of Up/Downs, where not all of them have necessarily satisfied the amplitude check of the moving average crossing.
 
 The machine could also be further expanded to allow for many different patterns, and eventually be directly used for pattern analysis and recognition by first detecting and storing patterns in terms of peaks/throughs, crossings, amplitude etc. and then looking for those pattern immediately after.
+
+-------------
+### SensorReader.cs - Documentation
+
+| Properties name | Description                    |
+| ------------- | ------------------------------ |
+| `IsStepRecognitionMachineEnabled`      | Enable/disable the step recognition machine      |
+| `IsWaveAmplitudeCheckActive`   | Enable/disable the additional check on the wave's amplitude to register an Up/Down event     |
+| `MaxWaveAmplitude`   | The amplitude that must be overcome for the check to pass (movement recognised)    |
+| `NumberOfPeaksForAStep`   | Define the number of Up/Downs to consider one step executed     |
+| `IsMaxDistanceBetweenAveragesEnabled`   | Enable/disable the distance between averages check    |
+| `MaxDistanceBetweenAverages`   | The distance that must be overcome by the moving average (from the still average) for the check to pass (movement recognised)    |
+| `DefaultMaxDistanceFromStillAverage`   | The default percentage between the still average and the high threshold at which the _MaxDistanceBetweenAverages_ is positioned by default     |
+| `IsHighThresholdEnabled`   | Enable/disable the high threshold check      |
+| `HighThreshold`   | The value that the acceleration's magnitude must overcome for the check to pass (movement recognised)    |
+| `AccelerometerFrequency`   | Polling frequency for the accelerometer. Higher values mean higher battery consumption, lower values mean less accuracy    |
+| `MovingAverageWindowSize`   | The windows size for the moving average i.e. how many sensor readings (from now to t-size) to consider for calculating the average. Higher values mean slower adapting moving average. Lower values mean more reactive moving average  |
+| `AccelerometerUpdateInterval`   | Numerator of the Low Pass filter factor. Represents the update interval of the accelerometer in seconds. Higher values mean less frequent updates. Lower values mean more frequent updates    |
+| `LowPassKernelWidthInSeconds`   | Denominator of the Low Pass filter factor. Represents the amount of smooting applied to the data. Higher values mean more smoothing at the cost of higher delay. Lower values mean  (and vice versa). Lower values mean less smoothing and therefore values closer to the raw data   |
+
+#### Callbacks for Sensor>UI syncronisation
+| Callback name | 
+| ------------- | 
+| `OnStateMachineStepDetected`      |
+| `OnDelayForStillChanged`   |
+| `OnHighThresholdChanged`   | 
+| `OnMaxDistanceBetweenAveragesChanged`   | 
+| `OnMaxWaveAmplitudeChanged`   |
+| `OnNumberOfPeaksForAStepChanged`   | 
+| `OnAccelerometerFrequencyChanged`   | 
+| `OnMovingAverageWindowSizeChanged`   | 
+| `OnAccelerometerUpdateIntervalChanged`   | 
+| `OnLowPassKernelWidthInSecondsChanged`   | 
+
+#### Setup (mandatory)
+```
+	public void SetupAndStartSensors(float stillDelayS, Action OnStillCallback, Action OnMovingCallback, SensorsReaderOptions? sensorsReaderOptions)
+```
+#### Example Initialisation
+```
+        SensorsReaderOptions sensorsReaderOptions = new SensorsReaderOptions
+        {
+            IsStepRecognitionMachineEnabled = false,
+            MaxWaveAmplitude = 0.007f,
+            IsWaveAmplitudeCheckActive = false,
+            NumberOfPeaksForAStep = 1,
+
+            IsMaxDistanceBetweenAveragesEnabled = true,
+            MaxDistanceBetweenAverages = 0.015f,
+
+            IsHighThresholdEnabled = true,
+            HighThreshold = 0.05f,
+
+            AccelerometerFrequency = 60,
+            MovingAverageWindowSize = 20,
+            AccelerometerUpdateInterval = 0.10f,
+            LowPassKernelWidthInSeconds = 0.80f
+        };
+        sensorReader.OnStateMachineStepDetected += (localMin, localMax) => { OnStateMachineStepDetected(localMin, localMax); };
+        sensorReader.OnDelayForStillChanged += (newValue) => { OnDelayForStillChangedFromSensor.Invoke(newValue); };
+        sensorReader.OnHighThresholdChanged += (newThreshold) => { OnHighThresholdChangedFromSensor.Invoke(newThreshold); };
+        sensorReader.OnMaxDistanceBetweenAveragesChanged += (newThreshold) => { OnMaxDistanceBetweenAveragesChangedFromSensor.Invoke(newThreshold); };
+        sensorReader.OnMaxWaveAmplitudeChanged += (newValue) => { OnMaxWaveAmplitudeChangedFromSensor.Invoke(newValue); };
+        sensorReader.OnNumberOfPeaksForAStepChanged += (newValue) => { OnNumberOfPeaksForAStepChangedFromSensor.Invoke(newValue); };
+        sensorReader.OnAccelerometerFrequencyChanged += (newValue) => { OnAccelerometerFrequencyChangedFromSensor.Invoke(newValue); };
+        sensorReader.OnMovingAverageWindowSizeChanged += (newValue) => { OnMovingAverageWindowSizeChangedFromSensor.Invoke(newValue); };
+        sensorReader.OnAccelerometerUpdateIntervalChanged += (newValue) => { OnAccelerometerUpdateIntervalChangedFromSensor.Invoke(newValue); };
+        sensorReader.OnLowPassKernelWidthInSecondsChanged += (newValue) => { OnLowPassKernelWidthInSecondsChangedFromSensor.Invoke(newValue); };
+
+        sensorReader.SetupAndStartSensors(0.1f, OnStillCallback, OnMovingCallback, sensorsReaderOptions);
+```
