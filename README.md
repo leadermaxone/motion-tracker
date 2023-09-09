@@ -1,6 +1,3 @@
-# motion-tracker
-
-Readme 
 # Motion Tracker
 ###### *An accelerometer-based motion tracking library to detect when the user is standing still or moving*
 ### Features
@@ -11,17 +8,16 @@ Readme
 * 3 different approaches to motion detection
 	* __threshold-based__: if movement is stronger than the maximum magnitude detected during data analysis.
 	* __average-based__: if current moving average is higher than the average detected when standing still during data analysis.
-	* __step detection state machine__: experimental approach to detect a step when a certain configurable pattern of the motion wave goes up and down, crossing the moving average two times.
+	* __step detection state machine__: experimental approach to detect a step when the motion wave goes up and down, crossing the moving average two times.
 * Every motion detection mode is independent and can be turned on/off.
 * Every threshold and parameter can either be automatically acquired by following the training/data collection step or manually configured.
-
+-------------
 ### Motion Detection 
-###### The different approaches are here described in more detail.
 #### Data Collection (Training)
 When in training state (and not in motion detection state)  the accelerometer readings are collected and analysed, building the algorithm's knowledge about the following:
 * __Still average__: the average magnitude of accelerometer when the device is supposed to stay as still as possible, on a flat surface or in hand.
 * __High threshold__: the maximum magnitude value registered.
-* __Max distance between averages__: considering the _still average_, a maximum increment of 75%(default value) above it is considered as an additional threshold. See [Distance Between Averages] (#distance-between-averages)
+* __Max distance between averages__: a maximum increment of 75%(default value) above the _still average_.
 
 After data collection is stopped, and data analysis is activated, these thresholds and values will be automatically acquired by the algorithm.
 
@@ -47,41 +43,47 @@ Based on the current accelerometer's magnitude reading, the state can either be
 * Going Up
 * Going Down
 * Check Step
-The only possible state sequence is Going Up > Going Down > Check Step > Going Up >...
+
+The only possible state sequence is Going Up > Going Down > Check Step > Going Up > etc.
+
 During the Up and Down states, it is also checked if the wave crossed the current moving average.
 During Check Step, if the wave went Up and Down by crossing the moving average two times, the machine counts this event.
-Based on how many Up/Down events the are considered to be a step (typally one or two), it is then possible to run custom logic upon step detection.
+Based on how many Up/Down events are considered to be a step (typally one or two), it is then possible to run custom logic upon step detection.
 
-##### Wave Amplitude check
+#### Wave Amplitude check
 As an additional configuration of the step-recognition machine, it is possible to enable an amplitude threshold that the wave must overcome when crossing the moving average in either direction. This ensures that the crossing is not involuntary due to shaking or sensor noise, and a certain vertical distance between the peak/through and the moving average is achieved.
 
+-------------
 ### UI separation 
 Complementing the algorithm, this project shows off a fully functional UI developed ad-hoc to visualise and modify all the important thresholds and values at runtime, while providing an example usage of the algorithm.
+
 Full detachment between code and UI has been achieved, the __sensorReader.cs__ script must be attached as a component to a GameObject in the scene and referenced by the __SceneManager__. 
 
 It is possible to have full control of the sensors and their readings and subscribe custom callbacks to _OnStill_, _OnMoving_,_OnStateMachineStepDetected_ events and many others, to get notified of each and every threshold value change.
 
 An ad-hoc _CustomValueSetter_ script and prefab have been developed to easily visualise and change threshold values, and also in this case a _subcription-based approach_ is followed to connect the UI to the code, via __Unity Events__ exposed in the Editor.
 
-As a result, the UI can be used to control the threshold values and in turn it can also display the values updated by the sensor, thanks to this this __two-way event system custom approach__.
+As a result of this __two-way event system custom approach__, the UI can be used to control the threshold values and in turn it can also display the values updated by the sensor.
 
 ### Future evolutions
 
-##### Runtime autonomous threshold adjustment
+#### Runtime autonomous threshold adjustment
 While out of scope for this project, it is absolutely possible to integrate a continuous analysis of the accelerometer values and manipulate the thresholds to account for patterns and special movements.
-##### GPS sensor data
-To detect users moving with transport means like cars and bicycles, or simply as an addition check while on foot, a gps sensor reader could be implemented to confirm the user is moving or not.
+#### GPS sensor data
+To detect users moving with transport means like cars and bicycles, or simply as an addition check while on foot, a gps sensor reader could be implemented to confirm if the user is moving or not.
 
-It is suggested to carefully use the gps sensor, as it is known to be battery-draining.
+_It is suggested to carefully use the gps sensor, as it is known to be battery-draining._
 
 Additionally, a custom _Kalmann_ filter is usually paired with the sensor readings to filter any possible noise and error in positioning.
 
 Once the data is available and trustworthy, a good starting point would be to check the position at the beginning of still detection and at the end of the delay required for the algorithm to declare stillness. 
 If the position has not changed during this time, we can confirm with just two readings that the accelerometer was correct.
 
-##### Step Machine
+#### Step Machine
 The step machine is an experimental approach to step detection, and definitely needs addition data collection and analysis to further implement pattern recognition.
+
 Nonetheless, it provides a good starting point that can be easily upgraded to suit specific needs.
+
 A first improvement would be to account for asymmetric patterns. In fact, it has been observed in case of soft steps, that the common occurrence would be 2 Up/Downs paired with at least the first Up overcoming the amplitude check, but not necessarily so for the others. 
 This could lead to expanding the step check for different occurrences of Up/Downs, where not all of them have necessarily satisfied the amplitude check of the moving average crossing.
 
